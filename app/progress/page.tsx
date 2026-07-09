@@ -212,6 +212,7 @@ export default function ProgressPage() {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
   attempts.forEach((att) => {
     const attDate = new Date(att.created_at);
     if (attDate >= sevenDaysAgo) {

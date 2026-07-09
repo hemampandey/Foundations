@@ -226,7 +226,6 @@ export default function ManageTheories({
               required
               value={theoryTitle}
               onChange={(e) => setTheoryTitle(e.target.value)}
-              placeholder="e.g. CBT: Cognitive Restructuring"
               className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
             />
           </div>
@@ -242,7 +241,6 @@ export default function ManageTheories({
                 required
                 value={theoryDomain}
                 onChange={(e) => setTheoryDomain(e.target.value)}
-                placeholder="e.g. CBT"
                 className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
               />
             </div>
@@ -264,7 +262,7 @@ export default function ManageTheories({
 
           <div>
             <label htmlFor="theory-body" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-              Theory Body Text (Material)
+              Theory Text/Notes
             </label>
             <textarea
               id="theory-body"
@@ -272,7 +270,6 @@ export default function ManageTheories({
               rows={6}
               value={theoryBody}
               onChange={(e) => setTheoryBody(e.target.value)}
-              placeholder="Paste the core concepts, notes, or readings here..."
               className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm font-sans resize-y"
             />
           </div>
@@ -322,14 +319,13 @@ export default function ManageTheories({
               </div>
               <div>
                 <label htmlFor="custom-instructions" className="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
-                  Prompt Instructions
+                  Instructions
                 </label>
                 <input
                   id="custom-instructions"
                   type="text"
                   value={customInstructions}
                   onChange={(e) => setCustomInstructions(e.target.value)}
-                  placeholder="e.g. focus on symptoms, Bloom evaluation level"
                   className="w-full px-3 py-2 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-xs"
                 />
               </div>

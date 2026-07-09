@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Save, Layers } from 'lucide-react';
+import { Save, Layers, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { QuestionWithTheory, BloomLevel } from '@/lib/types';
 
@@ -18,6 +18,16 @@ export default function ReviewQueue({
   loadDbData,
   setActiveTab,
 }: ReviewQueueProps) {
+  const [expandedExplanations, setExpandedExplanations] = useState<Record<string, boolean>>({});
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+
+  const toggleExplanation = (id: string) => {
+    setExpandedExplanations((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
   // Inline editing state
   const [inlineEditingId, setInlineEditingId] = useState<string | null>(null);
   const [inlineStem, setInlineStem] = useState('');
@@ -74,7 +84,6 @@ export default function ReviewQueue({
   };
 
   const handleRejectQuestion = async (id: string) => {
-    if (!confirm('Are you sure you want to delete/reject this question draft?')) return;
     try {
       const { error } = await supabase
         .from('questions')
@@ -82,6 +91,7 @@ export default function ReviewQueue({
         .eq('id', id);
 
       if (error) throw error;
+      setRejectingId(null);
       await loadDbData();
     } catch (err: unknown) {
       console.error('[Foundations] Error deleting question:', err);
@@ -272,13 +282,25 @@ export default function ReviewQueue({
                       })}
                     </ul>
 
-                    <div className="p-3 bg-secondary/50 border border-border/40 rounded-xl space-y-1 text-xs">
-                      <span className="font-bold text-[10px] uppercase text-muted-foreground tracking-wider block">
-                        Explanation:
-                      </span>
-                      <p className="text-muted-foreground leading-relaxed">
-                        {q.explanation}
-                      </p>
+                    <div className="border border-border/40 rounded-xl overflow-hidden bg-secondary/35 text-xs">
+                      <button
+                        type="button"
+                        onClick={() => toggleExplanation(q.id)}
+                        className="w-full flex items-center justify-between p-3 font-bold text-[10px] uppercase text-muted-foreground tracking-wider hover:bg-secondary/60 transition-all cursor-pointer"
+                      >
+                        <span>Explanation</span>
+                        {expandedExplanations[q.id] ? (
+                          <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                        )}
+                      </button>
+
+                      {expandedExplanations[q.id] && (
+                        <div className="p-3 pt-0 border-t border-border/20 text-muted-foreground leading-relaxed animate-fade-in">
+                          {q.explanation}
+                        </div>
+                      )}
                     </div>
 
                     {q.source_excerpt && (
@@ -288,26 +310,48 @@ export default function ReviewQueue({
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 border-t border-border/40 pt-4 mt-auto">
-                    <button
-                      onClick={() => handleApproveQuestion(q.id)}
-                      className="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 shadow-sm transition-all cursor-pointer text-center"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => handleStartInlineEdit(q)}
-                      className="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-secondary-foreground border border-border bg-card hover:bg-secondary transition-all cursor-pointer text-center"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleRejectQuestion(q.id)}
-                      className="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-white bg-destructive hover:opacity-95 transition-all cursor-pointer text-center"
-                    >
-                      Reject
-                    </button>
-                  </div>
+                  {rejectingId === q.id ? (
+                    <div className="flex items-center justify-between gap-3 border-t border-border/40 pt-4 mt-auto animate-fade-in bg-destructive/5 p-2.5 rounded-xl border border-destructive/10">
+                      <span className="text-[10px] font-bold text-destructive">Confirm deletion?</span>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setRejectingId(null)}
+                          className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80 transition-all cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRejectQuestion(q.id)}
+                          className="px-3 py-1.5 rounded-lg text-[10px] font-bold text-white bg-destructive hover:opacity-90 transition-all cursor-pointer"
+                        >
+                          Confirm
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 border-t border-border/40 pt-4 mt-auto">
+                      <button
+                        onClick={() => handleApproveQuestion(q.id)}
+                        className="flex-1 py-2 px-3 rounded-4xl text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 shadow-sm transition-all cursor-pointer text-center"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleStartInlineEdit(q)}
+                        className="flex-1 py-2 px-3 rounded-4xl text-xs font-bold text-secondary-foreground border border-border bg-card hover:bg-secondary transition-all cursor-pointer text-center"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => setRejectingId(q.id)}
+                        className="flex-1 py-2 px-3 rounded-4xl text-xs font-bold text-white bg-destructive hover:opacity-95 transition-all cursor-pointer text-center"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  )}
                 </>
               )}
             </div>
