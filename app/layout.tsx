@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Sidebar from '@/app/components/Sidebar';
-import ErrorBoundary from '@/app/components/ErrorBoundary';
+import MainContentWrapper from '@/app/components/MainContentWrapper';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -42,6 +42,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: `
@@ -60,9 +61,7 @@ export default function RootLayout({
             <Suspense fallback={<div className="w-16 bg-card border-r border-border shrink-0" />}>
               <Sidebar />
             </Suspense>
-            <main className="main-scroll-area">
-              <ErrorBoundary>{children}</ErrorBoundary>
-            </main>
+            <MainContentWrapper>{children}</MainContentWrapper>
           </div>
         </div>
       </body>

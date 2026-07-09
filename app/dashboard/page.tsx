@@ -6,7 +6,7 @@ import { supabase, getCurrentProfile } from '@/lib/supabase';
 import { xpToLevel } from '@/lib/utils';
 import type { Theory, Profile, AttemptWithQuestion, UserProgress, Journey } from '@/lib/types';
 import {
-  Award, BookOpen,
+  BookOpen,
 } from 'lucide-react';
 
 function CardSkeleton() {
@@ -189,30 +189,18 @@ export default function DashboardPage() {
     };
   })();
 
-  // Auth loading
-  if (authLoading) {
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!authLoading && !profile) {
+      router.push('/auth');
+    }
+  }, [authLoading, profile, router]);
+
+  // Auth loading or redirecting
+  if (authLoading || !profile) {
     return (
       <div className="flex flex-1 items-center justify-center min-h-[50vh]">
         <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  // Not logged in
-  if (!profile) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center max-w-md mx-auto animate-fade-in">
-        <Award className="w-12 h-12 text-primary mb-4 animate-pulse-glow" />
-        <h3 className="text-xl font-bold font-display">Welcome to Foundations</h3>
-        <p className="text-muted-foreground mt-2">
-          Sign in to begin learning and practice spaced-repetition MCQ sessions.
-        </p>
-        <button
-          onClick={() => router.push('/auth')}
-          className="mt-5 px-5 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-all cursor-pointer shadow-md shadow-primary/10"
-        >
-          Get Started
-        </button>
       </div>
     );
   }
