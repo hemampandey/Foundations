@@ -228,7 +228,8 @@ function PracticeContent() {
               title
             )
           )
-        `);
+        `)
+        .eq('user_id', user.id);
 
       if (data) {
         const theoryStats: Record<string, { title: string; total: number; correct: number }> = {};

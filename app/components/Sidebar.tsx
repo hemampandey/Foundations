@@ -166,6 +166,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
             )
           )
         `)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (!error && data) {
@@ -250,13 +251,15 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
 
       try {
         const query = searchQuery.trim();
+        // Escape SQL LIKE wildcards to prevent unintended pattern matching
+        const escaped = query.replace(/%/g, '\\%').replace(/_/g, '\\_');
 
         // Query Supabase for matching published theories
         const { data: theoriesData } = await supabase
           .from('theories')
           .select('id, title, domain')
           .eq('status', 'published')
-          .ilike('title', `%${query}%`)
+          .ilike('title', `%${escaped}%`)
           .limit(5);
 
         // Query Supabase for matching published journeys
@@ -264,7 +267,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
           .from('journeys')
           .select('id, title')
           .eq('published', true)
-          .ilike('title', `%${query}%`)
+          .ilike('title', `%${escaped}%`)
           .limit(5);
 
         setSearchResults({
@@ -417,7 +420,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
             </div>
           </div>
 
-          {/* New Practice Button (like + New chat in Claude) */}
+          {/* Practice Button */}
           <div className="px-1 shrink-0">
             <Link
               href="/dashboard"
@@ -781,7 +784,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
             <div className="max-h-[350px] overflow-y-auto p-4 space-y-4">
               {!searchQuery.trim() ? (
                 <div className="text-center py-8 text-muted-foreground text-xs">
-                  Type to search theories and custom journeys...
+                  Search theories and journeys
                 </div>
               ) : searchResults.theories.length === 0 && searchResults.journeys.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground text-xs">

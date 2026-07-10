@@ -18,6 +18,10 @@ export const metadata: Metadata = {
   title: 'Foundations | Counselling Theory Mastery Trainer',
   description:
     'Build durable conceptual mastery of counselling theories through adaptive, spaced-repetition journeys.',
+  robots: {
+    index: false,
+    follow: false,
+  },
   openGraph: {
     title: 'Foundations',
     description: 'Theory-mastery trainer for mental health professionals.',

@@ -17,6 +17,7 @@ export default function AuthPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [checkingSession, setCheckingSession] = useState(true);
 
   const handleGoogleLogin = async () => {
     try {
@@ -38,10 +39,20 @@ export default function AuthPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         router.push('/dashboard');
+      } else {
+        setCheckingSession(false);
       }
     };
     checkUser();
   }, [router]);
+
+  if (checkingSession) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
