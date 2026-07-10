@@ -363,7 +363,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
       {/* Mobile Backdrop */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-neutral-900/40 dark:bg-black/60 backdrop-blur-xs z-40 md:hidden animate-fade-in"
+          className="fixed inset-0 bg-neutral-900/40 dark:bg-black/60 z-40 md:hidden animate-fade-in"
           onClick={onClose}
         />
       )}
@@ -757,7 +757,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
       {/* Spotlight Command Search Modal */}
       {showSearchModal && (
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center pt-24 bg-background/80 backdrop-blur-sm animate-fade-in"
+          className="fixed inset-0 z-50 flex items-start justify-center pt-24 bg-background/80 animate-fade-in"
           onClick={() => setShowSearchModal(false)}
         >
           <div
