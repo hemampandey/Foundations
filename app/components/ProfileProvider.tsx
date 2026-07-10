@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase, getCurrentProfile } from '@/lib/supabase';
 import type { Profile } from '@/lib/types';
 
@@ -27,16 +27,27 @@ export default function ProfileProvider({ children }: { children: React.ReactNod
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
+  const profileRef = useRef<Profile | null>(null);
+  useEffect(() => {
+    profileRef.current = profile;
+  }, [profile]);
+
   const refreshProfile = useCallback(async (showLoading = false) => {
     if (showLoading) {
       setLoading(true);
     }
     try {
       const p = await getCurrentProfile();
-      setProfile(p);
+      setProfile((prev) => {
+        if (prev && p && prev.id === p.id && prev.role === p.role) {
+          return prev;
+        }
+        return p;
+      });
+
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        setUserEmail(user.email ?? null);
+        setUserEmail((prev) => prev === user.email ? prev : (user.email ?? null));
       } else {
         setUserEmail(null);
       }
@@ -55,10 +66,13 @@ export default function ProfileProvider({ children }: { children: React.ReactNod
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      // Only fetch the profile if we don't have one loaded yet to prevent window-focus/auto-refreshes from re-rendering the app.
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        Promise.resolve().then(() => {
-          refreshProfile();
-        });
+        if (!profileRef.current) {
+          Promise.resolve().then(() => {
+            refreshProfile();
+          });
+        }
       } else if (event === 'SIGNED_OUT') {
         Promise.resolve().then(() => {
           setProfile(null);
