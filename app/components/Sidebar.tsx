@@ -117,6 +117,14 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
     });
   }, []);
 
+  const [prevMobileOpen, setPrevMobileOpen] = useState(mobileOpen);
+  if (mobileOpen !== prevMobileOpen) {
+    setPrevMobileOpen(mobileOpen);
+    if (mobileOpen) {
+      setCollapsed(false);
+    }
+  }
+
   const toggleTheme = () => {
     const nextTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(nextTheme);
@@ -390,12 +398,21 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                   <Search className="w-4 h-4" />
                 </button>
               )}
+              {/* Desktop Collapse Trigger */}
               <button
                 onClick={() => setCollapsed(!collapsed)}
-                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary/80 rounded-xl cursor-pointer transition-all"
+                className="hidden md:inline-flex p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary/80 rounded-xl cursor-pointer transition-all"
                 aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               >
                 {collapsed ? <PanelLeft className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+              </button>
+              {/* Mobile Drawer Close Trigger */}
+              <button
+                onClick={onClose}
+                className="md:hidden inline-flex p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary/80 rounded-xl cursor-pointer transition-all"
+                aria-label="Close sidebar"
+              >
+                <PanelLeftClose className="w-4 h-4" />
               </button>
             </div>
           </div>
