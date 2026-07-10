@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter as useNextRouter, useSearchParams as useNextSearchParams } from 'next/navigation';
-import { supabase, getCurrentProfile } from '@/lib/supabase';
-import type { Theory, Profile, QuestionWithTheory, Journey } from '@/lib/types';
+import { supabase } from '@/lib/supabase';
+import { useProfile } from '@/app/components/ProfileProvider';
+import type { Theory, QuestionWithTheory, Journey } from '@/lib/types';
 import {
   BookOpen, HelpCircle, Layers, Compass, ShieldAlert,
 } from 'lucide-react';
@@ -31,8 +32,7 @@ function AdminPageContent() {
   const searchParams = useNextSearchParams();
   const tabParam = searchParams.get('tab');
 
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  const { profile, loading: authLoading } = useProfile();
 
   // DB lists
   const [theories, setTheories] = useState<Theory[]>([]);
@@ -85,53 +85,13 @@ function AdminPageContent() {
     }
   }, []);
 
-  const isFirstLoad = useRef(true);
-  const fetchProfileAndData = useCallback(async () => {
-    if (isFirstLoad.current) {
-      setAuthLoading(true);
-    }
-
-    const p = await getCurrentProfile();
-    setProfile(p);
-
-    if (isFirstLoad.current) {
-      setAuthLoading(false);
-      isFirstLoad.current = false;
-    }
-
-    if (p?.role === 'admin') {
-      await loadDbData();
-    }
-  }, [loadDbData]);
-
   useEffect(() => {
-    (async () => {
-      if (isFirstLoad.current) {
-        setAuthLoading(true);
-      }
-      const p = await getCurrentProfile();
-      setProfile(p);
-      if (isFirstLoad.current) {
-        setAuthLoading(false);
-        isFirstLoad.current = false;
-      }
-
-      if (p?.role === 'admin') {
-        await loadDbData();
-      }
-    })();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        fetchProfileAndData();
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (profile?.role === 'admin') {
+      Promise.resolve().then(() => {
+        loadDbData();
+      });
+    }
+  }, [profile, loadDbData]);
 
   // ─── Guards ───
 

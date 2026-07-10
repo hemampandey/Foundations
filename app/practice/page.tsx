@@ -583,7 +583,7 @@ function PracticeContent() {
 
           {/* Explanation (shown after submit) */}
           {isSubmitted && (
-            <div className="pt-4 border-t border-border/50 space-y-4 animate-fade-in">
+            <div className="pt-4 border-t border-border/50 space-y-4 animate-fade-in" aria-live="polite">
               <div className="p-4 rounded-xl bg-secondary/50 border border-border/50 space-y-2">
                 <div className="flex items-center gap-2 text-xs font-bold text-foreground">
                   <Lightbulb className="w-4 h-4 text-amber-500 shrink-0" />

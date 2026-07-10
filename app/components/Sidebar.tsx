@@ -3,8 +3,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { supabase, getCurrentProfile, devUpdateUserRole } from '@/lib/supabase';
-import { isDevMode } from '@/lib/utils';
+import { supabase, devUpdateUserRole } from '@/lib/supabase';
+import { useProfile } from '@/app/components/ProfileProvider';
+import { isDevMode, formatDate } from '@/lib/utils';
 import type { Profile } from '@/lib/types';
 import {
   BookOpen, BarChart3, User, LogOut,
@@ -61,24 +62,6 @@ function CircularProgress({ percentage }: { percentage: number }) {
   );
 }
 
-function formatTimeAgo(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-
-  const d1 = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const d2 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-  const diffTime = d2.getTime() - d1.getTime();
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) {
-    return 'Today';
-  } else if (diffDays === 1) {
-    return 'Yesterday';
-  } else {
-    return `${diffDays} days ago`;
-  }
-}
 
 interface SidebarProps {
   mobileOpen?: boolean;
@@ -89,15 +72,21 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { profile: contextProfile, loading: profileLoading, userEmail, refreshProfile } = useProfile();
+  const [profile, setProfile] = useState<Profile | null>(contextProfile);
   const [collapsed, setCollapsed] = useState(false);
   const [theoryPractices, setTheoryPractices] = useState<SidebarTheoryPractice[]>([]);
   const [attemptsExpanded, setAttemptsExpanded] = useState(true);
   const [adminExpanded, setAdminExpanded] = useState(pathname.startsWith('/admin'));
   const [draftCount, setDraftCount] = useState(0);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  // Sync local profile with context profile
+  const [prevContextProfile, setPrevContextProfile] = useState(contextProfile);
+  if (contextProfile !== prevContextProfile) {
+    setPrevContextProfile(contextProfile);
+    setProfile(contextProfile);
+  }
 
   // Search Palette state
   const [showSearchModal, setShowSearchModal] = useState(false);
@@ -136,17 +125,6 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
       localStorage.setItem('theme', 'light');
     }
   };
-
-  const fetchProfile = useCallback(async () => {
-    setLoading(true);
-    const p = await getCurrentProfile();
-    setProfile(p);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      setUserEmail(user.email ?? null);
-    }
-    setLoading(false);
-  }, []);
 
   const fetchAttempts = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -297,45 +275,31 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Load sidebar-specific data (attempts & draft count) on mount and auth changes
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const p = await getCurrentProfile();
-      setProfile(p);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserEmail(user.email ?? null);
-      }
-      setLoading(false);
-      await fetchAttempts();
-      await fetchDraftCount();
-    })();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        fetchProfile();
+    if (!profileLoading && contextProfile) {
+      Promise.resolve().then(() => {
         fetchAttempts();
         fetchDraftCount();
-      } else if (event === 'SIGNED_OUT') {
-        setProfile(null);
-        setTheoryPractices([]);
-        setLoading(false);
-        router.push('/auth');
-      }
-    });
+      });
+    }
+  }, [profileLoading, contextProfile, fetchAttempts, fetchDraftCount]);
 
-    return () => {
-      subscription.unsubscribe();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
+  // Handle sign-out navigation
+  useEffect(() => {
+    if (!profileLoading && !contextProfile) {
+      Promise.resolve().then(() => {
+        setTheoryPractices([]);
+      });
+    }
+  }, [profileLoading, contextProfile]);
 
   const handleRoleToggle = async () => {
     if (!profile) return;
     const newRole = profile.role === 'admin' ? 'learner' : 'admin';
     try {
       await devUpdateUserRole(newRole);
-      setProfile({ ...profile, role: newRole });
+      await refreshProfile();
       router.refresh();
       if (newRole === 'admin') {
         router.push('/admin');
@@ -461,7 +425,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
             </Link>
 
             {/* Admin Panel collapsible sub-menu */}
-            {!loading && profile?.role === 'admin' && (() => {
+            {!profileLoading && profile?.role === 'admin' && (() => {
               const activeTab = searchParams.get('tab') || 'theories';
               return (
                 <div className="space-y-0.5">
@@ -568,7 +532,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                             {practice.theoryTitle}
                           </p>
                           <p className="text-[9px] text-muted-foreground mt-0.5">
-                            {formatTimeAgo(practice.lastActive)} • <span className="font-semibold text-primary/90">+{practice.xpEarned} XP</span>
+                            {formatDate(practice.lastActive)} • <span className="font-semibold text-primary/90">+{practice.xpEarned} XP</span>
                           </p>
                         </div>
                         <CircularProgress percentage={practice.accuracy} />
@@ -735,7 +699,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
               )}
             </div>
           ) : (
-            !loading && (
+            !profileLoading && (
               <Link
                 href="/auth"
                 className="flex w-full items-center justify-center gap-2 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-all shadow-sm"

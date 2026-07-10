@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
+import ProfileProvider from '@/app/components/ProfileProvider';
 import ResponsiveLayout from '@/app/components/ResponsiveLayout';
 import MainContentWrapper from '@/app/components/MainContentWrapper';
 
@@ -60,9 +61,11 @@ export default function RootLayout({
       </head>
       <body className="min-h-full text-foreground bg-background font-sans">
         <div className="app-viewport-frame">
-          <ResponsiveLayout>
-            <MainContentWrapper>{children}</MainContentWrapper>
-          </ResponsiveLayout>
+          <ProfileProvider>
+            <ResponsiveLayout>
+              <MainContentWrapper>{children}</MainContentWrapper>
+            </ResponsiveLayout>
+          </ProfileProvider>
         </div>
       </body>
     </html>

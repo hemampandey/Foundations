@@ -2,37 +2,31 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase, getCurrentProfile } from '@/lib/supabase';
-import { xpToLevel } from '@/lib/utils';
-import type { Profile, AttemptWithQuestion, UserProgress } from '@/lib/types';
+import { supabase } from '@/lib/supabase';
+import { useProfile } from '@/app/components/ProfileProvider';
+import StatsHeader from '@/app/components/StatsHeader';
+import type { AttemptWithQuestion, UserProgress } from '@/lib/types';
 import {
   BookOpen, Target,
 } from 'lucide-react';
 
 export default function ProgressPage() {
   const router = useRouter();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { profile, loading: authLoading } = useProfile();
+  const [loadingData, setLoadingData] = useState(true);
   const [progress, setProgress] = useState<UserProgress | null>(null);
   const [attempts, setAttempts] = useState<AttemptWithQuestion[]>([]);
 
   const fetchProgressAndAttempts = useCallback(async () => {
+    if (!profile) return;
+
+    setLoadingData(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/auth');
-        return;
-      }
-
-      // Fetch profile
-      const p = await getCurrentProfile();
-      setProfile(p);
-
       // Fetch progress
       const { data: progData } = await supabase
         .from('user_progress')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', profile.id)
         .maybeSingle();
 
       setProgress(progData ?? null);
@@ -56,7 +50,7 @@ export default function ProgressPage() {
             )
           )
         `)
-        .eq('user_id', user.id)
+        .eq('user_id', profile.id)
         .order('created_at', { ascending: false })
         .limit(200);
 
@@ -100,31 +94,25 @@ export default function ProgressPage() {
     } catch (err) {
       console.error('[Foundations] Failed to fetch progress page data:', err);
     } finally {
-      setLoading(false);
+      setLoadingData(false);
     }
-  }, [router]);
+  }, [profile]);
 
   useEffect(() => {
-    Promise.resolve().then(() => {
-      fetchProgressAndAttempts();
-    });
+    if (profile) {
+      Promise.resolve().then(() => {
+        fetchProgressAndAttempts();
+      });
+    }
+  }, [profile, fetchProgressAndAttempts]);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN') {
-        Promise.resolve().then(() => {
-          fetchProgressAndAttempts();
-        });
-      } else if (event === 'SIGNED_OUT') {
-        router.push('/auth');
-      }
-    });
+  useEffect(() => {
+    if (!authLoading && !profile) {
+      router.push('/auth');
+    }
+  }, [authLoading, profile, router]);
 
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [fetchProgressAndAttempts, router]);
-
-  if (loading) {
+  if (authLoading || loadingData) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
@@ -139,7 +127,6 @@ export default function ProgressPage() {
 
   const xp = progress?.xp ?? 0;
   const streak = progress?.streak_days ?? 0;
-  const levelInfo = xpToLevel(xp);
 
   // Group attempts by theory
   const theoryMasteryMap: Record<string, { title: string; total: number; correct: number }> = {};
@@ -317,86 +304,15 @@ export default function ProgressPage() {
   const speedPath = speedPoints.length > 0 ? 'M ' + speedPoints.map(p => `${p.x} ${p.y}`).join(' L ') : '';
   const speedAreaPath = speedPoints.length > 0 ? `${speedPath} L ${speedPoints[speedPoints.length - 1].x} ${paddingTop + chartH} L ${speedPoints[0].x} ${paddingTop + chartH} Z` : '';
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
-  };
-  const greetingText = `${getGreeting()}, ${profile?.role === 'admin' ? 'Admin' : 'Learner'}! 👋`;
-
   return (
     <div className="w-full max-w-6xl mx-auto space-y-5 animate-fade-in">
-      {/* ─── Header ─── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-border pb-6 gap-6">
-        <div>
-          <h1 className="text-lg sm:text-xl font-bold font-display text-foreground tracking-tight flex items-center gap-2">
-            {greetingText}
-          </h1>
-          <p className="text-xs sm:text-xs text-muted-foreground mt-1">
-            Track your accomplishments and domain mastery statistics.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-6 shrink-0">
-          {/* Streak */}
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 text-base sm:text-lg font-bold text-foreground">
-              <span>🔥</span>
-              <span>{streak}</span>
-            </div>
-            <p className="text-[9px] text-muted-foreground/80 font-bold uppercase tracking-wider mt-0.5">
-              Day Streak
-            </p>
-          </div>
-
-          <div className="border-l border-border h-8 shrink-0" />
-
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 text-base sm:text-lg font-bold text-foreground">
-              <span>🎯</span>
-              <span className={accuracy >= 60 ? "text-emerald-500" : "text-rose-500"}>{accuracy ?? 0}%</span>
-            </div>
-            <p className="text-[9px] text-muted-foreground/80 font-bold uppercase tracking-wider mt-0.5">Accuracy</p>
-          </div>
-
-          <div className="border-l border-border h-8 shrink-0" />
-
-          {/* Level Progress */}
-          <div className="flex items-center gap-3">
-            <div className="text-left">
-              <div className="flex items-center justify-between gap-4 text-xs font-semibold text-foreground">
-                <span>Level {levelInfo.level}</span>
-                <span className="text-[10px] text-muted-foreground/85 font-mono">
-                  {levelInfo.currentXp} / {levelInfo.requiredXp} XP
-                </span>
-              </div>
-              <div className="w-40 sm:w-44 h-2 bg-secondary rounded-full overflow-hidden border border-border mt-1.5">
-                <div
-                  className="h-full bg-gradient-to-r from-[#9b51e0] to-[#7f00ff] transition-all duration-500 ease-out"
-                  style={{ width: `${Math.min(100, (levelInfo.currentXp / levelInfo.requiredXp) * 100)}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Star badge overlay */}
-            <div className="relative flex items-center justify-center shrink-0 w-10 h-10 select-none">
-              <svg className="w-10 h-10 drop-shadow-[0_2px_8px_rgba(155,81,224,0.3)] animate-pulse" viewBox="0 0 100 100">
-                <polygon points="50,0 93,25 93,75 50,100 7,75 7,25" fill="#7f00ff" />
-                <polygon points="50,6 87,28 87,72 50,94 13,72 13,28" fill="#9b51e0" />
-                <polygon points="50,12 81,30 81,70 50,88 19,70 19,30" fill="url(#purpleGrad)" />
-                <path d="M50,28 L54,39 L66,39 L56,47 L60,58 L50,51 L40,58 L44,47 L34,39 L46,39 Z" fill="#ffffff" />
-                <defs>
-                  <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#b800ff" />
-                    <stop offset="100%" stopColor="#7f00ff" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
+      <StatsHeader
+        role={profile?.role}
+        streak={streak}
+        accuracy={accuracy}
+        xp={xp}
+        description="Track your accomplishments and domain mastery statistics."
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
