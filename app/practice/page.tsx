@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { useProfile } from '@/app/components/ProfileProvider';
 import type { Theory, Question } from '@/lib/types';
 import ConfirmDialog from '@/app/components/ConfirmDialog';
 import { xpToLevel } from '@/lib/utils';
@@ -18,6 +19,7 @@ function PracticeContent() {
   const searchParams = useSearchParams();
   const theoryId = searchParams.get('theoryId');
   const journeyId = searchParams.get('journeyId');
+  const { profile, loading: authLoading } = useProfile();
 
   // Core data
   const [theory, setTheory] = useState<Theory | null>(null);
@@ -149,10 +151,9 @@ function PracticeContent() {
     }
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+      if (profile) {
         await supabase.from('attempts').insert({
-          user_id: user.id,
+          user_id: profile.id,
           question_id: currentQuestion.id,
           chosen_index: selectedIdx,
           is_correct: isCorrect,
@@ -165,7 +166,7 @@ function PracticeContent() {
         const { data: progressData } = await supabase
           .from('user_progress')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', profile.id)
           .maybeSingle();
 
         const currentXp = progressData?.xp ?? 0;
@@ -179,7 +180,7 @@ function PracticeContent() {
         }
 
         await supabase.rpc('increment_xp', {
-          p_user_id: user.id,
+          p_user_id: profile.id,
           p_xp_earned: xpEarned,
           p_last_active_at: new Date().toISOString(),
         });
@@ -189,7 +190,7 @@ function PracticeContent() {
     } catch (err: unknown) {
       console.error('[Foundations] Failed to log attempt:', err);
     }
-  }, [selectedIdx, isSubmitted, theory, questions, currentIdx]);
+  }, [selectedIdx, isSubmitted, theory, questions, currentIdx, profile]);
 
   // Keyboard navigation for MCQ options
   useEffect(() => {
@@ -212,12 +213,9 @@ function PracticeContent() {
 
   // Load review recommendation when session completes
   useEffect(() => {
-    if (!sessionFinished) return;
+    if (!sessionFinished || !profile) return;
 
     const loadRecommendation = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const { data } = await supabase
         .from('attempts')
         .select(`
@@ -229,7 +227,7 @@ function PracticeContent() {
             )
           )
         `)
-        .eq('user_id', user.id);
+        .eq('user_id', profile.id);
 
       if (data) {
         const theoryStats: Record<string, { title: string; total: number; correct: number }> = {};
@@ -266,7 +264,14 @@ function PracticeContent() {
     };
 
     loadRecommendation();
-  }, [sessionFinished]);
+  }, [sessionFinished, profile]);
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!authLoading && !profile) {
+      router.push('/auth');
+    }
+  }, [authLoading, profile, router]);
 
   const handleNext = () => {
     if (currentIdx + 1 < questions.length) {
