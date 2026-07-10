@@ -394,7 +394,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
               <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-secondary text-foreground text-xs font-bold">
                 +
               </span>
-              {!collapsed && <span>Start Practice</span>}
+              {!collapsed && <span>Daily Practice Deck</span>}
             </Link>
           </div>
 
