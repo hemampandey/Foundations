@@ -106,7 +106,7 @@ export default function Sidebar() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
-    const isDark = document.documentElement.classList.contains('dark') || localStorage.getItem('theme') === 'dark';
+    const isDark = localStorage.getItem('theme') === 'dark';
     Promise.resolve().then(() => {
       setTheme(isDark ? 'dark' : 'light');
     });
