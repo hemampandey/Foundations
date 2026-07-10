@@ -8,7 +8,7 @@ interface ProfileContextValue {
   profile: Profile | null;
   loading: boolean;
   userEmail: string | null;
-  refreshProfile: () => Promise<void>;
+  refreshProfile: (showLoading?: boolean) => Promise<void>;
 }
 
 const ProfileContext = createContext<ProfileContextValue>({
@@ -27,8 +27,10 @@ export default function ProfileProvider({ children }: { children: React.ReactNod
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
-  const refreshProfile = useCallback(async () => {
-    setLoading(true);
+  const refreshProfile = useCallback(async (showLoading = false) => {
+    if (showLoading) {
+      setLoading(true);
+    }
     try {
       const p = await getCurrentProfile();
       setProfile(p);
