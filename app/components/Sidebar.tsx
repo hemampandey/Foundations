@@ -80,7 +80,12 @@ function formatTimeAgo(dateString: string): string {
   }
 }
 
-export default function Sidebar() {
+interface SidebarProps {
+  mobileOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -347,9 +352,21 @@ export default function Sidebar() {
 
   return (
     <>
+      {/* Mobile Backdrop */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-neutral-900/40 dark:bg-black/60 backdrop-blur-xs z-40 md:hidden animate-fade-in"
+          onClick={onClose}
+        />
+      )}
+
       <aside
-        className={`h-full border-r border-border bg-[#f9f9fb] dark:bg-[#0b0f19] flex flex-col justify-between p-4 transition-all duration-300 shrink-0 ${collapsed ? 'w-[68px]' : 'w-[250px]'
-          }`}
+        className={`h-full border-r border-border bg-[#f9f9fb] dark:bg-[#0b0f19] flex-col justify-between p-4 transition-all duration-300 shrink-0 select-none
+          ${mobileOpen 
+            ? 'fixed inset-y-0 left-0 w-[240px] z-50 flex animate-slide-in' 
+            : 'hidden md:flex'
+          }
+          ${collapsed ? 'md:w-[68px]' : 'md:w-[230px]'}`}
         aria-label="Main navigation"
       >
         {/* ─── Top Brand & Actions ─── */}

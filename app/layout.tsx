@@ -1,8 +1,7 @@
-import { Suspense } from 'react';
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import Sidebar from '@/app/components/Sidebar';
+import ResponsiveLayout from '@/app/components/ResponsiveLayout';
 import MainContentWrapper from '@/app/components/MainContentWrapper';
 
 const geistSans = Geist({
@@ -57,12 +56,9 @@ export default function RootLayout({
       </head>
       <body className="min-h-full text-foreground bg-background font-sans">
         <div className="app-viewport-frame">
-          <div className="app-inner-canvas">
-            <Suspense fallback={<div className="w-16 bg-card border-r border-border shrink-0" />}>
-              <Sidebar />
-            </Suspense>
+          <ResponsiveLayout>
             <MainContentWrapper>{children}</MainContentWrapper>
-          </div>
+          </ResponsiveLayout>
         </div>
       </body>
     </html>

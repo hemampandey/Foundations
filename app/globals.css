@@ -232,3 +232,13 @@ html, body {
 .animate-float-xp {
   animation: float-xp 1.2s cubic-bezier(0.25, 1, 0.50, 1) forwards;
 }
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+.animate-slide-in {
+  animation: slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
