@@ -402,10 +402,10 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
           <nav className="space-y-0.5 px-1 shrink-0" aria-label="Primary">
             <Link
               href="/dashboard"
-              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-150 ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
+              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-150 border ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
                 } ${pathname === '/dashboard' || pathname.startsWith('/practice')
-                  ? 'bg-secondary/80 text-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40'
+                  ? 'bg-primary/5 text-primary border-primary/10'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary/45 border-transparent'
                 }`}
             >
               <BookOpen className="w-4 h-4 shrink-0" />
@@ -414,10 +414,10 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
 
             <Link
               href="/progress"
-              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-150 ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
+              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-150 border ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
                 } ${pathname === '/progress'
-                  ? 'bg-secondary/80 text-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40'
+                  ? 'bg-primary/5 text-primary border-primary/10'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary/45 border-transparent'
                 }`}
             >
               <BarChart3 className="w-4 h-4 shrink-0" />
@@ -431,10 +431,10 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                 <div className="space-y-0.5">
                   <button
                     onClick={() => setAdminExpanded(!adminExpanded)}
-                    className={`flex items-center justify-between w-full rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer ${collapsed ? 'justify-center p-2.5' : 'px-3 py-2'
+                    className={`flex items-center justify-between w-full rounded-xl text-xs font-semibold transition-all duration-150 border cursor-pointer ${collapsed ? 'justify-center p-2.5' : 'px-3 py-2'
                       } ${pathname.startsWith('/admin') && !adminExpanded
-                        ? 'bg-secondary/80 text-foreground'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40'
+                        ? 'bg-primary/5 text-primary border-primary/10'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary/45 border-transparent'
                       }`}
                   >
                     <div className="flex items-center gap-3">

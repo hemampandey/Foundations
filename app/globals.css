@@ -5,40 +5,40 @@
 /* Design Tokens */
 
 :root {
-  --background: #ffffff;
-  --foreground: #09090b;
+  --background: #f8fafc; /* Slate-50 background for clean depth */
+  --foreground: #0f172a; /* Slate-900 */
   --card: #ffffff;
-  --card-foreground: #09090b;
-  --primary: #0256d6;
+  --card-foreground: #0f172a;
+  --primary: #6366f1; /* Premium Indigo-500 */
   --primary-foreground: #ffffff;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
-  --border: #e4e4e7;
-  --ring: #0256d6;
-  --radius: 1rem;
+  --secondary: #f1f5f9; /* Slate-100 */
+  --secondary-foreground: #1e293b; /* Slate-800 */
+  --muted: #f8fafc;
+  --muted-foreground: #64748b; /* Slate-500 */
+  --border: #e2e8f0; /* Slate-200 */
+  --ring: #6366f1;
+  --radius: 1.25rem; /* Modern rounded corners */
   --destructive: #ef4444;
   --popover: #ffffff;
-  --popover-foreground: #09090b;
+  --popover-foreground: #0f172a;
 }
 
 .dark {
-  --background: #09090b;
-  --foreground: #fafafa;
-  --card: #131b2e;
-  --card-foreground: #fafafa;
-  --primary: #1d72f2;
+  --background: #090d16; /* Midnight depth */
+  --foreground: #f8fafc;
+  --card: #0f172a; /* Slate-900 */
+  --card-foreground: #f8fafc;
+  --primary: #6366f1; /* Indigo-500 */
   --primary-foreground: #ffffff;
-  --secondary: #1e293b;
+  --secondary: #1e293b; /* Slate-800 */
   --secondary-foreground: #fafafa;
   --muted: #1e293b;
   --muted-foreground: #94a3b8;
   --border: #1e293b;
-  --ring: #1d72f2;
+  --ring: #818cf8;
   --destructive: #f87171;
-  --popover: #1a2236;
-  --popover-foreground: #fafafa;
+  --popover: #0f172a;
+  --popover-foreground: #f8fafc;
 }
 
 @theme inline {
@@ -77,6 +77,9 @@ html, body {
   height: 100%;
   width: 100%;
   background-color: var(--background);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.02) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.02) 0%, transparent 40%);
   color: var(--foreground);
   font-family: "Plus Jakarta Sans", var(--font-sans), sans-serif;
   overflow: hidden;
@@ -246,5 +249,40 @@ html, body {
 
 .animate-slide-in {
   animation: slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Premium Card Utilities */
+.bg-card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.012), 0 2px 8px -1px rgba(0, 0, 0, 0.005);
+}
+
+.dark .bg-card {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.12), 0 2px 8px -1px rgba(0, 0, 0, 0.04);
+}
+
+.premium-card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.012), 0 2px 8px -1px rgba(0, 0, 0, 0.005);
+}
+
+.premium-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(99, 102, 241, 0.25);
+  box-shadow: 
+    0 25px 35px -5px rgba(0, 0, 0, 0.02), 
+    0 12px 16px -4px rgba(99, 102, 241, 0.035);
+}
+
+.dark .premium-card:hover {
+  border-color: rgba(129, 140, 248, 0.25);
+  box-shadow: 
+    0 25px 35px -5px rgba(0, 0, 0, 0.16), 
+    0 12px 16px -4px rgba(99, 102, 241, 0.05);
 }
 

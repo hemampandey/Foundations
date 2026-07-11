@@ -316,7 +316,7 @@ export default function ProgressPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
-        <div className="p-4 border border-border bg-card rounded-xl shadow-sm">
+        <div className="p-5 premium-card">
           <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold">
             <Target className="w-4 h-4 text-primary" />
             <span>Total XP</span>
@@ -324,7 +324,7 @@ export default function ProgressPage() {
           <p className="text-xl font-bold mt-2">{xp}</p>
         </div>
 
-        <div className="p-4 border border-border bg-card rounded-xl shadow-sm">
+        <div className="p-5 premium-card">
           <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold">
             <BookOpen className="w-4 h-4 text-violet-500" />
             <span>Attempts</span>
@@ -335,7 +335,7 @@ export default function ProgressPage() {
 
       <div className="space-y-8 max-w-5xl mx-auto">
         {/* ─── Daily Activity Heatmap ─── */}
-        <div className="p-6 border border-border bg-card rounded-2xl shadow-sm space-y-4">
+        <div className="p-6 premium-card space-y-4 hover:translate-y-0">
           <div>
             <h3 className="text-sm font-bold text-foreground">Daily Activity Heatmap</h3>
             <p className="text-[10px] text-muted-foreground mt-0.5">Practice attempts logged over the last 6 months</p>
@@ -413,7 +413,7 @@ export default function ProgressPage() {
         {trendData.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Accuracy Chart */}
-            <div className="p-6 border border-border bg-card rounded-2xl shadow-sm space-y-4">
+            <div className="p-6 premium-card space-y-4">
               <div>
                 <h3 className="text-sm font-bold text-foreground">Mastery Progression</h3>
                 <p className="text-[10px] text-muted-foreground mt-0.5">Rolling accuracy over the last 15 MCQ practice attempts</p>
@@ -468,7 +468,7 @@ export default function ProgressPage() {
             </div>
 
             {/* Speed Chart */}
-            <div className="p-6 border border-border bg-card rounded-2xl shadow-sm space-y-4">
+            <div className="p-6 premium-card space-y-4">
               <div>
                 <h3 className="text-sm font-bold text-foreground">Response Speed Curve</h3>
                 <p className="text-[10px] text-muted-foreground mt-0.5">Average time elapsed per question for the last 15 MCQ practice attempts</p>
@@ -528,7 +528,7 @@ export default function ProgressPage() {
         {/* Performance Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Weekly Activity columns */}
-          <div className="p-6 border border-border bg-card rounded-2xl flex flex-col justify-between md:col-span-1 shadow-sm">
+          <div className="p-6 premium-card flex flex-col justify-between md:col-span-1">
             <div>
               <h3 className="text-sm font-bold text-foreground">Weekly Practice Activity</h3>
               <p className="text-[10px] text-muted-foreground mt-0.5">MCQ attempts in the last 7 days</p>
@@ -555,7 +555,7 @@ export default function ProgressPage() {
           </div>
 
           {/* Theory Mastery Progress */}
-          <div className="p-6 border border-border bg-card rounded-2xl md:col-span-2 shadow-sm">
+          <div className="p-6 premium-card md:col-span-2">
             <h3 className="text-sm font-bold text-foreground mb-4">Domain Mastery</h3>
             {theoryMastery.length === 0 ? (
               <div className="text-center py-8 text-xs text-muted-foreground italic">
@@ -601,26 +601,26 @@ export default function ProgressPage() {
             {achievements.map((ach) => (
               <div
                 key={ach.id}
-                className={`p-4 border rounded-xl bg-card flex gap-3.5 items-center relative transition-all ${ach.unlocked
-                  ? 'border-primary/20 bg-primary/[0.02] shadow-sm'
-                  : 'border-border/60 opacity-60 bg-secondary/10'
+                className={`p-4 border rounded-2xl flex gap-3.5 items-center relative transition-all duration-300 ${ach.unlocked
+                  ? 'border-indigo-500/20 bg-gradient-to-br from-indigo-500/[0.02] to-purple-500/[0.02] shadow-[0_8px_30px_rgb(0,0,0,0.015)] hover:border-indigo-500/30'
+                  : 'border-border/60 opacity-55 bg-secondary/15'
                   }`}
               >
-                <div className="text-2xl shrink-0 select-none">{ach.icon}</div>
+                <div className="text-2.5xl shrink-0 select-none">{ach.icon}</div>
                 <div className="min-w-0">
                   <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
                     <span>{ach.title}</span>
                     {ach.unlocked ? (
-                      <span className="text-[9px] font-bold text-emerald-500 uppercase bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                      <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-500/20 px-1.5 py-0.5 rounded">
                         Unlocked
                       </span>
                     ) : (
-                      <span className="text-[9px] font-bold text-muted-foreground uppercase bg-secondary px-1.5 py-0.5 rounded">
+                      <span className="text-[9px] font-bold text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">
                         Locked
                       </span>
                     )}
                   </h4>
-                  <p className="text-[10px] text-muted-foreground/90 mt-0.5 leading-snug">{ach.desc}</p>
+                  <p className="text-[10px] text-muted-foreground/95 mt-0.5 leading-snug">{ach.desc}</p>
                 </div>
               </div>
             ))}

@@ -142,10 +142,10 @@ function AdminPageContent() {
       {/* Top Banner */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-border pb-4">
         <div>
-          <div className="flex items-center gap-2 text-primary font-semibold text-sm">
+          <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider">
             <span>Admin Console</span>
           </div>
-          <h1 className="text-3xl font-bold font-display mt-1 text-primary">
+          <h1 className="text-2xl sm:text-3xl font-extrabold font-display mt-1 text-foreground">
             Theory &amp; MCQ Manager
           </h1>
         </div>
@@ -154,7 +154,7 @@ function AdminPageContent() {
       {/* Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Theories */}
-        <div className="p-4 rounded-2xl border border-border bg-card shadow-sm flex items-center gap-3">
+        <div className="p-5 premium-card flex items-center gap-3">
           <div className="p-2 bg-indigo-500/10 text-indigo-500 rounded-xl">
             <BookOpen className="w-5 h-5" />
           </div>
@@ -167,7 +167,7 @@ function AdminPageContent() {
         </div>
 
         {/* Questions */}
-        <div className="p-4 rounded-2xl border border-border bg-card shadow-sm flex items-center gap-3">
+        <div className="p-5 premium-card flex items-center gap-3">
           <div className="p-2 bg-violet-500/10 text-violet-500 rounded-xl">
             <HelpCircle className="w-5 h-5" />
           </div>
@@ -180,7 +180,7 @@ function AdminPageContent() {
         </div>
 
         {/* Review Queue */}
-        <div className="p-4 rounded-2xl border border-border bg-card shadow-sm flex items-center gap-3">
+        <div className="p-5 premium-card flex items-center gap-3">
           <div className={`p-2 rounded-xl ${draftQuestions.length > 0 ? 'bg-amber-500/10 text-amber-500' : 'bg-muted text-muted-foreground'}`}>
             <Layers className="w-5 h-5" />
           </div>
@@ -193,7 +193,7 @@ function AdminPageContent() {
         </div>
 
         {/* Journeys */}
-        <div className="p-4 rounded-2xl border border-border bg-card shadow-sm flex items-center gap-3">
+        <div className="p-5 premium-card flex items-center gap-3">
           <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-xl">
             <Compass className="w-5 h-5" />
           </div>

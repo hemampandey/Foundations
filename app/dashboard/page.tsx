@@ -236,7 +236,7 @@ export default function DashboardPage() {
                     <div
                       key={journey.id}
                       onClick={() => isPlayable && router.push(`/practice?journeyId=${journey.id}`)}
-                      className={`group border border-border bg-card hover:border-primary/40 rounded-2xl p-5 shadow-sm transition-all flex flex-col justify-between cursor-pointer relative overflow-hidden`}
+                      className="group premium-card p-6 flex flex-col justify-between cursor-pointer overflow-hidden"
                     >
                       {/* Interactive category background glow */}
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
@@ -313,7 +313,7 @@ export default function DashboardPage() {
                     <div
                       key={theory.id}
                       onClick={() => isPlayable && router.push(`/practice?theoryId=${theory.id}`)}
-                      className={`group border border-border bg-card rounded-2xl p-5 shadow-sm transition-all flex flex-col justify-between cursor-pointer relative overflow-hidden`}>
+                      className="group premium-card p-6 flex flex-col justify-between cursor-pointer overflow-hidden">
                       <div className={`absolute inset-0 bg-gradient-to-br ${glowClass} via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none`} />
 
                       <div className="space-y-3.5 relative z-10 flex-1 flex flex-col justify-between">
@@ -328,7 +328,7 @@ export default function DashboardPage() {
                               </span>
                             )}
                           </div>
-                          <h3 className="text-sm font-bold text-foreground group-hover:text-foreground/90 transition-colors leading-snug">
+                          <h3 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors leading-snug">
                             {theory.title}
                           </h3>
                           <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-3">
@@ -362,10 +362,10 @@ export default function DashboardPage() {
         <div className="space-y-6">
           {/* Dynamic Suggestion Card */}
           {dailySuggestion && (
-            <div className="p-5 border border-amber-500/20 bg-amber-500/5 rounded-2xl shadow-sm space-y-4">
+            <div className="p-6 border border-indigo-500/10 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-4 relative overflow-hidden backdrop-blur-sm">
               <div className="flex items-center gap-2">
                 <span className="text-base">🎯</span>
-                <h3 className="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
+                <h3 className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider bg-indigo-500/10 dark:bg-indigo-500/25 px-2 py-0.5 rounded-full select-none">
                   Today&rsquo;s Challenge
                 </h3>
               </div>
@@ -381,7 +381,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => router.push(`/practice?theoryId=${dailySuggestion.theory.id}`)}
-                className="w-full py-2.5 px-4 rounded-xl bg-amber-500 text-white font-bold text-xs hover:bg-amber-600 transition-all flex items-center justify-center gap-1 cursor-pointer shadow-sm shadow-amber-500/10">
+                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-xs hover:opacity-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-indigo-500/15">
                 Accept Challenge</button>
             </div>
           )}
