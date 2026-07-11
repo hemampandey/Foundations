@@ -140,14 +140,12 @@ function AdminPageContent() {
   return (
     <div className="w-full max-w-6xl mx-auto space-y-5 animate-fade-in">
       {/* Top Banner */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-border pb-4">
-        <div>
-          <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider">
-            <span>Admin Console</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold font-display mt-1 text-foreground">
-            Theory &amp; MCQ Manager
-          </h1>
+      <div className="flex flex-row items-center justify-between gap-4 border-b border-border pb-4">
+        <h1 className="text-xl sm:text-2xl font-extrabold font-display text-foreground">
+          Theory &amp; MCQ Manager
+        </h1>
+        <div className="px-3 py-1 text-[10px] font-extrabold text-primary bg-primary/10 border border-primary/15 rounded-full uppercase tracking-wider select-none shrink-0">
+          Admin Console
         </div>
       </div>
 
