@@ -224,7 +224,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
     if (!contextProfile) return;
     try {
       const { count, error } = await supabase
-        .from('review_schedules')
+        .from('review_schedule')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', contextProfile.id)
         .lte('due_at', new Date().toISOString());

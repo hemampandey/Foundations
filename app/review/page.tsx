@@ -51,7 +51,7 @@ export default function ReviewPage() {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('review_schedules')
+        .from('review_schedule')
         .select(`
           *,
           questions (
@@ -166,7 +166,7 @@ export default function ReviewPage() {
       );
 
       await supabase
-        .from('review_schedules')
+        .from('review_schedule')
         .upsert(
           {
             user_id: profile.id,

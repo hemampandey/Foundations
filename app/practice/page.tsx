@@ -212,7 +212,7 @@ function PracticeContent() {
         // SM-2 spaced repetition: schedule this question for future review
         try {
           const { data: existingSchedule } = await supabase
-            .from('review_schedules')
+            .from('review_schedule')
             .select('ease_factor, interval_days, repetitions')
             .eq('user_id', profile.id)
             .eq('question_id', currentQuestion.id)
@@ -230,7 +230,7 @@ function PracticeContent() {
           const result = sm2(currentState, quality);
 
           await supabase
-            .from('review_schedules')
+            .from('review_schedule')
             .upsert({
               user_id: profile.id,
               question_id: currentQuestion.id,

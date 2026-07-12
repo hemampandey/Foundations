@@ -112,7 +112,7 @@ export default function DashboardPage() {
 
       // Fetch review due count
       const { count: reviewCount } = await supabase
-        .from('review_schedules')
+        .from('review_schedule')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', profile.id)
         .lte('due_at', new Date().toISOString());
