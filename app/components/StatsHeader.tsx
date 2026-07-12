@@ -40,9 +40,9 @@ export default function StatsHeader({
         </p>
       </div>
 
-      <div className="hidden md:flex flex-wrap items-center gap-4 sm:gap-6 bg-card border border-border/85 rounded-2xl p-3 px-5 shadow-[0_8px_30px_rgb(0,0,0,0.02)] shrink-0 relative overflow-hidden backdrop-blur-sm">
+      <div className="flex flex-wrap items-center justify-between md:justify-start gap-4 sm:gap-6 bg-card border border-border/85 rounded-2xl p-3 px-5 shadow-[0_8px_30px_rgb(0,0,0,0.02)] shrink-0 relative overflow-hidden backdrop-blur-sm">
         {/* Streak */}
-        <div className="flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500 font-bold select-none text-base">
             🔥
           </div>
@@ -54,10 +54,10 @@ export default function StatsHeader({
           </div>
         </div>
 
-        <div className="hidden sm:block border-l border-border/80 h-8" />
+        <div className="hidden md:block border-l border-border/80 h-8" />
 
         {/* Accuracy */}
-        <div className="flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 font-bold select-none text-base">
             🎯
           </div>
@@ -69,7 +69,7 @@ export default function StatsHeader({
           </div>
         </div>
 
-        <div className="hidden sm:block border-l border-border/80 h-8" />
+        <div className="hidden md:block border-l border-border/80 h-8" />
 
         {/* Level Progress */}
         <div className="flex items-center gap-4">
