@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Save, Edit, Layers } from 'lucide-react';
+import { Plus, Save, Edit, Layers, Settings } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { Theory, Question } from '@/lib/types';
 
@@ -40,10 +40,10 @@ export default function ManageTheories({
   const [inlineTheoryDomain, setInlineTheoryDomain] = useState('');
   const [inlineTheoryStatus, setInlineTheoryStatus] = useState<'draft' | 'published'>('published');
 
-  // MCQ generation loading state per theory ID
+  // MCQ generation state per theory ID
   const [generatingForTheoryId, setGeneratingForTheoryId] = useState<string | null>(null);
-  const [generationCount, setGenerationCount] = useState<string>('3');
-  const [customInstructions, setCustomInstructions] = useState('');
+  const [activeSettingsTheoryId, setActiveSettingsTheoryId] = useState<string | null>(null);
+  const [theoryConfig, setTheoryConfig] = useState<Record<string, { count: string; instructions: string }>>({});
   const [currentTipIdx, setCurrentTipIdx] = useState(0);
 
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -121,8 +121,10 @@ export default function ManageTheories({
   const handleGenerateMcqs = async (theory: Theory) => {
     setGeneratingForTheoryId(theory.id);
     setCurrentTipIdx(0);
-    const parsedCount = parseInt(generationCount, 10);
+    const config = theoryConfig[theory.id] || { count: '3', instructions: '' };
+    const parsedCount = parseInt(config.count, 10);
     const countVal = isNaN(parsedCount) || parsedCount <= 0 ? 3 : parsedCount;
+    const instructionsVal = config.instructions;
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
@@ -142,7 +144,7 @@ export default function ManageTheories({
           theoryTitle: theory.title,
           theoryBody: theory.body_text,
           count: countVal,
-          customInstructions: customInstructions,
+          customInstructions: instructionsVal,
         }),
       });
 
@@ -173,7 +175,13 @@ export default function ManageTheories({
         text: `Successfully generated ${generatedQuestions.length} draft questions! Review them in the Review Queue.`,
       });
 
-      setCustomInstructions('');
+      setTheoryConfig((prev) => ({
+        ...prev,
+        [theory.id]: {
+          ...prev[theory.id],
+          instructions: '',
+        }
+      }));
       await loadDbData();
     } catch (err: unknown) {
       if (err instanceof Error && err.name === 'AbortError') {
@@ -293,44 +301,10 @@ export default function ManageTheories({
 
       {/* Theory List */}
       <div className="lg:col-span-7 bg-card border border-border rounded-2xl p-6 h-fit min-h-[400px]">
-        <div className="border-b border-border pb-4 mb-4 space-y-3">
+        <div className="border-b border-border pb-4 mb-4">
           <h3 className="text-sm font-bold font-display text-foreground">
             Existing Theories ({theories.length})
           </h3>
-          <div className="p-4 rounded-xl border border-primary/25 bg-gradient-to-r from-primary/5 via-indigo-500/5 to-transparent shadow-sm space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-primary">
-              <span>Question Configuration</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="generation-count" className="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
-                  Questions per Theory
-                </label>
-                <input
-                  id="generation-count"
-                  type="number"
-                  min={1}
-                  max={20}
-                  value={generationCount}
-                  onChange={(e) => setGenerationCount(e.target.value)}
-                  className="w-full px-3 py-2 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-xs font-semibold"
-                  placeholder="3"
-                />
-              </div>
-              <div>
-                <label htmlFor="custom-instructions" className="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
-                  Instructions
-                </label>
-                <input
-                  id="custom-instructions"
-                  type="text"
-                  value={customInstructions}
-                  onChange={(e) => setCustomInstructions(e.target.value)}
-                  className="w-full px-3 py-2 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-xs"
-                />
-              </div>
-            </div>
-          </div>
         </div>
 
         {loadingLists ? (
@@ -455,11 +429,63 @@ export default function ManageTheories({
                     <p className="text-xs text-muted-foreground mt-2 line-clamp-3">
                       {theory.body_text}
                     </p>
+
+                    {activeSettingsTheoryId === theory.id && (
+                      <div className="mt-3 p-3 bg-secondary/40 rounded-xl border border-border/60 space-y-2.5 animate-fade-in text-[10px]">
+                        <div className="flex items-center gap-1.5 font-bold text-foreground">
+                          <Settings className="w-3 h-3 text-primary" />
+                          <span>Generation Settings</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                          <div className="sm:col-span-1">
+                            <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
+                              Count
+                            </label>
+                            <input
+                              type="number"
+                              min={1}
+                              max={20}
+                              value={theoryConfig[theory.id]?.count ?? '3'}
+                              onChange={(e) => {
+                                setTheoryConfig({
+                                  ...theoryConfig,
+                                  [theory.id]: {
+                                    count: e.target.value,
+                                    instructions: theoryConfig[theory.id]?.instructions ?? '',
+                                  }
+                                });
+                              }}
+                              className="w-full px-2.5 py-1 border border-border bg-background rounded-lg focus:outline-none focus:ring-1 focus:ring-primary text-xs font-semibold"
+                            />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
+                              Custom Instructions
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="e.g. Focus on CBT techniques"
+                              value={theoryConfig[theory.id]?.instructions ?? ''}
+                              onChange={(e) => {
+                                setTheoryConfig({
+                                  ...theoryConfig,
+                                  [theory.id]: {
+                                    count: theoryConfig[theory.id]?.count ?? '3',
+                                    instructions: e.target.value,
+                                  }
+                                });
+                              }}
+                              className="w-full px-2.5 py-1 border border-border bg-background rounded-lg focus:outline-none focus:ring-1 focus:ring-primary text-xs"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="border-t border-border/40 pt-3 flex justify-between items-center text-[10px] text-muted-foreground/75">
                     <span>ID: {theory.id.substring(0, 8)}…</span>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2.5">
                       <span
                         className={`font-semibold ${theory.status === 'published' ? 'text-emerald-500' : 'text-amber-500'
                           }`}
@@ -474,10 +500,22 @@ export default function ManageTheories({
                           setInlineTheoryDomain(theory.domain);
                           setInlineTheoryStatus(theory.status);
                         }}
-                        className="px-2.5 py-1 rounded bg-primary/10 text-primary border border-primary/10 font-bold hover:bg-primary/20 transition-all cursor-pointer flex items-center gap-1"
+                        className="px-2 py-1 rounded bg-primary/10 text-primary border border-primary/10 font-bold hover:bg-primary/20 transition-all cursor-pointer flex items-center gap-1"
                       >
-                        <Edit className="w-3 h-3" />
+                        <Edit className="w-3.5 h-3.5" />
                         <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setActiveSettingsTheoryId(activeSettingsTheoryId === theory.id ? null : theory.id);
+                        }}
+                        className={`p-1.5 rounded border transition-all cursor-pointer flex items-center justify-center ${activeSettingsTheoryId === theory.id
+                          ? 'bg-primary/15 text-primary border-primary/30'
+                          : 'bg-secondary/40 text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground'
+                          }`}
+                        title="Generation Settings"
+                      >
+                        <Settings className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => handleGenerateMcqs(theory)}
