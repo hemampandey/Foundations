@@ -2,13 +2,15 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase, getCurrentProfile } from '@/lib/supabase';
-import type { Profile } from '@/lib/types';
+import type { Profile, UserProgress } from '@/lib/types';
 
 interface ProfileContextValue {
   profile: Profile | null;
   loading: boolean;
   userEmail: string | null;
   refreshProfile: (showLoading?: boolean) => Promise<void>;
+  progress: UserProgress | null;
+  accuracy: number;
 }
 
 const ProfileContext = createContext<ProfileContextValue>({
@@ -16,6 +18,8 @@ const ProfileContext = createContext<ProfileContextValue>({
   loading: true,
   userEmail: null,
   refreshProfile: async () => {},
+  progress: null,
+  accuracy: 0,
 });
 
 export function useProfile() {
@@ -26,6 +30,8 @@ export default function ProfileProvider({ children }: { children: React.ReactNod
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [progress, setProgress] = useState<UserProgress | null>(null);
+  const [accuracy, setAccuracy] = useState<number>(0);
 
   const profileRef = useRef<Profile | null>(null);
   useEffect(() => {
@@ -51,10 +57,36 @@ export default function ProfileProvider({ children }: { children: React.ReactNod
       } else {
         setUserEmail(null);
       }
+
+      if (p) {
+        // Fetch user progress
+        const { data: progressData } = await supabase
+          .from('user_progress')
+          .select('*')
+          .eq('user_id', p.id)
+          .maybeSingle();
+        setProgress(progressData as UserProgress | null);
+
+        // Fetch attempts for accuracy calculation
+        const { data: attemptsData } = await supabase
+          .from('attempts')
+          .select('is_correct')
+          .eq('user_id', p.id);
+        
+        const atts = attemptsData || [];
+        const correct = atts.filter((a) => a.is_correct).length;
+        const acc = atts.length > 0 ? Math.round((correct / atts.length) * 100) : 0;
+        setAccuracy(acc);
+      } else {
+        setProgress(null);
+        setAccuracy(0);
+      }
     } catch (err) {
       console.error('[Foundations] Error fetching profile:', err);
       setProfile(null);
       setUserEmail(null);
+      setProgress(null);
+      setAccuracy(0);
     } finally {
       setLoading(false);
     }
@@ -88,7 +120,7 @@ export default function ProfileProvider({ children }: { children: React.ReactNod
   }, [refreshProfile]);
 
   return (
-    <ProfileContext.Provider value={{ profile, loading, userEmail, refreshProfile }}>
+    <ProfileContext.Provider value={{ profile, loading, userEmail, refreshProfile, progress, accuracy }}>
       {children}
     </ProfileContext.Provider>
   );

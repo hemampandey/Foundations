@@ -4,17 +4,24 @@ import React, { useState, Suspense } from 'react';
 import { usePathname } from 'next/navigation';
 import Sidebar from '@/app/components/Sidebar';
 import { Menu } from 'lucide-react';
+import { useProfile } from '@/app/components/ProfileProvider';
+import { xpToLevel } from '@/lib/utils';
 
 export default function ResponsiveLayout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const isAuth = pathname?.startsWith('/auth');
+  const { profile, progress, accuracy } = useProfile();
 
   const [prevPathname, setPrevPathname] = useState(pathname);
   if (pathname !== prevPathname) {
     setPrevPathname(pathname);
     setMobileOpen(false);
   }
+
+  const streak = progress?.streak_days ?? 0;
+  const xp = progress?.xp ?? 0;
+  const levelInfo = xpToLevel(xp);
 
   return (
     <div className="app-inner-canvas flex flex-col md:flex-row">
@@ -29,18 +36,45 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
       <div className="flex-1 flex flex-col min-w-0 h-full relative">
         {/* Mobile Header (only visible on mobile screens) */}
         {!isAuth && (
-          <header className="flex md:hidden items-center justify-between px-4 h-14 border-b border-border bg-[#f9f9fb] dark:bg-[#0b0f19] shrink-0 z-30">
+          <header className="flex md:hidden items-center justify-between px-4 h-14 border-b border-border bg-card shrink-0 z-30 select-none">
             <button
               onClick={() => setMobileOpen(true)}
-              className="p-1.5 text-muted-foreground hover:text-foreground rounded-xl hover:bg-secondary transition-all cursor-pointer"
+              className="p-1.5 text-muted-foreground hover:text-foreground rounded-xl hover:bg-secondary transition-all cursor-pointer shrink-0"
               aria-label="Open menu"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <span className="font-display font-bold text-sm tracking-tight text-foreground select-none">
-              Foundations
-            </span>
-            <div className="w-8 h-8" /> {/* Balance spacer */}
+
+            {profile ? (
+              <div className="flex items-center gap-3 bg-secondary/60 border border-border/80 rounded-full px-3 py-1 text-[11px] font-bold">
+                {/* Streak */}
+                <div className="flex items-center gap-1">
+                  <span>🔥</span>
+                  <span>{streak}</span>
+                </div>
+
+                {/* Divider */}
+                <div className="w-[1px] h-3 bg-border/80" />
+
+                {/* Accuracy */}
+                <div className="flex items-center gap-1">
+                  <span>🎯</span>
+                  <span>{accuracy}%</span>
+                </div>
+
+                {/* Divider */}
+                <div className="w-[1px] h-3 bg-border/80" />
+
+                {/* Level */}
+                <div className="text-violet-600 dark:text-violet-400">
+                  Lvl {levelInfo.level}
+                </div>
+              </div>
+            ) : (
+              <span className="text-xs font-bold text-muted-foreground">Loading Profile...</span>
+            )}
+
+            <div className="w-8 h-8 shrink-0" /> {/* Balance spacer */}
           </header>
         )}
 

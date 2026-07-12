@@ -40,7 +40,7 @@ export default function StatsHeader({
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 sm:gap-6 bg-card border border-border/85 rounded-2xl p-3 px-5 shadow-[0_8px_30px_rgb(0,0,0,0.02)] shrink-0 relative overflow-hidden backdrop-blur-sm">
+      <div className="hidden md:flex flex-wrap items-center gap-4 sm:gap-6 bg-card border border-border/85 rounded-2xl p-3 px-5 shadow-[0_8px_30px_rgb(0,0,0,0.02)] shrink-0 relative overflow-hidden backdrop-blur-sm">
         {/* Streak */}
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500 font-bold select-none text-base">
