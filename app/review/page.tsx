@@ -21,6 +21,12 @@ export default function ReviewPage() {
   const [loading, setLoading] = useState(true);
   const [started, setStarted] = useState(false);
   const [leveledUpTo, setLeveledUpTo] = useState<number | null>(null);
+  const [forecastData, setForecastData] = useState<{
+    dayName: string;
+    dayLabel: string;
+    count: number;
+    theories: string[];
+  }[]>([]);
 
   // Session state
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -80,6 +86,71 @@ export default function ReviewPage() {
         (item: ReviewScheduleWithQuestion) => item.questions !== null
       );
       setDueItems(validItems as ReviewScheduleWithQuestion[]);
+
+      // Fetch all schedules for forecast calculation
+      const { data: forecastSchedules } = await supabase
+        .from('review_schedule')
+        .select(`
+          due_at,
+          questions (
+            theories (
+              title
+            )
+          )
+        `)
+        .eq('user_id', profile.id);
+
+      // Compute local 7-day forecast
+      const days = [];
+      const now = new Date();
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(now);
+        d.setDate(now.getDate() + i);
+        days.push({
+          dateStr: d.toISOString().split('T')[0], // YYYY-MM-DD
+          dayName: i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : d.toLocaleDateString('en-US', { weekday: 'short' }),
+          dayLabel: d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' }),
+        });
+      }
+
+      const forecast = days.map((day, idx) => {
+        const dayStart = new Date(day.dateStr + 'T00:00:00');
+        const dayEnd = new Date(day.dateStr + 'T23:59:59.999');
+        
+        let count = 0;
+        const theoriesDue = new Set<string>();
+        
+        (forecastSchedules ?? []).forEach(s => {
+          if (!s.due_at) return;
+          const due = new Date(s.due_at);
+          
+          const q = s.questions as unknown as { theories: { title: string } | null } | null;
+          const tTitle = q?.theories?.title;
+
+          if (idx === 0) {
+            // Today includes everything due now or overdue
+            if (due <= dayEnd) {
+              count++;
+              if (tTitle) theoriesDue.add(tTitle);
+            }
+          } else {
+            // Future days only include items scheduled for that specific day
+            if (due >= dayStart && due <= dayEnd) {
+              count++;
+              if (tTitle) theoriesDue.add(tTitle);
+            }
+          }
+        });
+
+        return {
+          dayName: day.dayName,
+          dayLabel: day.dayLabel,
+          count,
+          theories: Array.from(theoriesDue),
+        };
+      });
+
+      setForecastData(forecast);
     } catch (err) {
       console.error('[Foundations] Error fetching review items:', err);
     } finally {
@@ -217,6 +288,57 @@ export default function ReviewPage() {
     }
   };
 
+  const renderForecast = () => {
+    if (forecastData.length === 0) return null;
+
+    return (
+      <div className="bg-card border border-border/85 rounded-2xl p-5 space-y-4 shadow-[0_8px_30px_rgb(0,0,0,0.01)] text-left backdrop-blur-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-sm">📅</span>
+          <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            7-Day Review Forecast
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+          {forecastData.map((day, idx) => (
+            <div
+              key={idx}
+              className={`p-3 rounded-xl border text-center flex flex-col justify-between min-h-[105px] transition-all duration-200 hover:shadow-sm ${
+                day.count > 0
+                  ? 'border-indigo-500/20 bg-indigo-500/[0.02] dark:bg-indigo-500/[0.04]'
+                  : 'border-border/80 bg-card/50'
+              }`}
+            >
+              <div>
+                <p className="text-[9px] font-extrabold text-muted-foreground/80 uppercase tracking-wider">
+                  {day.dayName}
+                </p>
+                <p className="text-xs font-bold text-foreground mt-0.5">{day.dayLabel}</p>
+              </div>
+              <div className="mt-2 space-y-1">
+                <div
+                  className={`inline-flex items-center justify-center text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    day.count > 0
+                      ? 'bg-indigo-500 text-white'
+                      : 'bg-secondary text-muted-foreground/80'
+                  }`}
+                >
+                  {day.count} {day.count === 1 ? 'due' : 'due'}
+                </div>
+                {day.theories.length > 0 && (
+                  <p className="text-[8px] text-muted-foreground/90 font-bold uppercase tracking-wider leading-tight line-clamp-2 pt-1">
+                    {day.theories.join(', ')}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   // ── Auth loading ──
   if (authLoading || !profile) {
     return (
@@ -241,22 +363,26 @@ export default function ReviewPage() {
   // ── Empty state (no items due) ──
   if (!started && dueItems.length === 0) {
     return (
-      <div className="w-full max-w-md mx-auto py-12 text-center space-y-6 animate-fade-in">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-emerald-500/10 text-emerald-500 mb-2">
-          <CalendarCheck className="w-8 h-8" />
+      <div className="w-full max-w-2xl mx-auto py-12 space-y-8 animate-fade-in">
+        <div className="max-w-md mx-auto text-center space-y-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-emerald-500/10 text-emerald-500 mb-2">
+            <CalendarCheck className="w-8 h-8" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold font-display text-foreground">All Caught Up!</h2>
+            <p className="text-xs text-muted-foreground mt-2 leading-relaxed max-w-xs mx-auto">
+              You have no questions due for review right now. Keep practicing to build your review deck — items will appear here as they become due.
+            </p>
+          </div>
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="px-5 py-2.5 bg-primary text-primary-foreground font-bold text-xs rounded-xl hover:opacity-95 transition-all shadow-md shadow-primary/15 cursor-pointer"
+          >
+            Back to Dashboard
+          </button>
         </div>
-        <div>
-          <h2 className="text-2xl font-bold font-display text-foreground">All Caught Up!</h2>
-          <p className="text-xs text-muted-foreground mt-2 leading-relaxed max-w-xs mx-auto">
-            You have no questions due for review right now. Keep practicing to build your review deck — items will appear here as they become due.
-          </p>
-        </div>
-        <button
-          onClick={() => router.push('/dashboard')}
-          className="px-5 py-2.5 bg-primary text-primary-foreground font-bold text-xs rounded-xl hover:opacity-95 transition-all shadow-md shadow-primary/15 cursor-pointer"
-        >
-          Back to Dashboard
-        </button>
+
+        {renderForecast()}
       </div>
     );
   }
@@ -276,46 +402,50 @@ export default function ReviewPage() {
     });
 
     return (
-      <div className="w-full max-w-md mx-auto py-8 space-y-6 animate-fade-in">
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-indigo-500/10 text-indigo-500 mb-2">
-            <BookOpen className="w-8 h-8" />
-          </div>
-          <h2 className="text-2xl font-bold font-display text-foreground">Daily Review</h2>
-          <p className="text-xs text-muted-foreground leading-relaxed max-w-xs mx-auto">
-            {dueItems.length} {dueItems.length === 1 ? 'question is' : 'questions are'} due for spaced review.
-            These items are scheduled to reinforce your long-term retention.
-          </p>
-        </div>
-
-        {/* Theory breakdown */}
-        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-          <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Review Breakdown</h3>
-          {Object.values(theoryGroups).map((group, i) => (
-            <div key={i} className="flex justify-between items-center text-xs">
-              <span className="font-semibold text-foreground">{group.title}</span>
-              <span className="text-muted-foreground font-mono">{group.count} due</span>
+      <div className="w-full max-w-2xl mx-auto py-8 space-y-8 animate-fade-in">
+        <div className="max-w-md mx-auto space-y-6">
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-indigo-500/10 text-indigo-500 mb-2">
+              <BookOpen className="w-8 h-8" />
             </div>
-          ))}
+            <h2 className="text-2xl font-bold font-display text-foreground">Daily Review</h2>
+            <p className="text-xs text-muted-foreground leading-relaxed max-w-xs mx-auto">
+              {dueItems.length} {dueItems.length === 1 ? 'question is' : 'questions are'} due for spaced review.
+              These items are scheduled to reinforce your long-term retention.
+            </p>
+          </div>
+
+          {/* Theory breakdown */}
+          <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+            <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Review Breakdown</h3>
+            {Object.values(theoryGroups).map((group, i) => (
+              <div key={i} className="flex justify-between items-center text-xs">
+                <span className="font-semibold text-foreground">{group.title}</span>
+                <span className="text-muted-foreground font-mono">{group.count} due</span>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={() => {
+              setStarted(true);
+              questionStartTime.current = Date.now();
+            }}
+            className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-xs hover:opacity-95 transition-all cursor-pointer shadow-md shadow-indigo-500/15 flex items-center justify-center gap-1.5"
+          >
+            Start Review Session
+            <ChevronRight className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="w-full py-2.5 px-4 rounded-xl border border-border bg-card font-bold text-xs hover:bg-secondary transition-all cursor-pointer text-muted-foreground"
+          >
+            Back to Dashboard
+          </button>
         </div>
 
-        <button
-          onClick={() => {
-            setStarted(true);
-            questionStartTime.current = Date.now();
-          }}
-          className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-xs hover:opacity-95 transition-all cursor-pointer shadow-md shadow-indigo-500/15 flex items-center justify-center gap-1.5"
-        >
-          Start Review Session
-          <ChevronRight className="w-4 h-4" />
-        </button>
-
-        <button
-          onClick={() => router.push('/dashboard')}
-          className="w-full py-2.5 px-4 rounded-xl border border-border bg-card font-bold text-xs hover:bg-secondary transition-all cursor-pointer text-muted-foreground"
-        >
-          Back to Dashboard
-        </button>
+        {renderForecast()}
       </div>
     );
   }
