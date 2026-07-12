@@ -21,6 +21,7 @@ function PracticeContent() {
   const searchParams = useSearchParams();
   const theoryId = searchParams.get('theoryId');
   const journeyId = searchParams.get('journeyId');
+  const daily = searchParams.get('daily') === 'true';
   const { profile, loading: authLoading } = useProfile();
 
   // Core data
@@ -59,8 +60,8 @@ function PracticeContent() {
   // Initial data load — inline IIFE to satisfy set-state-in-effect lint rule.
   useEffect(() => {
     (async () => {
-      if (!theoryId && !journeyId) {
-        setErrorMsg('No theory ID or journey ID was provided.');
+      if (!theoryId && !journeyId && !daily) {
+        setErrorMsg('No theory ID, journey ID, or daily flag was provided.');
         setLoading(false);
         return;
       }
@@ -98,6 +99,37 @@ function PracticeContent() {
             setErrorMsg('No approved questions were found for this journey.');
           } else {
             setQuestions(qList);
+            questionStartTime.current = Date.now();
+          }
+        } else if (daily) {
+          setTheory({ title: 'Daily Practice Deck' } as Theory);
+
+          // Load published theories
+          const { data: theoryList, error: tErr } = await supabase
+            .from('theories')
+            .select('id')
+            .eq('status', 'published');
+
+          if (tErr) throw tErr;
+          if (!theoryList || theoryList.length === 0) {
+            throw new Error('No published theories found.');
+          }
+
+          // Load approved questions from those theories
+          const { data: qData, error: qErr } = await supabase
+            .from('questions')
+            .select('*')
+            .in('theory_id', theoryList.map((t) => t.id))
+            .eq('status', 'approved');
+
+          if (qErr) throw qErr;
+
+          if (!qData || qData.length === 0) {
+            setErrorMsg('No approved questions were found.');
+          } else {
+            // Shuffle and select 10 questions
+            const shuffled = [...qData].sort(() => 0.5 - Math.random());
+            setQuestions(shuffled.slice(0, 10) as Question[]);
             questionStartTime.current = Date.now();
           }
         } else {
@@ -156,7 +188,7 @@ function PracticeContent() {
         setLoading(false);
       }
     })();
-  }, [theoryId, journeyId]);
+  }, [theoryId, journeyId, daily]);
 
   // Submit answer — declared before keyboard effect that references it.
   const handleSubmitAnswer = useCallback(async () => {

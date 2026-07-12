@@ -406,7 +406,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
           {/* Practice Button */}
           <div className="px-1 shrink-0">
             <Link
-              href="/dashboard"
+              href="/practice?daily=true"
               className={`flex items-center gap-2.5 border border-border bg-card rounded-full text-xs font-semibold hover:bg-secondary transition-all cursor-pointer shadow-sm w-full ${collapsed ? 'justify-center p-2 h-9 w-9' : 'px-3.5 py-2'
                 }`}
             >
