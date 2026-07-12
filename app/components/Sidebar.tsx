@@ -79,6 +79,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
   const [attemptsExpanded, setAttemptsExpanded] = useState(true);
   const [adminExpanded, setAdminExpanded] = useState(pathname.startsWith('/admin'));
   const [draftCount, setDraftCount] = useState(0);
+  const [reviewDueCount, setReviewDueCount] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // Sync local profile with context profile
@@ -219,6 +220,23 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
     }
   }, []);
 
+  const fetchReviewDueCount = useCallback(async () => {
+    if (!contextProfile) return;
+    try {
+      const { count, error } = await supabase
+        .from('review_schedules')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', contextProfile.id)
+        .lte('due_at', new Date().toISOString());
+
+      if (!error && count !== null) {
+        setReviewDueCount(count);
+      }
+    } catch (err) {
+      console.error('[Foundations] Failed to fetch review due count:', err);
+    }
+  }, [contextProfile]);
+
   // Search Debounce Effect
   useEffect(() => {
     const delayDebounce = setTimeout(async () => {
@@ -275,15 +293,16 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Load sidebar-specific data (attempts & draft count) on mount and auth changes
+  // Load sidebar-specific data (attempts, draft count, review due count) on mount and auth changes
   useEffect(() => {
     if (!profileLoading && contextProfile) {
       Promise.resolve().then(() => {
         fetchAttempts();
         fetchDraftCount();
+        fetchReviewDueCount();
       });
     }
-  }, [profileLoading, contextProfile, fetchAttempts, fetchDraftCount]);
+  }, [profileLoading, contextProfile, fetchAttempts, fetchDraftCount, fetchReviewDueCount]);
 
   // Handle sign-out navigation
   useEffect(() => {
@@ -410,6 +429,27 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
             >
               <BookOpen className="w-4 h-4 shrink-0" />
               {!collapsed && <span>Learn</span>}
+            </Link>
+
+            <Link
+              href="/review"
+              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-150 border ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
+                } ${pathname === '/review'
+                  ? 'bg-primary/5 text-primary border-primary/10'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary/45 border-transparent'
+                }`}
+            >
+              <BookOpen className="w-4 h-4 shrink-0" />
+              {!collapsed && (
+                <span className="flex items-center gap-2">
+                  Review
+                  {reviewDueCount > 0 && (
+                    <span className="text-[9px] font-bold text-white bg-indigo-500 px-1.5 py-0.5 rounded-full leading-none">
+                      {reviewDueCount}
+                    </span>
+                  )}
+                </span>
+              )}
             </Link>
 
             <Link

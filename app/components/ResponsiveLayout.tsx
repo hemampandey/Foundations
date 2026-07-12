@@ -11,7 +11,7 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const isAuth = pathname?.startsWith('/auth');
-  const validPaths = ['/', '/auth', '/dashboard', '/progress', '/practice', '/admin'];
+  const validPaths = ['/', '/auth', '/dashboard', '/progress', '/practice', '/admin', '/review'];
   const is404 = pathname ? !validPaths.some(p => pathname === p || pathname.startsWith(p + '/')) : false;
   const { profile, progress, accuracy } = useProfile();
 

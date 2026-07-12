@@ -35,6 +35,7 @@ export default function DashboardPage() {
   const [journeyQuestionCounts, setJourneyQuestionCounts] = useState<Record<string, number>>({});
   const [attempts, setAttempts] = useState<AttemptWithQuestion[]>([]);
   const [progress, setProgress] = useState<UserProgress | null>(null);
+  const [reviewDueCount, setReviewDueCount] = useState(0);
   const [loadingData, setLoadingData] = useState(true);
 
   const fetchDashboardData = useCallback(async () => {
@@ -108,6 +109,15 @@ export default function DashboardPage() {
         .maybeSingle();
 
       setProgress(progressData as UserProgress | null);
+
+      // Fetch review due count
+      const { count: reviewCount } = await supabase
+        .from('review_schedules')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', profile.id)
+        .lte('due_at', new Date().toISOString());
+
+      setReviewDueCount(reviewCount ?? 0);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       console.error('[Foundations] Error loading dashboard data:', message);
@@ -360,6 +370,34 @@ export default function DashboardPage() {
         </div>
 
         <div className="space-y-6">
+          {/* Due for Review Card */}
+          {reviewDueCount > 0 && (
+            <div
+              onClick={() => router.push('/review')}
+              className="p-6 border border-violet-500/10 bg-gradient-to-br from-violet-500/5 to-indigo-500/5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-3 relative overflow-hidden backdrop-blur-sm cursor-pointer group hover:border-violet-500/20 transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-base">📖</span>
+                <h3 className="text-[10px] font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider bg-violet-500/10 dark:bg-violet-500/25 px-2 py-0.5 rounded-full select-none">
+                  Due for Review
+                </h3>
+              </div>
+
+              <div className="space-y-1">
+                <h4 className="text-2xl font-bold text-foreground">
+                  {reviewDueCount}
+                </h4>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  {reviewDueCount === 1 ? 'question is' : 'questions are'} due for spaced review. Review now to strengthen long-term retention.
+                </p>
+              </div>
+
+              <span className="text-[10px] font-bold text-violet-600 dark:text-violet-400 group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
+                Start Review →
+              </span>
+            </div>
+          )}
+
           {/* Dynamic Suggestion Card */}
           {dailySuggestion && (
             <div className="p-6 border border-indigo-500/10 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-4 relative overflow-hidden backdrop-blur-sm">

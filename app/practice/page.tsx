@@ -7,6 +7,8 @@ import { useProfile } from '@/app/components/ProfileProvider';
 import type { Theory, Question } from '@/lib/types';
 import ConfirmDialog from '@/app/components/ConfirmDialog';
 import { xpToLevel } from '@/lib/utils';
+import { getTargetDifficulty, sortByAdaptiveDifficulty } from '@/lib/adaptive';
+import { sm2, gradeFromAttempt, DEFAULT_SM2_STATE } from '@/lib/sm2';
 import {
   ArrowLeft, Zap, Award, AlertCircle, Lightbulb, ChevronRight, RefreshCw, Clock,
 } from 'lucide-react';
@@ -120,7 +122,29 @@ function PracticeContent() {
           if (!qData || qData.length === 0) {
             setErrorMsg('No approved questions were found for this theory.');
           } else {
-            setQuestions(qData as Question[]);
+            // Apply adaptive difficulty ordering
+            let ordered = qData as Question[];
+            try {
+              const { data: recentAttempts } = await supabase
+                .from('attempts')
+                .select('is_correct')
+                .eq('user_id', (await supabase.auth.getUser()).data.user?.id ?? '')
+                .in('question_id', qData.map(q => q.id))
+                .order('created_at', { ascending: false })
+                .limit(20);
+
+              if (recentAttempts && recentAttempts.length > 0) {
+                const target = getTargetDifficulty(recentAttempts);
+                ordered = sortByAdaptiveDifficulty(ordered, target);
+              } else {
+                // New learner — shuffle and start easy
+                ordered = sortByAdaptiveDifficulty(ordered, 1);
+              }
+            } catch {
+              // Fallback: use DB order if adaptive query fails
+            }
+
+            setQuestions(ordered);
             questionStartTime.current = Date.now();
           }
         }
@@ -184,6 +208,40 @@ function PracticeContent() {
           p_xp_earned: xpEarned,
           p_last_active_at: new Date().toISOString(),
         });
+
+        // SM-2 spaced repetition: schedule this question for future review
+        try {
+          const { data: existingSchedule } = await supabase
+            .from('review_schedules')
+            .select('ease_factor, interval_days, repetitions')
+            .eq('user_id', profile.id)
+            .eq('question_id', currentQuestion.id)
+            .maybeSingle();
+
+          const currentState = existingSchedule
+            ? {
+                easeFactor: existingSchedule.ease_factor,
+                intervalDays: existingSchedule.interval_days,
+                repetitions: existingSchedule.repetitions,
+              }
+            : DEFAULT_SM2_STATE;
+
+          const quality = gradeFromAttempt(isCorrect, responseMs);
+          const result = sm2(currentState, quality);
+
+          await supabase
+            .from('review_schedules')
+            .upsert({
+              user_id: profile.id,
+              question_id: currentQuestion.id,
+              ease_factor: result.easeFactor,
+              interval_days: result.intervalDays,
+              repetitions: result.repetitions,
+              due_at: result.dueAt.toISOString(),
+            }, { onConflict: 'user_id,question_id' });
+        } catch (scheduleErr) {
+          console.error('[Foundations] SM-2 schedule update failed:', scheduleErr);
+        }
       }
 
       setSessionAttempts((prev) => [...prev, { qId: currentQuestion.id, isCorrect, responseMs }]);

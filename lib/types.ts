@@ -75,6 +75,25 @@ export interface ReviewSchedule {
   created_at: string;
 }
 
+/** A review schedule row joined with its question and parent theory. */
+export interface ReviewScheduleWithQuestion extends ReviewSchedule {
+  questions: {
+    id: string;
+    stem: string;
+    options: string[];
+    correct_index: number;
+    explanation: string;
+    difficulty: 1 | 2 | 3;
+    bloom_level: Question['bloom_level'];
+    source_excerpt?: string;
+    theories: {
+      id: string;
+      title: string;
+    } | null;
+  } | null;
+}
+
+
 export interface Journey {
   id: string;
   title: string;
