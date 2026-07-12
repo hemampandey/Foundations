@@ -66,8 +66,14 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
                 <div className="w-[1px] h-3 bg-border/80" />
 
                 {/* Level */}
-                <div className="text-violet-600 dark:text-violet-400">
-                  Lvl {levelInfo.level}
+                <div className="flex items-center gap-1.5 text-violet-600 dark:text-violet-400">
+                  <span>Lvl {levelInfo.level}</span>
+                  <div className="w-10 h-1.5 bg-secondary/80 rounded-full overflow-hidden border border-border/70">
+                    <div
+                      className="h-full bg-gradient-to-r from-indigo-500 to-pink-500"
+                      style={{ width: `${Math.min(100, (levelInfo.currentXp / levelInfo.requiredXp) * 100)}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             ) : (
