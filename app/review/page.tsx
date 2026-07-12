@@ -27,6 +27,10 @@ export default function ReviewPage() {
     count: number;
     theories: string[];
   }[]>([]);
+  const [overdueData, setOverdueData] = useState<{
+    count: number;
+    theories: string[];
+  }>({ count: 0, theories: [] });
 
   // Session state
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -100,6 +104,29 @@ export default function ReviewPage() {
         `)
         .eq('user_id', profile.id);
 
+      // Compute overdue/missed reviews (scheduled before today)
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+
+      let overdueCount = 0;
+      const overdueTheories = new Set<string>();
+      
+      (forecastSchedules ?? []).forEach(s => {
+        if (!s.due_at) return;
+        const due = new Date(s.due_at);
+        if (due < todayStart) {
+          overdueCount++;
+          const q = s.questions as unknown as { theories: { title: string } | null } | null;
+          const tTitle = q?.theories?.title;
+          if (tTitle) overdueTheories.add(tTitle);
+        }
+      });
+
+      setOverdueData({
+        count: overdueCount,
+        theories: Array.from(overdueTheories),
+      });
+
       // Compute local 7-day forecast
       const days = [];
       const now = new Date();
@@ -113,7 +140,7 @@ export default function ReviewPage() {
         });
       }
 
-      const forecast = days.map((day, idx) => {
+      const forecast = days.map((day) => {
         const dayStart = new Date(day.dateStr + 'T00:00:00');
         const dayEnd = new Date(day.dateStr + 'T23:59:59.999');
         
@@ -127,18 +154,10 @@ export default function ReviewPage() {
           const q = s.questions as unknown as { theories: { title: string } | null } | null;
           const tTitle = q?.theories?.title;
 
-          if (idx === 0) {
-            // Today includes everything due now or overdue
-            if (due <= dayEnd) {
-              count++;
-              if (tTitle) theoriesDue.add(tTitle);
-            }
-          } else {
-            // Future days only include items scheduled for that specific day
-            if (due >= dayStart && due <= dayEnd) {
-              count++;
-              if (tTitle) theoriesDue.add(tTitle);
-            }
+          // Days strictly count items falling on their respective date bounds
+          if (due >= dayStart && due <= dayEnd) {
+            count++;
+            if (tTitle) theoriesDue.add(tTitle);
           }
         });
 
@@ -296,11 +315,46 @@ export default function ReviewPage() {
         <div className="flex items-center gap-2">
           <span className="text-sm">📅</span>
           <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            7-Day Review Forecast
+            Review Forecast & Spaced Study Load
           </h3>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+          {/* Missed reviews card */}
+          <div
+            className={`p-3 rounded-xl border text-center flex flex-col justify-between min-h-[105px] transition-all duration-200 hover:shadow-sm ${
+              overdueData.count > 0
+                ? 'border-rose-500/25 bg-rose-500/[0.02] dark:bg-rose-500/[0.04]'
+                : 'border-border/80 bg-card/50'
+            }`}
+          >
+            <div>
+              <p className="text-[9px] font-extrabold text-muted-foreground/80 uppercase tracking-wider">
+                Missed
+              </p>
+              <p className={`text-xs font-bold mt-0.5 ${overdueData.count > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'}`}>
+                {overdueData.count > 0 ? 'Overdue' : 'All Clear'}
+              </p>
+            </div>
+            <div className="mt-2 space-y-1">
+              <div
+                className={`inline-flex items-center justify-center text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  overdueData.count > 0
+                    ? 'bg-rose-500 text-white'
+                    : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/10'
+                }`}
+              >
+                {overdueData.count > 0 ? `${overdueData.count} missed` : '0 missed'}
+              </div>
+              {overdueData.count > 0 && overdueData.theories.length > 0 && (
+                <p className="text-[8px] text-rose-600/90 dark:text-rose-400/90 font-bold uppercase tracking-wider leading-tight line-clamp-2 pt-1">
+                  {overdueData.theories.join(', ')}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Forecast Days */}
           {forecastData.map((day, idx) => (
             <div
               key={idx}
