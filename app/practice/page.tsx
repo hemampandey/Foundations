@@ -21,7 +21,6 @@ function PracticeContent() {
   const searchParams = useSearchParams();
   const theoryId = searchParams.get('theoryId');
   const journeyId = searchParams.get('journeyId');
-  const daily = searchParams.get('daily') === 'true';
   const { profile, loading: authLoading } = useProfile();
 
   // Core data
@@ -60,8 +59,8 @@ function PracticeContent() {
   // Initial data load — inline IIFE to satisfy set-state-in-effect lint rule.
   useEffect(() => {
     (async () => {
-      if (!theoryId && !journeyId && !daily) {
-        setErrorMsg('No theory ID, journey ID, or daily flag was provided.');
+      if (!theoryId && !journeyId) {
+        setErrorMsg('No theory ID or journey ID was provided.');
         setLoading(false);
         return;
       }
@@ -100,65 +99,6 @@ function PracticeContent() {
           } else {
             setQuestions(qList);
             questionStartTime.current = Date.now();
-          }
-        } else if (daily) {
-          setTheory({ title: 'Daily Practice Deck' } as Theory);
-
-          // Fetch due review questions for the current user to prioritize them
-          const { data: dueSchedules } = await supabase
-            .from('review_schedule')
-            .select('question_id, questions:questions(*)')
-            .eq('user_id', (await supabase.auth.getUser()).data.user?.id ?? '')
-            .lte('due_at', new Date().toISOString());
-
-          const dueQuestions = (dueSchedules ?? [])
-            .map((s) => (s as unknown as { questions: Question | null }).questions)
-            .filter((q): q is Question => q !== null);
-
-          if (dueQuestions.length >= 10) {
-            // If we have 10 or more due questions, review the first 10
-            const shuffled = [...dueQuestions].sort(() => 0.5 - Math.random());
-            setQuestions(shuffled.slice(0, 10));
-            questionStartTime.current = Date.now();
-          } else {
-            // Load published theories to fill the remaining slots
-            const { data: theoryList, error: tErr } = await supabase
-              .from('theories')
-              .select('id')
-              .eq('status', 'published');
-
-            if (tErr) throw tErr;
-            if (!theoryList || theoryList.length === 0) {
-              throw new Error('No published theories found.');
-            }
-
-            // Load approved questions from those theories
-            const { data: qData, error: qErr } = await supabase
-              .from('questions')
-              .select('*')
-              .in('theory_id', theoryList.map((t) => t.id))
-              .eq('status', 'approved');
-
-            if (qErr) throw qErr;
-
-            // Filter out questions already in dueQuestions to avoid duplicates
-            const dueIds = new Set(dueQuestions.map((q) => q.id));
-            const remainingPool = (qData ?? []).filter((q) => !dueIds.has(q.id));
-
-            // Shuffle remaining and pick required count
-            const needed = 10 - dueQuestions.length;
-            const shuffledRemaining = [...remainingPool].sort(() => 0.5 - Math.random());
-            const extraQuestions = shuffledRemaining.slice(0, needed);
-
-            // Combine and shuffle final list
-            const combined = [...dueQuestions, ...extraQuestions].sort(() => 0.5 - Math.random());
-
-            if (combined.length === 0) {
-              setErrorMsg('No approved questions were found.');
-            } else {
-              setQuestions(combined as Question[]);
-              questionStartTime.current = Date.now();
-            }
           }
         } else {
           // Load theory
@@ -216,7 +156,7 @@ function PracticeContent() {
         setLoading(false);
       }
     })();
-  }, [theoryId, journeyId, daily]);
+  }, [theoryId, journeyId]);
 
   // Submit answer — declared before keyboard effect that references it.
   const handleSubmitAnswer = useCallback(async () => {
