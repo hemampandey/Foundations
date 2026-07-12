@@ -1,33 +1,34 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
-import { HelpCircle, ArrowLeft } from 'lucide-react';
+import { Compass } from 'lucide-react';
 
 export default function NotFound() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center animate-fade-in">
-      <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 text-primary mb-6">
-        <HelpCircle className="w-8 h-8" />
+    <div className="flex flex-1 flex-col items-center justify-center min-h-[70vh] px-6 text-center space-y-6 animate-fade-in">
+      <div className="relative flex items-center justify-center w-20 h-20 bg-indigo-500/10 text-indigo-500 rounded-3xl select-none mb-2 shadow-sm">
+        <Compass className="w-10 h-10 animate-pulse" />
       </div>
 
-      <h2 className="text-xl font-bold font-display text-foreground mb-2">
-        Page Not Found
-      </h2>
-
-      <p className="text-sm text-muted-foreground max-w-md mb-6">
-        The page you are looking for doesn&apos;t exist or has been moved. 
-        You can navigate back to the dashboard to resume your theory training.
-      </p>
-
-      <div className="flex gap-3">
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-all cursor-pointer shadow-md shadow-primary/10 text-xs"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Dashboard
-        </Link>
+      <div className="space-y-2 max-w-sm">
+        <span className="text-xs font-bold text-primary uppercase tracking-widest bg-primary/10 px-3 py-1 rounded-full">
+          404 Error
+        </span>
+        <h1 className="text-2xl font-extrabold text-foreground font-display mt-3">
+          Page Not Found
+        </h1>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          The page you are looking for doesn&rsquo;t exist, or has been moved to a new destination.
+        </p>
       </div>
+
+      <Link
+        href="/dashboard"
+        className="px-5 py-2.5 bg-primary text-primary-foreground font-bold text-xs rounded-xl hover:opacity-95 transition-all shadow-md shadow-primary/15 cursor-pointer"
+      >
+        Return to Dashboard
+      </Link>
     </div>
   );
 }

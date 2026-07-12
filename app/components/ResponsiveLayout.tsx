@@ -11,6 +11,8 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const isAuth = pathname?.startsWith('/auth');
+  const validPaths = ['/', '/auth', '/dashboard', '/progress', '/practice', '/admin'];
+  const is404 = pathname ? !validPaths.some(p => pathname === p || pathname.startsWith(p + '/')) : false;
   const { profile, progress, accuracy } = useProfile();
 
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -26,7 +28,7 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
   return (
     <div className="app-inner-canvas flex flex-col md:flex-row">
       {/* Sidebar (receives mobileOpen state for mobile overlay mode) */}
-      {!isAuth && (
+      {!isAuth && !is404 && (
         <Suspense fallback={<div className="w-[230px] bg-card border-r border-border shrink-0 hidden md:block" />}>
           <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
         </Suspense>
@@ -35,7 +37,7 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 h-full relative">
         {/* Mobile Header (only visible on mobile screens) */}
-        {!isAuth && (
+        {!isAuth && !is404 && (
           <header className="flex md:hidden items-center justify-between px-4 h-14 border-b border-border bg-card shrink-0 z-30 select-none">
             <button
               onClick={() => setMobileOpen(true)}

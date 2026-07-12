@@ -1,17 +1,10 @@
 import { NextResponse } from 'next/server';
 
 /**
- * Next.js Middleware — Security Headers & Request Handling
+ * Next.js Proxy — Security Headers & Request Handling
  *
- * The standard @supabase/supabase-js client stores auth tokens in
- * localStorage (browser-only), so server-side cookie checks are not
- * possible without migrating to @supabase/ssr.
- *
- * Auth protection is handled client-side by each page component
- * (Sidebar, Dashboard, Admin, Practice all check getCurrentProfile()
- * and redirect to /auth when no session is found).
- *
- * This middleware adds production security headers to every response.
+ * Auth protection is handled client-side by each page component.
+ * This proxy adds production security headers to every response.
  */
 
 export function proxy() {
