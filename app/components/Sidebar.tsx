@@ -10,7 +10,8 @@ import type { Profile } from '@/lib/types';
 import {
   BookOpen, BarChart3, User, LogOut,
   ShieldAlert, Search, PanelLeft, PanelLeftClose, ChevronDown, ChevronUp, Sun, Moon,
-  Globe, HelpCircle, ArrowUpCircle, Info, ChevronsUpDown, ChevronRight, Settings
+  Globe, HelpCircle, ArrowUpCircle, Info, ChevronsUpDown, ChevronRight, Settings,
+  Brain
 } from 'lucide-react';
 
 interface SidebarTheoryPractice {
@@ -439,7 +440,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                   : 'text-muted-foreground hover:text-foreground hover:bg-secondary/45 border-transparent'
                 }`}
             >
-              <BookOpen className="w-4 h-4 shrink-0" />
+              <Brain className="w-4 h-4 shrink-0" />
               {!collapsed && (
                 <span className="flex items-center gap-2">
                   Review

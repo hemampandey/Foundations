@@ -9,7 +9,7 @@ import { sm2, gradeFromAttempt } from '@/lib/sm2';
 import { xpToLevel } from '@/lib/utils';
 import { playSound } from '@/lib/audio';
 import {
-  ArrowLeft, BookOpen, Award, Lightbulb, ChevronRight, Clock, CalendarCheck, Zap,
+  ArrowLeft, Award, Lightbulb, ChevronRight, Clock, CalendarCheck, Zap, Brain
 } from 'lucide-react';
 
 export default function ReviewPage() {
@@ -406,7 +406,7 @@ export default function ReviewPage() {
         <div className="max-w-md mx-auto space-y-6">
           <div className="text-center space-y-3">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-indigo-500/10 text-indigo-500 mb-2">
-              <BookOpen className="w-8 h-8" />
+              <Brain className="w-8 h-8" />
             </div>
             <h2 className="text-2xl font-bold font-display text-foreground">Daily Review</h2>
             <p className="text-xs text-muted-foreground leading-relaxed max-w-xs mx-auto">
