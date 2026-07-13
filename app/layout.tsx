@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Foundations | Counselling Theory Mastery Trainer',
+  title: 'Foundations | Theory Mastery Trainer',
   description:
-    'Build durable conceptual mastery of counselling theories through adaptive, spaced-repetition journeys.',
+    'Build durable conceptual mastery of theories through adaptive, spaced-repetition journeys.',
   robots: {
     index: false,
     follow: false,

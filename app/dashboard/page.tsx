@@ -211,7 +211,7 @@ export default function DashboardPage() {
   const streak = progress?.streak_days ?? 0;
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-5 animate-fade-in">
+    <div className="w-full space-y-5 animate-fade-in">
       <StatsHeader
         role={profile?.role}
         streak={streak}

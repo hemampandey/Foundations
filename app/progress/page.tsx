@@ -305,7 +305,7 @@ export default function ProgressPage() {
   const speedAreaPath = speedPoints.length > 0 ? `${speedPath} L ${speedPoints[speedPoints.length - 1].x} ${paddingTop + chartH} L ${speedPoints[0].x} ${paddingTop + chartH} Z` : '';
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-5 animate-fade-in">
+    <div className="w-full space-y-5 animate-fade-in">
       <StatsHeader
         role={profile?.role}
         streak={streak}

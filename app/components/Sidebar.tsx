@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { supabase, devUpdateUserRole } from '@/lib/supabase';
 import { useProfile } from '@/app/components/ProfileProvider';
@@ -357,8 +358,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
 
       <aside
         className={`h-full border-r border-border bg-[#f9f9fb] dark:bg-[#0b0f19] flex-col justify-between p-4 transition-all duration-300 shrink-0 select-none
-          ${mobileOpen 
-            ? 'fixed inset-y-0 left-0 w-[240px] z-50 flex animate-slide-in' 
+          ${mobileOpen
+            ? 'fixed inset-y-0 left-0 w-[240px] z-50 flex animate-slide-in'
             : 'hidden md:flex'
           }
           ${collapsed ? 'md:w-[68px]' : 'md:w-[230px]'}`}
@@ -370,9 +371,11 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
           <div className="flex items-center justify-between h-10 px-1 shrink-0">
             <Link href="/dashboard" className="flex items-center gap-2 min-w-0">
               {!collapsed && (
-                <span className="font-display font-bold text-lg text-foreground tracking-tight truncate">
-                  Foundations
-                </span>
+                <>
+                  <span className="font-display font-bold text-sm text-foreground tracking-tight truncate">
+                    Foundations
+                  </span>
+                </>
               )}
             </Link>
             <div className="flex items-center gap-1 shrink-0">
@@ -408,9 +411,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
           <div className="px-1 shrink-0">
             <Link
               href="/review?action=start"
-              className={`flex items-center gap-2.5 border border-border bg-card rounded-full text-xs font-semibold hover:bg-secondary transition-all cursor-pointer shadow-sm w-full hover-glow-sweep ${
-                collapsed ? 'justify-center p-2 h-9 w-9' : 'px-3.5 py-2'
-              } ${reviewDueCount > 0 ? 'border-indigo-500/30 dark:border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.08)] bg-indigo-500/[0.01] animate-pulse-glow' : ''}`}
+              className={`flex items-center gap-2.5 border border-border bg-card rounded-full text-xs font-semibold hover:bg-secondary transition-all cursor-pointer shadow-sm w-full hover-glow-sweep ${collapsed ? 'justify-center p-2 h-9 w-9' : 'px-3.5 py-2'
+                } ${reviewDueCount > 0 ? 'border-indigo-500/30 dark:border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.08)] bg-indigo-500/[0.01] animate-pulse-glow' : ''}`}
             >
               {!collapsed && (
                 <span>
@@ -496,8 +498,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                       <Link
                         href="/admin?tab=theories"
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'theories'
-                            ? 'text-primary font-bold bg-primary/5'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold bg-primary/5'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
                         <span>Manage Theories</span>
@@ -507,8 +509,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                       <Link
                         href="/admin?tab=questions"
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'questions'
-                            ? 'text-primary font-bold bg-primary/5'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold bg-primary/5'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
                         <span>Manage MCQs</span>
@@ -518,8 +520,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                       <Link
                         href="/admin?tab=review"
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'review'
-                            ? 'text-primary font-bold bg-primary/5'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold bg-primary/5'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
                         <div className="flex items-center gap-1.5">
@@ -536,8 +538,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                       <Link
                         href="/admin?tab=journeys"
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'journeys'
-                            ? 'text-primary font-bold bg-primary/5'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold bg-primary/5'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
                         <span>Manage Journeys</span>
@@ -756,10 +758,14 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
 
           {/* Serif brand label */}
           {!collapsed && (
-            <div className="text-center border-t border-border/60 pt-3 mt-1">
-              <span className="font-serif italic text-2xl font-bold tracking-tight text-foreground/80 select-none">
-                Ally
-              </span>
+            <div className="flex justify-center border-t border-border/60 pt-3 mt-1">
+              <Image
+                src="/ally-blue-logo.svg"
+                alt="Ally Logo"
+                width={50}
+                height={24}
+                className="shrink-0"
+              />
             </div>
           )}
         </div>

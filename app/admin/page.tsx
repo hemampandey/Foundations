@@ -138,7 +138,7 @@ function AdminPageContent() {
   const draftQuestions = questions.filter((q) => q.status === 'draft');
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-5 animate-fade-in">
+    <div className="w-full space-y-5 animate-fade-in">
       {/* Top Banner */}
       <div className="flex flex-row items-center justify-between gap-4 border-b border-border pb-4">
         <h1 className="text-xl sm:text-2xl font-extrabold font-display text-foreground">
