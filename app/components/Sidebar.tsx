@@ -407,14 +407,19 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
           {/* Practice Button */}
           <div className="px-1 shrink-0">
             <Link
-              href="/review"
+              href="/review?action=start"
               className={`flex items-center gap-2.5 border border-border bg-card rounded-full text-xs font-semibold hover:bg-secondary transition-all cursor-pointer shadow-sm w-full ${collapsed ? 'justify-center p-2 h-9 w-9' : 'px-3.5 py-2'
                 }`}
             >
               <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-secondary text-foreground text-xs font-bold">
                 +
               </span>
-              {!collapsed && <span>Daily Practice Deck</span>}
+              {!collapsed && (
+                <span>
+                  Daily Practice Deck{' '}
+                  {reviewDueCount > 0 ? `(${reviewDueCount})` : ''}
+                </span>
+              )}
             </Link>
           </div>
 
