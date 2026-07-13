@@ -76,6 +76,32 @@ interface HistoryAttemptItem {
   } | null;
 }
 
+interface ForecastScheduleItem {
+  due_at: string | null;
+  questions: {
+    id: string;
+    stem: string;
+    difficulty: number;
+    bloom_level: string;
+    theories: {
+      title: string;
+    } | null;
+  } | null;
+}
+
+interface SelectedForecastItem {
+  stem: string;
+  difficulty: number;
+  bloomLevel: string;
+  theoryTitle: string;
+}
+
+interface SelectedDayDetails {
+  title: string;
+  count: number;
+  items: SelectedForecastItem[];
+}
+
 function ReviewContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -93,6 +119,7 @@ function ReviewContent() {
 
   // Spaced forecast calendar details
   const [forecastData, setForecastData] = useState<{
+    dateStr: string;
     dayName: string;
     dayLabel: string;
     count: number;
@@ -102,6 +129,11 @@ function ReviewContent() {
     count: number;
     theories: string[];
   }>({ count: 0, theories: [] });
+
+  // Interactive Forecast Details Popover State
+  const [allForecastSchedules, setAllForecastSchedules] = useState<ForecastScheduleItem[]>([]);
+  const [selectedForecastDay, setSelectedForecastDay] = useState<SelectedDayDetails | null>(null);
+  const [popoverPosition, setPopoverPosition] = useState<{ left: string; right?: string; top: string } | null>(null);
 
   // Browse Schedules state
   const [allSchedules, setAllSchedules] = useState<BrowseScheduleItem[]>([]);
@@ -180,12 +212,45 @@ function ReviewContent() {
         .select(`
           due_at,
           questions (
+            id,
+            stem,
+            difficulty,
+            bloom_level,
             theories (
               title
             )
           )
         `)
         .eq('user_id', profile.id);
+
+      // Format query results to handle array representation from PostgREST joins
+      const formattedForecast: ForecastScheduleItem[] = (forecastSchedules ?? []).map((rawItem: unknown) => {
+        const s = rawItem as {
+          due_at: string | null;
+          questions: unknown;
+        };
+        const rawQ = Array.isArray(s.questions)
+          ? (s.questions[0] as { id: string; stem: string; difficulty: number; bloom_level: string; theories: unknown } | undefined)
+          : (s.questions as { id: string; stem: string; difficulty: number; bloom_level: string; theories: unknown } | null);
+        const rawTheory = rawQ && Array.isArray(rawQ.theories)
+          ? (rawQ.theories[0] as { title: string } | undefined)
+          : (rawQ?.theories as { title: string } | null);
+
+        return {
+          due_at: s.due_at,
+          questions: rawQ ? {
+            id: rawQ.id,
+            stem: rawQ.stem,
+            difficulty: Number(rawQ.difficulty),
+            bloom_level: rawQ.bloom_level,
+            theories: rawTheory ? {
+              title: rawTheory.title
+            } : null
+          } : null
+        };
+      });
+
+      setAllForecastSchedules(formattedForecast);
 
       // Compute overdue/missed reviews (scheduled before today)
       const todayStart = new Date();
@@ -245,6 +310,7 @@ function ReviewContent() {
         });
 
         return {
+          dateStr: day.dateStr,
           dayName: day.dayName,
           dayLabel: day.dayLabel,
           count,
@@ -487,6 +553,40 @@ function ReviewContent() {
     }
   };
 
+  const handleForecastCardClick = (
+    e: React.MouseEvent<HTMLDivElement>,
+    title: string,
+    items: SelectedForecastItem[]
+  ) => {
+    const target = e.currentTarget;
+    const parent = target.parentElement;
+    if (!parent) return;
+
+    const leftOffset = target.offsetLeft;
+    const topOffset = target.offsetTop + target.offsetHeight + 8; // 8px space below card
+    const containerWidth = parent.offsetWidth || 800;
+
+    // Check if the popover overflows the container (width ~320px)
+    if (leftOffset + 320 > containerWidth) {
+      setPopoverPosition({
+        left: 'auto',
+        right: `${Math.max(0, containerWidth - (leftOffset + target.offsetWidth))}px`,
+        top: `${topOffset}px`
+      });
+    } else {
+      setPopoverPosition({
+        left: `${leftOffset}px`,
+        top: `${topOffset}px`
+      });
+    }
+
+    setSelectedForecastDay({
+      title,
+      count: items.length,
+      items
+    });
+  };
+
   const toggleStem = (qId: string) => {
     setExpandedStems(prev => ({
       ...prev,
@@ -524,7 +624,24 @@ function ReviewContent() {
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {/* Missed reviews card */}
           <div
-            className={`p-3 rounded-xl border text-center flex flex-col justify-between min-h-[105px] transition-all duration-200 hover:shadow-sm ${
+            onClick={(e) => {
+              const todayStart = new Date();
+              todayStart.setHours(0, 0, 0, 0);
+
+              const items = allForecastSchedules
+                .filter(s => s.due_at && new Date(s.due_at) < todayStart && s.questions)
+                .map(s => ({
+                  stem: s.questions!.stem,
+                  difficulty: s.questions!.difficulty,
+                  bloomLevel: s.questions!.bloom_level,
+                  theoryTitle: s.questions!.theories?.title ?? 'General'
+                }));
+
+              handleForecastCardClick(e, 'Missed Reviews', items);
+            }}
+            role="button"
+            tabIndex={0}
+            className={`p-3 rounded-xl border text-center flex flex-col justify-between min-h-[105px] transition-all duration-250 hover:shadow-sm cursor-pointer hover:border-rose-500/40 hover:scale-[1.02] active:scale-[0.98] ${
               overdueData.count > 0
                 ? 'border-rose-500/25 bg-rose-500/[0.02] dark:bg-rose-500/[0.04]'
                 : 'border-border/80 bg-card/50'
@@ -560,7 +677,32 @@ function ReviewContent() {
           {forecastData.map((day, idx) => (
             <div
               key={idx}
-              className={`p-3 rounded-xl border text-center flex flex-col justify-between min-h-[105px] transition-all duration-200 hover:shadow-sm ${
+              onClick={(e) => {
+                const dayStart = new Date(day.dateStr + 'T00:00:00');
+                const dayEnd = new Date(day.dateStr + 'T23:59:59.999');
+
+                const items = allForecastSchedules
+                  .filter(s => {
+                    if (!s.due_at) return false;
+                    const due = new Date(s.due_at);
+                    return due >= dayStart && due <= dayEnd && s.questions;
+                  })
+                  .map(s => ({
+                    stem: s.questions!.stem,
+                    difficulty: s.questions!.difficulty,
+                    bloomLevel: s.questions!.bloom_level,
+                    theoryTitle: s.questions!.theories?.title ?? 'General'
+                  }));
+
+                handleForecastCardClick(
+                  e,
+                  `Forecast for ${day.dayName === 'Today' ? 'Today' : day.dayName === 'Tomorrow' ? 'Tomorrow' : day.dayLabel}`,
+                  items
+                );
+              }}
+              role="button"
+              tabIndex={0}
+              className={`p-3 rounded-xl border text-center flex flex-col justify-between min-h-[105px] transition-all duration-250 hover:shadow-sm cursor-pointer hover:border-indigo-500/40 hover:scale-[1.02] active:scale-[0.98] ${
                 day.count > 0
                   ? 'border-indigo-500/20 bg-indigo-500/[0.02] dark:bg-indigo-500/[0.04]'
                   : 'border-border/80 bg-card/50'
@@ -591,6 +733,83 @@ function ReviewContent() {
             </div>
           ))}
         </div>
+
+        {/* Floating absolute popover for forecast details */}
+        {selectedForecastDay && popoverPosition && (
+          <>
+            {/* Transparent backdrop to intercept click outs */}
+            <div 
+              className="fixed inset-0 z-40 bg-transparent"
+              onClick={() => {
+                setSelectedForecastDay(null);
+                setPopoverPosition(null);
+              }}
+            />
+            <div 
+              style={{
+                position: 'absolute',
+                top: popoverPosition.top,
+                left: popoverPosition.left !== 'auto' ? popoverPosition.left : undefined,
+                right: popoverPosition.right ? popoverPosition.right : undefined,
+              }}
+              className="z-50 w-72 sm:w-80 bg-card border border-border/90 rounded-2xl shadow-xl p-4 animate-scale-in text-left space-y-3.5"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                <div className="space-y-0.5">
+                  <h4 className="text-xs font-bold text-foreground font-display flex items-center gap-1.5">
+                    <span>📅</span>
+                    {selectedForecastDay.title}
+                  </h4>
+                  <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">
+                    {selectedForecastDay.count} {selectedForecastDay.count === 1 ? 'review item' : 'review items'} due
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedForecastDay(null);
+                    setPopoverPosition(null);
+                  }}
+                  className="p-1.5 rounded-xl hover:bg-secondary text-muted-foreground hover:text-foreground cursor-pointer transition-all"
+                  aria-label="Close"
+                >
+                  <span className="text-[10px] font-bold font-mono">✕</span>
+                </button>
+              </div>
+
+              {/* Scrollable Questions list */}
+              <div className="space-y-2">
+                <p className="text-[9px] font-extrabold text-muted-foreground/80 uppercase tracking-wider pl-0.5">Scheduled Questions</p>
+                {selectedForecastDay.count === 0 ? (
+                  <div className="py-6 text-center text-muted-foreground text-[10px] border border-dashed border-border rounded-xl">
+                    0 reviews scheduled
+                  </div>
+                ) : (
+                  <div className="max-h-60 overflow-y-auto pr-1 space-y-2">
+                    {selectedForecastDay.items.map((item, idx) => (
+                      <div key={idx} className="bg-secondary/20 border border-border/40 rounded-xl p-2.5 space-y-1.5 transition-all hover:border-border">
+                        <div className="flex items-center flex-wrap gap-1 text-[8px] font-extrabold uppercase">
+                          <span className="px-1 py-0.2 bg-secondary text-foreground rounded">
+                            {item.theoryTitle}
+                          </span>
+                          <span className="px-1 py-0.2 bg-blue-500/10 text-blue-600 rounded">
+                            {item.bloomLevel}
+                          </span>
+                          <span className="px-1 py-0.2 bg-amber-500/10 text-amber-600 rounded">
+                            L{item.difficulty}
+                          </span>
+                        </div>
+                        <p className="text-[11px] font-semibold text-foreground leading-relaxed line-clamp-2">
+                          {item.stem}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     );
   };
