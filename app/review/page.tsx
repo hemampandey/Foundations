@@ -856,20 +856,6 @@ function ReviewContent() {
             Strengthen long-term concepts. Tracks card repetition intervals and manages scheduled memory retention.
           </p>
         </div>
-
-        <div className="flex gap-2">
-          <button
-            onClick={() => {
-              setStarted(true);
-              questionStartTime.current = Date.now();
-            }}
-            disabled={dueItems.length === 0}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-xs hover:opacity-95 transition-all cursor-pointer shadow-md shadow-indigo-500/15 flex items-center justify-center gap-1.5 disabled:opacity-50"
-          >
-            <Sparkles className="w-4 h-4" />
-            Start Scheduled Quiz ({dueItems.length})
-          </button>
-        </div>
       </div>
 
       {/* Navigation Tab Bar */}
