@@ -10,7 +10,7 @@ import { xpToLevel } from '@/lib/utils';
 import { playSound } from '@/lib/audio';
 import {
   ArrowLeft, Award, Lightbulb, ChevronRight, Clock, CalendarCheck, Zap, Brain,
-  Search, SlidersHorizontal, History, Calendar, CheckSquare, Sparkles, ChevronDown, ChevronUp
+  Search, SlidersHorizontal, History, Calendar, CheckSquare, ChevronDown, ChevronUp
 } from 'lucide-react';
 
 interface BrowseScheduleItem {
@@ -1119,7 +1119,7 @@ function ReviewContent() {
             <div className="space-y-3.5">
               {historyAttempts.map((attempt, idx) => {
                 const isCorrect = attempt.is_correct;
-                const formattedDate = new Date(attempt.created_at).toLocaleDateString(undefined, {
+                const formattedDate = new Date(attempt.created_at).toLocaleString(undefined, {
                   dateStyle: 'medium',
                   timeStyle: 'short'
                 });
