@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { xpToLevel } from '@/lib/utils';
+import { useCountUp } from '@/lib/useCountUp';
 
 interface StatsHeaderProps {
   role?: 'admin' | 'learner';
@@ -18,7 +19,14 @@ export default function StatsHeader({
   xp,
   description,
 }: StatsHeaderProps) {
-  const levelInfo = xpToLevel(xp);
+  // Animate stats values
+  const animatedStreak = useCountUp(streak, 800);
+  const animatedAccuracy = useCountUp(accuracy, 800);
+  const animatedXp = useCountUp(xp, 1000);
+
+  // Compute level details based on current animated XP
+  const levelInfo = xpToLevel(animatedXp);
+  const targetLevelInfo = xpToLevel(xp);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -40,15 +48,15 @@ export default function StatsHeader({
         </p>
       </div>
 
-      <div className="hidden md:flex flex-wrap items-center gap-4 sm:gap-6 bg-card border border-border/85 rounded-2xl p-3 px-5 shadow-[0_8px_30px_rgb(0,0,0,0.02)] shrink-0 relative overflow-hidden backdrop-blur-sm">
+      <div className="hidden md:flex flex-wrap items-center gap-4 sm:gap-6 bg-card border border-border/85 rounded-2xl p-3 px-5 shadow-[0_8px_30px_rgb(0,0,0,0.02)] shrink-0 relative overflow-hidden backdrop-blur-sm glass-card">
         {/* Streak */}
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500 font-bold select-none text-base">
-            🔥
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500 font-bold select-none text-base relative">
+            <span className={streak > 0 ? "animate-pulse" : ""}>🔥</span>
           </div>
           <div>
             <div className="text-sm font-bold text-foreground leading-tight">
-              {streak}
+              {animatedStreak}
             </div>
             <p className="text-[9px] text-muted-foreground/80 font-bold uppercase tracking-wider">Day Streak</p>
           </div>
@@ -63,7 +71,7 @@ export default function StatsHeader({
           </div>
           <div>
             <div className={`text-sm font-bold leading-tight ${accuracy >= 60 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-500"}`}>
-              {accuracy}%
+              {animatedAccuracy}%
             </div>
             <p className="text-[9px] text-muted-foreground/80 font-bold uppercase tracking-wider">Accuracy</p>
           </div>
@@ -75,14 +83,14 @@ export default function StatsHeader({
         <div className="flex items-center gap-4">
           <div className="text-left">
             <div className="flex items-center justify-between gap-6 text-xs font-bold text-foreground">
-              <span>Level {levelInfo.level}</span>
+              <span>Level {targetLevelInfo.level}</span>
               <span className="text-[10px] text-muted-foreground/85 font-mono">
                 {levelInfo.currentXp}/{levelInfo.requiredXp} XP
               </span>
             </div>
-            <div className="w-32 sm:w-40 h-2 bg-secondary rounded-full overflow-hidden border border-border/70 mt-1">
+            <div className="w-32 sm:w-40 h-2 bg-secondary rounded-full overflow-hidden border border-border/70 mt-1 relative">
               <div
-                className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-500 ease-out"
+                className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-300 ease-out"
                 style={{ width: `${Math.min(100, (levelInfo.currentXp / levelInfo.requiredXp) * 100)}%` }}
               />
             </div>
@@ -90,10 +98,12 @@ export default function StatsHeader({
 
           {/* Star badge */}
           <div className="relative flex items-center justify-center shrink-0 w-9 h-9 select-none">
-            <svg className="w-9 h-9 drop-shadow-[0_2px_8px_rgba(139,92,246,0.25)] animate-pulse" viewBox="0 0 100 100">
-              <polygon points="50,0 93,25 93,75 50,100 7,75 7,25" fill="#6366f1" />
-              <polygon points="50,6 87,28 87,72 50,94 13,72 13,28" fill="#818cf8" />
-              <polygon points="50,12 81,30 81,70 50,88 19,70 19,30" fill="url(#purpleGrad)" />
+            <svg className="w-9 h-9 drop-shadow-[0_2px_8px_rgba(139,92,246,0.25)]" viewBox="0 0 100 100">
+              <g className="animate-spin-slow origin-center">
+                <polygon points="50,0 93,25 93,75 50,100 7,75 7,25" fill="#6366f1" />
+                <polygon points="50,6 87,28 87,72 50,94 13,72 13,28" fill="#818cf8" />
+                <polygon points="50,12 81,30 81,70 50,88 19,70 19,30" fill="url(#purpleGrad)" />
+              </g>
               <path d="M50,28 L54,39 L66,39 L56,47 L60,58 L50,51 L40,58 L44,47 L34,39 L46,39 Z" fill="#ffffff" />
               <defs>
                 <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">

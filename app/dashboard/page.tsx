@@ -238,15 +238,16 @@ export default function DashboardPage() {
                 Journeys
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {journeys.map((journey) => {
+                {journeys.map((journey, idx) => {
                   const qCount = journeyQuestionCounts[journey.id] || 0;
                   const isPlayable = qCount > 0;
+                  const staggerClass = `stagger-${Math.min(12, idx + 1)}`;
 
                   return (
                     <div
                       key={journey.id}
                       onClick={() => isPlayable && router.push(`/practice?journeyId=${journey.id}`)}
-                      className="group premium-card p-6 flex flex-col justify-between cursor-pointer overflow-hidden"
+                      className={`group premium-card p-6 flex flex-col justify-between cursor-pointer overflow-hidden animate-fade-in ${staggerClass}`}
                     >
                       {/* Interactive category background glow */}
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
@@ -298,12 +299,13 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {theories.map((theory) => {
+                {theories.map((theory, idx) => {
                   const qCount = theoryQuestionCounts[theory.id] || 0;
                   const isPlayable = qCount > 0;
                   const stats = theoryStats[theory.id];
                   const attemptsCount = stats?.total || 0;
                   const accuracyVal = stats?.accuracy || 0;
+                  const staggerClass = `stagger-${Math.min(12, journeys.length + idx + 1)}`;
 
                   let glowClass = 'group-hover:border-primary/40 from-primary/5';
                   let pillClass = 'bg-primary/5 text-primary border-primary/10';
@@ -323,7 +325,8 @@ export default function DashboardPage() {
                     <div
                       key={theory.id}
                       onClick={() => isPlayable && router.push(`/practice?theoryId=${theory.id}`)}
-                      className="group premium-card p-6 flex flex-col justify-between cursor-pointer overflow-hidden">
+                      className={`group premium-card p-6 flex flex-col justify-between cursor-pointer overflow-hidden animate-fade-in ${staggerClass}`}
+                    >
                       <div className={`absolute inset-0 bg-gradient-to-br ${glowClass} via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none`} />
 
                       <div className="space-y-3.5 relative z-10 flex-1 flex flex-col justify-between">

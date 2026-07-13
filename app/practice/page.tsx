@@ -14,6 +14,36 @@ import {
 } from 'lucide-react';
 import { playSound } from '@/lib/audio';
 
+function ConfettiShower() {
+  const [particles] = useState(() => {
+    const colors = ['#6366f1', '#a855f7', '#ec4899', '#10b981', '#f59e0b', '#3b82f6'];
+    return Array.from({ length: 65 }).map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      delay: `${Math.random() * 1.2}s`,
+      duration: `${2.2 + Math.random() * 1.8}s`,
+    }));
+  });
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-40">
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          className="confetti-particle"
+          style={{
+            left: p.left,
+            backgroundColor: p.color,
+            animationDelay: p.delay,
+            animationDuration: p.duration,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 // Practice Session Content
 
 function PracticeContent() {
@@ -396,7 +426,8 @@ function PracticeContent() {
       : '—';
 
     return (
-      <div className="w-full max-w-md mx-auto py-8 text-center space-y-6 animate-fade-in">
+      <div className="w-full max-w-md mx-auto py-8 text-center space-y-6 animate-fade-in relative">
+        <ConfettiShower />
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-emerald-500/10 text-emerald-500 mb-2">
           <Award className="w-8 h-8" />
         </div>
@@ -561,11 +592,11 @@ function PracticeContent() {
       </div>
 
       {/* Question Card */}
-      <div className="overflow-hidden border border-border bg-card rounded-2xl shadow-sm relative pt-1">
+      <div key={currentIdx} className="overflow-hidden border border-border bg-card rounded-2xl shadow-sm relative pt-1 animate-scale-in">
         {/* Session Progress Bar */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-secondary">
           <div
-            className="h-full bg-primary transition-all duration-300 ease-out"
+            className="h-full bg-primary transition-all duration-500 ease-out"
             style={{ width: `${((currentIdx + (isSubmitted ? 1 : 0)) / questions.length) * 100}%` }}
           />
         </div>
@@ -600,6 +631,7 @@ function PracticeContent() {
 
               let optionStyle = 'border-border hover:bg-secondary/50';
               let badgeStyle = 'bg-secondary text-secondary-foreground';
+              let animationClass = '';
 
               if (selectedIdx === idx) {
                 optionStyle = 'border-primary bg-primary/5';
@@ -610,9 +642,11 @@ function PracticeContent() {
                 if (idx === currentQ.correct_index) {
                   optionStyle = 'border-emerald-500 bg-emerald-500/5 text-emerald-900 font-semibold';
                   badgeStyle = 'bg-emerald-500 text-white';
+                  animationClass = 'animate-correct-pulse';
                 } else if (selectedIdx === idx) {
                   optionStyle = 'border-destructive bg-destructive/5 text-destructive font-semibold';
                   badgeStyle = 'bg-destructive text-white';
+                  animationClass = 'animate-shake';
                 } else {
                   optionStyle = 'border-border opacity-50 pointer-events-none';
                 }
@@ -623,7 +657,7 @@ function PracticeContent() {
                   key={idx}
                   disabled={isSubmitted}
                   onClick={() => setSelectedIdx(idx)}
-                  className={`relative w-full flex items-center gap-3.5 p-3.5 text-left border rounded-xl transition-all duration-200 text-xs sm:text-sm cursor-pointer ${optionStyle}`}
+                  className={`relative w-full flex items-center gap-3.5 p-3.5 text-left border rounded-xl transition-all duration-200 text-xs sm:text-sm cursor-pointer ${optionStyle} ${animationClass}`}
                   role="radio"
                   aria-checked={selectedIdx === idx}
                   aria-label={`Option ${optionLetter}: ${option}`}

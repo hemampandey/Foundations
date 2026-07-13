@@ -408,8 +408,9 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
           <div className="px-1 shrink-0">
             <Link
               href="/review?action=start"
-              className={`flex items-center gap-2.5 border border-border bg-card rounded-full text-xs font-semibold hover:bg-secondary transition-all cursor-pointer shadow-sm w-full ${collapsed ? 'justify-center p-2 h-9 w-9' : 'px-3.5 py-2'
-                }`}
+              className={`flex items-center gap-2.5 border border-border bg-card rounded-full text-xs font-semibold hover:bg-secondary transition-all cursor-pointer shadow-sm w-full hover-glow-sweep ${
+                collapsed ? 'justify-center p-2 h-9 w-9' : 'px-3.5 py-2'
+              } ${reviewDueCount > 0 ? 'border-indigo-500/30 dark:border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.08)] bg-indigo-500/[0.01] animate-pulse-glow' : ''}`}
             >
               {!collapsed && (
                 <span>
@@ -421,33 +422,33 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
           </div>
 
           {/* Main Navigation Links */}
-          <nav className="space-y-0.5 px-1 shrink-0" aria-label="Primary">
+          <nav className="space-y-0.5 px-1 shrink-0 animate-fade-in" aria-label="Primary">
             <Link
               href="/dashboard"
-              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-150 border ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
+              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-200 border hover-glow-sweep ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
                 } ${pathname === '/dashboard' || pathname.startsWith('/practice')
-                  ? 'bg-primary/5 text-primary border-primary/10'
+                  ? 'bg-primary/5 text-primary border-primary/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
                   : 'text-muted-foreground hover:text-foreground hover:bg-secondary/45 border-transparent'
                 }`}
             >
-              <BookOpen className="w-4 h-4 shrink-0" />
+              <BookOpen className="w-4 h-4 shrink-0 transition-transform duration-250 group-hover:scale-110" />
               {!collapsed && <span>Learn</span>}
             </Link>
 
             <Link
               href="/review"
-              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-150 border ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
+              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-200 border hover-glow-sweep ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
                 } ${pathname === '/review'
-                  ? 'bg-primary/5 text-primary border-primary/10'
+                  ? 'bg-primary/5 text-primary border-primary/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
                   : 'text-muted-foreground hover:text-foreground hover:bg-secondary/45 border-transparent'
                 }`}
             >
-              <Brain className="w-4 h-4 shrink-0" />
+              <Brain className="w-4 h-4 shrink-0 transition-transform duration-250 group-hover:scale-110" />
               {!collapsed && (
                 <span className="flex items-center gap-2">
                   Review
                   {reviewDueCount > 0 && (
-                    <span className="text-[9px] font-bold text-white bg-indigo-500 px-1.5 py-0.5 rounded-full leading-none">
+                    <span className="text-[9px] font-bold text-white bg-indigo-500 px-1.5 py-0.5 rounded-full leading-none animate-scale-in">
                       {reviewDueCount}
                     </span>
                   )}
@@ -457,13 +458,13 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
 
             <Link
               href="/progress"
-              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-150 border ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
+              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-200 border hover-glow-sweep ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
                 } ${pathname === '/progress'
-                  ? 'bg-primary/5 text-primary border-primary/10'
+                  ? 'bg-primary/5 text-primary border-primary/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
                   : 'text-muted-foreground hover:text-foreground hover:bg-secondary/45 border-transparent'
                 }`}
             >
-              <BarChart3 className="w-4 h-4 shrink-0" />
+              <BarChart3 className="w-4 h-4 shrink-0 transition-transform duration-250 group-hover:scale-110" />
               {!collapsed && <span>Progress</span>}
             </Link>
 

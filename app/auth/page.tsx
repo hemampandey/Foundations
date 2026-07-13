@@ -98,15 +98,19 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-background animate-fade-in">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-background animate-fade-in overflow-hidden relative">
+      {/* Decorative ambient background particles */}
+      <div className="absolute top-10 left-10 w-72 h-72 rounded-full bg-primary/5 blur-[80px] pointer-events-none animate-drifting-1" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 rounded-full bg-violet-500/5 blur-[100px] pointer-events-none animate-drifting-2" />
+
       {/* Left Column: Visual Intro Banner */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-[#0b0f19] overflow-hidden flex-col justify-between p-12 border-r border-border/25">
         {/* Ambient Gradient Glows */}
-        <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] rounded-full bg-primary/10 blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-violet-500/10 blur-[100px] pointer-events-none" />
+        <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] rounded-full bg-primary/10 blur-[120px] pointer-events-none animate-drifting-3" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-violet-500/10 blur-[100px] pointer-events-none animate-drifting-1" />
 
         {/* Top Branding */}
-        <div className="relative z-10 flex items-center gap-2.5">
+        <div className="relative z-10 flex items-center gap-2.5 animate-scale-in stagger-1">
           <span className="font-display font-bold text-lg text-white tracking-tight">
             Foundations
           </span>
@@ -114,7 +118,7 @@ export default function AuthPage() {
 
         {/* Mid Hero Section */}
         <div className="relative z-10 space-y-8 my-auto">
-          <div className="space-y-4">
+          <div className="space-y-4 animate-fade-in stagger-2">
             <h1 className="text-4xl font-extrabold font-display leading-[1.15] text-white tracking-tight">
               Build Durable Mastery of <br />
               <span className="bg-gradient-to-r from-primary via-indigo-400 to-violet-400 bg-clip-text text-transparent">
@@ -128,7 +132,7 @@ export default function AuthPage() {
 
           {/* Benefit Cards */}
           <div className="space-y-4 max-w-md">
-            <div className="flex items-start gap-4 p-4 rounded-2xl border border-border/10 bg-white/[0.02] backdrop-blur-md transition-all hover:bg-white/[0.04]">
+            <div className="flex items-start gap-4 p-4 rounded-2xl border border-border/10 bg-white/[0.02] backdrop-blur-md transition-all hover:bg-white/[0.04] animate-fade-in stagger-3">
               <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20">
                 <Zap className="w-4 h-4" />
               </div>
@@ -140,7 +144,7 @@ export default function AuthPage() {
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 rounded-2xl border border-border/10 bg-white/[0.02] backdrop-blur-md transition-all hover:bg-white/[0.04]">
+            <div className="flex items-start gap-4 p-4 rounded-2xl border border-border/10 bg-white/[0.02] backdrop-blur-md transition-all hover:bg-white/[0.04] animate-fade-in stagger-4">
               <div className="p-2 bg-violet-500/10 text-violet-400 rounded-xl border border-violet-500/20">
                 <Sparkles className="w-4 h-4" />
               </div>
@@ -152,7 +156,7 @@ export default function AuthPage() {
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 rounded-2xl border border-border/10 bg-white/[0.02] backdrop-blur-md transition-all hover:bg-white/[0.04]">
+            <div className="flex items-start gap-4 p-4 rounded-2xl border border-border/10 bg-white/[0.02] backdrop-blur-md transition-all hover:bg-white/[0.04] animate-fade-in stagger-5">
               <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
                 <Flame className="w-4 h-4" />
               </div>
@@ -167,7 +171,7 @@ export default function AuthPage() {
         </div>
 
         {/* Footer Brand Info */}
-        <div className="relative z-10 border-t border-border/10 pt-4 flex justify-between items-center text-[10px] text-muted-foreground">
+        <div className="relative z-10 border-t border-border/10 pt-4 flex justify-between items-center text-[10px] text-muted-foreground animate-fade-in stagger-6">
           <span>© {new Date().getFullYear()} Foundations</span>
           <span className="font-serif italic text-sm text-white/50">Ally</span>
         </div>
@@ -180,7 +184,7 @@ export default function AuthPage() {
 
         <div className="w-full max-w-sm space-y-8 relative z-10">
           {/* Header Mobile Brand */}
-          <div className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-3">
+          <div className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-3 animate-scale-in stagger-2">
             <div className="lg:hidden flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-md">
               <Sparkles className="w-5 h-5 animate-pulse-glow" />
             </div>
@@ -195,7 +199,7 @@ export default function AuthPage() {
           </div>
 
           {/* Form Card */}
-          <div className="border border-border bg-card rounded-2xl p-6 shadow-xl shadow-primary/5 space-y-6">
+          <div className="border border-border bg-card rounded-2xl p-6 shadow-xl shadow-primary/5 space-y-6 glass-card animate-scale-in stagger-3">
             {/* Custom Tab Switcher */}
             <div className="flex p-1 bg-secondary/50 rounded-sm border border-border/40">
               <button
