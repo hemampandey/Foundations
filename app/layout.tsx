@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist, Geist_Mono, Inria_Sans } from 'next/font/google';
 import './globals.css';
 import ProfileProvider from '@/app/components/ProfileProvider';
 import ResponsiveLayout from '@/app/components/ResponsiveLayout';
@@ -13,6 +13,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+});
+
+const inriaSans = Inria_Sans({
+  variable: '--font-inria-sans',
+  subsets: ['latin'],
+  weight: ['300', '400', '700'],
 });
 
 export const metadata: Metadata = {
@@ -45,7 +51,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${inriaSans.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>

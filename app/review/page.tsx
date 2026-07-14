@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { useProfile } from '@/app/components/ProfileProvider';
 import type { ReviewScheduleWithQuestion } from '@/lib/types';
@@ -9,7 +10,7 @@ import { sm2, gradeFromAttempt } from '@/lib/sm2';
 import { xpToLevel } from '@/lib/utils';
 import { playSound } from '@/lib/audio';
 import {
-  ArrowLeft, Award, Lightbulb, ChevronRight, Clock, CalendarCheck, Zap, Brain,
+  ArrowLeft, Award, Lightbulb, ChevronRight, Clock, CalendarCheck, Zap,
   Search, SlidersHorizontal, History, Calendar, CheckSquare, ChevronDown, ChevronUp
 } from 'lucide-react';
 
@@ -135,6 +136,9 @@ function ReviewContent() {
   const [selectedForecastDay, setSelectedForecastDay] = useState<SelectedDayDetails | null>(null);
   const [popoverPosition, setPopoverPosition] = useState<{ left: string; right?: string; top: string } | null>(null);
 
+  // AI Diagnostics weak theories state
+  const [weakTheories, setWeakTheories] = useState<{ id: string; title: string; accuracy: number; total: number }[]>([]);
+
   // Browse Schedules state
   const [allSchedules, setAllSchedules] = useState<BrowseScheduleItem[]>([]);
   const [loadingSchedules, setLoadingSchedules] = useState(false);
@@ -251,6 +255,62 @@ function ReviewContent() {
       });
 
       setAllForecastSchedules(formattedForecast);
+
+      // Fetch user attempts to compute weak theories diagnostics
+      const { data: attemptsData } = await supabase
+        .from('attempts')
+        .select(`
+          id,
+          is_correct,
+          questions (
+            theories (
+              id,
+              title
+            )
+          )
+        `)
+        .eq('user_id', profile.id);
+
+      const theoryStats: Record<string, { id: string; title: string; correct: number; total: number }> = {};
+      if (attemptsData) {
+        (attemptsData as unknown as {
+          is_correct: boolean;
+          questions: {
+            theories: {
+              id: string;
+              title: string;
+            } | null;
+          } | null;
+        }[] ?? []).forEach((rawAttempt) => {
+          const isCorrect = rawAttempt.is_correct;
+          const rawQ = Array.isArray(rawAttempt.questions) ? rawAttempt.questions[0] : rawAttempt.questions;
+          const rawTheory = rawQ && (Array.isArray(rawQ.theories) ? rawQ.theories[0] : rawQ.theories);
+          if (rawTheory && rawTheory.title && rawTheory.id) {
+            const tId = rawTheory.id;
+            const tTitle = rawTheory.title;
+            if (!theoryStats[tTitle]) {
+              theoryStats[tTitle] = { id: tId, title: tTitle, correct: 0, total: 0 };
+            }
+            theoryStats[tTitle].total += 1;
+            if (isCorrect) {
+              theoryStats[tTitle].correct += 1;
+            }
+          }
+        });
+      }
+
+      const computedWeak = Object.values(theoryStats)
+        .map((stats) => ({
+          id: stats.id,
+          title: stats.title,
+          accuracy: Math.round((stats.correct / stats.total) * 100),
+          total: stats.total
+        }))
+        .filter(t => t.accuracy < 80)
+        .sort((a, b) => a.accuracy - b.accuracy)
+        .slice(0, 2);
+
+      setWeakTheories(computedWeak);
 
       // Compute overdue/missed reviews (scheduled before today)
       const todayStart = new Date();
@@ -612,12 +672,14 @@ function ReviewContent() {
   const renderForecast = () => {
     if (forecastData.length === 0) return null;
 
+    const maxDayCount = Math.max(...forecastData.map(d => d.count), 1);
+
     return (
       <div className="bg-card border border-border/85 rounded-2xl p-5 space-y-4 shadow-[0_8px_30px_rgb(0,0,0,0.01)] text-left backdrop-blur-sm">
         <div className="flex items-center gap-2">
           <span className="text-sm">📅</span>
           <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            Review Forecast & Spaced Study Load
+            Review Forecast & Spaced Study Load Planner
           </h3>
         </div>
 
@@ -641,7 +703,7 @@ function ReviewContent() {
             }}
             role="button"
             tabIndex={0}
-            className={`p-3 rounded-xl border text-center flex flex-col justify-between min-h-[105px] transition-all duration-250 hover:shadow-sm cursor-pointer hover:border-rose-500/40 hover:scale-[1.02] active:scale-[0.98] ${
+            className={`p-3 pt-4 pb-3 rounded-xl border text-center flex flex-col justify-between min-h-[145px] transition-all duration-250 hover:shadow-sm cursor-pointer hover:border-rose-500/40 hover:scale-[1.02] active:scale-[0.98] ${
               overdueData.count > 0
                 ? 'border-rose-500/25 bg-rose-500/[0.02] dark:bg-rose-500/[0.04]'
                 : 'border-border/80 bg-card/50'
@@ -651,11 +713,20 @@ function ReviewContent() {
               <p className="text-[9px] font-extrabold text-muted-foreground/80 uppercase tracking-wider">
                 Missed
               </p>
-              <p className={`text-xs font-bold mt-0.5 ${overdueData.count > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'}`}>
+              <p className={`text-[10px] font-bold mt-0.5 ${overdueData.count > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-foreground'}`}>
                 {overdueData.count > 0 ? 'Overdue' : 'All Clear'}
               </p>
             </div>
-            <div className="mt-2 space-y-1">
+
+            {/* Vertical load indicator bar */}
+            <div className="h-10 w-2 bg-secondary dark:bg-secondary/20 rounded-full overflow-hidden relative mx-auto my-1.5">
+              <div 
+                style={{ height: overdueData.count > 0 ? '100%' : '0%' }}
+                className="absolute bottom-0 left-0 right-0 rounded-full load-bar-glow-heavy"
+              />
+            </div>
+
+            <div className="mt-1 space-y-1">
               <div
                 className={`inline-flex items-center justify-center text-[10px] font-bold px-2 py-0.5 rounded-full ${
                   overdueData.count > 0
@@ -665,11 +736,6 @@ function ReviewContent() {
               >
                 {overdueData.count > 0 ? `${overdueData.count} missed` : '0 missed'}
               </div>
-              {overdueData.count > 0 && overdueData.theories.length > 0 && (
-                <p className="text-[8px] text-rose-600/90 dark:text-rose-400/90 font-bold uppercase tracking-wider leading-tight line-clamp-2 pt-1">
-                  {overdueData.theories.join(', ')}
-                </p>
-              )}
             </div>
           </div>
 
@@ -702,7 +768,7 @@ function ReviewContent() {
               }}
               role="button"
               tabIndex={0}
-              className={`p-3 rounded-xl border text-center flex flex-col justify-between min-h-[105px] transition-all duration-250 hover:shadow-sm cursor-pointer hover:border-indigo-500/40 hover:scale-[1.02] active:scale-[0.98] ${
+              className={`p-3 pt-4 pb-3 rounded-xl border text-center flex flex-col justify-between min-h-[145px] transition-all duration-250 hover:shadow-sm cursor-pointer hover:border-indigo-500/40 hover:scale-[1.02] active:scale-[0.98] ${
                 day.count > 0
                   ? 'border-indigo-500/20 bg-indigo-500/[0.02] dark:bg-indigo-500/[0.04]'
                   : 'border-border/80 bg-card/50'
@@ -712,9 +778,18 @@ function ReviewContent() {
                 <p className="text-[9px] font-extrabold text-muted-foreground/80 uppercase tracking-wider">
                   {day.dayName}
                 </p>
-                <p className="text-xs font-bold text-foreground mt-0.5">{day.dayLabel}</p>
+                <p className="text-[10px] font-bold text-foreground mt-0.5">{day.dayLabel}</p>
               </div>
-              <div className="mt-2 space-y-1">
+
+              {/* Vertical load indicator bar */}
+              <div className="h-10 w-2 bg-secondary dark:bg-secondary/20 rounded-full overflow-hidden relative mx-auto my-1.5">
+                <div 
+                  style={{ height: `${Math.min(100, (day.count / maxDayCount) * 100)}%` }}
+                  className="absolute bottom-0 left-0 right-0 rounded-full load-bar-glow"
+                />
+              </div>
+
+              <div className="mt-1 space-y-1">
                 <div
                   className={`inline-flex items-center justify-center text-[10px] font-bold px-2 py-0.5 rounded-full ${
                     day.count > 0
@@ -724,11 +799,6 @@ function ReviewContent() {
                 >
                   {day.count} {day.count === 1 ? 'due' : 'due'}
                 </div>
-                {day.theories.length > 0 && (
-                  <p className="text-[8px] text-muted-foreground/90 font-bold uppercase tracking-wider leading-tight line-clamp-2 pt-1">
-                    {day.theories.join(', ')}
-                  </p>
-                )}
               </div>
             </div>
           ))}
@@ -880,7 +950,7 @@ function ReviewContent() {
             }}
             className="flex-1 py-3 px-4 rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-xs shadow-md shadow-primary/10"
           >
-            Review Center
+            Review
           </button>
         </div>
       </div>
@@ -1102,8 +1172,7 @@ function ReviewContent() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-border/80 pb-6 gap-4">
         <div>
           <h1 className="text-3xl font-extrabold font-display text-foreground tracking-tight flex items-center gap-2">
-            <Brain className="w-7 h-7 text-indigo-500 shrink-0" />
-            Review Center
+            Review
           </h1>
           <p className="text-xs text-muted-foreground mt-1 leading-relaxed max-w-md">
             Strengthen long-term concepts. Tracks card repetition intervals and manages scheduled memory retention.
@@ -1156,52 +1225,127 @@ function ReviewContent() {
 
       {/* ── Tab Content: Forecast & Stats ── */}
       {activeTab === 'forecast' && (
-        <div className="space-y-6 max-w-4xl">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Status overview */}
-            <div className="md:col-span-2 bg-card border border-border rounded-2xl p-6 flex flex-col justify-between space-y-4">
-              <div className="space-y-2">
-                <h2 className="text-xl font-bold text-foreground">
-                  {dueItems.length === 0 ? 'All Caught Up!' : `${dueItems.length} reviews due today`}
-                </h2>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {dueItems.length === 0 
-                    ? 'Congratulations! You have completed all scheduled card reviews. New items will become due as their intervals elapse.'
-                    : 'These questions are scheduled to resurface today. Repetition reinforcing keeps them fresh in your memory.'
-                  }
+        <div className="space-y-6 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* Left Card: AI Diagnostic Insights & Weak Points */}
+            <div className="lg:col-span-4 bg-card border border-border rounded-2xl p-5 flex flex-col justify-between space-y-4">
+              <div className="space-y-1">
+                <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider text-left">
+                  AI Diagnostic Weak Points
+                </h3>
+                <p className="text-[11px] text-muted-foreground text-left">
+                  Theories below 80% accuracy based on your study attempts.
                 </p>
               </div>
 
-              {dueItems.length > 0 && (
-                <button
-                  onClick={() => {
-                    setStarted(true);
-                    questionStartTime.current = Date.now();
-                  }}
-                  className="py-3 px-4 rounded-xl bg-indigo-500 text-white font-bold text-xs hover:bg-indigo-600 transition-all cursor-pointer shadow-sm text-center flex items-center justify-center gap-1"
-                >
-                  Launch Daily Review Deck
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+              <div className="flex-1 flex flex-col justify-center space-y-3 py-1">
+                {weakTheories.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-4 text-center text-muted-foreground">
+                    <span className="text-xl mb-1 select-none">🎯</span>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-500">All Metrics Strong</p>
+                    <p className="text-[9px] text-muted-foreground mt-0.5">Keep maintaining your scores above 80%!</p>
+                  </div>
+                ) : (
+                  weakTheories.map((theory, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-secondary/35 border border-border/50 text-left">
+                      <div className="space-y-0.5 min-w-0 flex-1 pr-2">
+                        <p className="text-xs font-bold text-foreground truncate">{theory.title}</p>
+                        <p className="text-[10px] text-muted-foreground font-semibold">
+                          Accuracy: <span className="text-rose-500 font-bold">{theory.accuracy}%</span> ({theory.total} {theory.total === 1 ? 'attempt' : 'attempts'})
+                        </p>
+                      </div>
+                      <Link
+                        href={`/practice?theoryId=${theory.id}`}
+                        className="py-1 px-3 rounded-lg bg-indigo-500 text-white font-bold text-[10px] hover:bg-indigo-600 transition-all shrink-0 select-none shadow-sm shadow-indigo-500/10"
+                      >
+                        Reinforce
+                      </Link>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <p className="text-[9px] text-muted-foreground leading-tight text-left">
+                Targeting these domains helps stabilize memory retention decay rates.
+              </p>
+            </div>
+
+            {/* Middle Card: Completed Celebration or Review Launcher */}
+            <div className="lg:col-span-5 bg-card border border-border rounded-2xl p-5 flex flex-col justify-between min-h-[160px] space-y-4">
+              {dueItems.length === 0 ? (
+                <>
+                  <div className="flex items-start gap-4 text-left">
+                    <div className="relative flex items-center justify-center shrink-0 w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500">
+                      <div className="absolute inset-0 rounded-2xl border border-emerald-500/20 pulse-glow-ring" />
+                      <CalendarCheck className="w-6 h-6 z-10" />
+                    </div>
+                    <div className="space-y-1">
+                      <h2 className="text-base font-bold text-foreground leading-none">
+                        All Caught Up!
+                      </h2>
+                      <p className="text-[11px] text-muted-foreground leading-relaxed">
+                        Congratulations! You have completed all scheduled card reviews. New items will become due as their intervals elapse.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setActiveTab('browse')}
+                      className="flex-1 py-2 px-3 rounded-xl border border-border bg-card text-foreground font-bold text-[11px] hover:bg-secondary transition-all cursor-pointer text-center"
+                    >
+                      Browse Schedule
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-start gap-4 text-left">
+                    <div className="relative flex items-center justify-center shrink-0 w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500">
+                      <div className="absolute inset-0 rounded-2xl border border-indigo-500/20 pulse-glow-ring" />
+                      <Zap className="w-6 h-6 z-10" />
+                    </div>
+                    <div className="space-y-1">
+                      <h2 className="text-base font-bold text-foreground leading-none">
+                        {dueItems.length} {dueItems.length === 1 ? 'Review Due' : 'Reviews Due'}
+                      </h2>
+                      <p className="text-[11px] text-muted-foreground leading-relaxed">
+                        Reinforce counseling models scheduled to decay today. Immediate testing cements learning pathways.
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setStarted(true);
+                      questionStartTime.current = Date.now();
+                    }}
+                    className="w-full py-2.5 rounded-xl bg-indigo-500 text-white font-bold text-xs hover:bg-indigo-600 transition-all cursor-pointer shadow-md shadow-indigo-500/10 text-center flex items-center justify-center gap-1.5"
+                  >
+                    <span>Launch Review Deck</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </>
               )}
             </div>
 
-            {/* Breakdown */}
-            <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
-              <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            {/* Right Card: Theory Breakdown */}
+            <div className="lg:col-span-3 bg-card border border-border rounded-2xl p-5 flex flex-col justify-between space-y-4">
+              <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider text-left">
                 Theory Breakdown
               </h3>
               {dueItems.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground">
-                  <CalendarCheck className="w-8 h-8 mb-2 opacity-40 text-emerald-500" />
-                  <p className="text-xs font-semibold">No pending reviews</p>
+                <div className="flex-1 flex flex-col items-center justify-center py-4 text-center text-muted-foreground">
+                  <span className="text-xl mb-1 select-none">✅</span>
+                  <p className="text-[10px] font-bold uppercase tracking-wider">No pending reviews</p>
                 </div>
               ) : (
-                <div className="space-y-3.5">
+                <div className="flex-1 overflow-y-auto max-h-[100px] pr-0.5 space-y-2 scroll-thin">
                   {Object.values(theoryGroups).map((group, i) => (
                     <div key={i} className="flex justify-between items-center text-xs">
-                      <span className="font-semibold text-foreground">{group.title}</span>
-                      <span className="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold font-mono">
+                      <span className="font-semibold text-foreground truncate max-w-[130px]">{group.title}</span>
+                      <span className="px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold font-mono text-[10px]">
                         {group.count} due
                       </span>
                     </div>
@@ -1209,6 +1353,7 @@ function ReviewContent() {
                 </div>
               )}
             </div>
+
           </div>
 
           {/* 7-Day Forecast */}

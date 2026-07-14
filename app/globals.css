@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700;800&family=Inria+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -9,14 +9,14 @@
   --foreground: #0f172a; /* Slate-900 */
   --card: #ffffff;
   --card-foreground: #0f172a;
-  --primary: #6366f1; /* Premium Indigo-500 */
+  --primary: #264D8E; /* Ally brand blue color */
   --primary-foreground: #ffffff;
   --secondary: #f1f5f9; /* Slate-100 */
   --secondary-foreground: #1e293b; /* Slate-800 */
   --muted: #f8fafc;
   --muted-foreground: #64748b; /* Slate-500 */
   --border: #e2e8f0; /* Slate-200 */
-  --ring: #6366f1;
+  --ring: #264D8E;
   --radius: 1.25rem; /* Modern rounded corners */
   --destructive: #ef4444;
   --popover: #ffffff;
@@ -28,14 +28,14 @@
   --foreground: #f8fafc;
   --card: #0f172a; /* Slate-900 */
   --card-foreground: #f8fafc;
-  --primary: #6366f1; /* Indigo-500 */
+  --primary: #3b74c4; /* Brighter Ally tint for dark mode contrast */
   --primary-foreground: #ffffff;
   --secondary: #1e293b; /* Slate-800 */
   --secondary-foreground: #fafafa;
   --muted: #1e293b;
   --muted-foreground: #94a3b8;
   --border: #1e293b;
-  --ring: #818cf8;
+  --ring: #3b74c4;
   --destructive: #f87171;
   --popover: #0f172a;
   --popover-foreground: #f8fafc;
@@ -57,10 +57,14 @@
   --color-destructive: var(--destructive);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+  
+  /* Custom Ally Brand Color Utility */
+  --color-ally: #264D8E;
 
   --font-sans: "Plus Jakarta Sans", var(--font-geist-sans), sans-serif;
   --font-display: "Outfit", var(--font-geist-sans), sans-serif;
   --font-serif: "Playfair Display", Georgia, serif;
+  --font-inria: var(--font-inria-sans), sans-serif;
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 4px);
@@ -456,6 +460,91 @@ html, body {
 .premium-glow-card:hover::before {
   opacity: 1;
 }
+
+/* Review Dashboard Keyframes & Classes */
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.08); opacity: 0.4; }
+  100% { transform: scale(1.2); opacity: 0; }
+}
+
+.pulse-glow-ring {
+  animation: pulse-ring 2.5s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
+}
+
+@keyframes draw-svg-dash {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-draw-svg {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: draw-svg-dash 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.load-bar-glow {
+  background: linear-gradient(to top, rgba(99, 102, 241, 0.8), rgba(168, 85, 247, 0.8));
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+}
+
+.load-bar-glow-heavy {
+  background: linear-gradient(to top, rgba(239, 68, 68, 0.8), rgba(245, 158, 11, 0.8));
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+}
+
+/* Premium landing page animations */
+@keyframes floating-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-floating {
+  animation: floating-slow 6s ease-in-out infinite;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.25; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(1.08); }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s ease-in-out infinite;
+}
+
+@keyframes blob-drift {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.12); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+}
+
+.animate-blob-drift-1 {
+  animation: blob-drift 20s infinite ease-in-out;
+}
+
+.animate-blob-drift-2 {
+  animation: blob-drift 25s infinite ease-in-out alternate;
+}
+
+@keyframes text-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-stagger-word {
+  display: inline-block;
+  opacity: 0;
+  animation: text-reveal 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+
 
 
 

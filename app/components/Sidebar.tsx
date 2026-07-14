@@ -411,13 +411,19 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
           <div className="px-1 shrink-0">
             <Link
               href="/review?action=start"
-              className={`flex items-center gap-2.5 border border-border bg-card rounded-full text-xs font-semibold hover:bg-secondary transition-all cursor-pointer shadow-sm w-full hover-glow-sweep ${collapsed ? 'justify-center p-2 h-9 w-9' : 'px-3.5 py-2'
-                } ${reviewDueCount > 0 ? 'border-indigo-500/30 dark:border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.08)] bg-indigo-500/[0.01] animate-pulse-glow' : ''}`}
+              className={`flex items-center gap-2.5 border border-transparent bg-ally hover:bg-slate-900 text-white rounded-full text-xs font-bold transition-all duration-200 cursor-pointer shadow-md w-full ${collapsed ? 'justify-center p-2 h-9 w-9' : 'px-3.5 py-2.5'
+                } ${reviewDueCount > 0 ? 'shadow-[0_0_12px_rgba(38,77,142,0.35)] animate-pulse-glow' : ''}`}
             >
-              {!collapsed && (
-                <span>
-                  Daily Practice Deck{' '}
-                  {reviewDueCount > 0 ? `(${reviewDueCount})` : ''}
+              {collapsed ? (
+                <Brain className="w-4 h-4 text-white shrink-0" />
+              ) : (
+                <span className="flex items-center justify-between w-full font-bold">
+                  <span>Daily Practice Deck</span>
+                  {reviewDueCount > 0 && (
+                    <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-white text-ally text-[9px] font-extrabold shadow-sm shrink-0">
+                      {reviewDueCount}
+                    </span>
+                  )}
                 </span>
               )}
             </Link>
