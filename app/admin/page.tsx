@@ -139,67 +139,74 @@ function AdminPageContent() {
 
   return (
     <div className="w-full space-y-5 animate-fade-in">
-      {/* Top Banner */}
-      <div className="flex flex-row items-center justify-between gap-4 border-b border-border pb-4">
-        <h1 className="text-xl sm:text-2xl font-extrabold font-display text-foreground">
-          Theory &amp; MCQ Manager
-        </h1>
-        <div className="px-3 py-1 text-[10px] font-extrabold text-primary bg-primary/10 border border-primary/15 rounded-full uppercase tracking-wider select-none shrink-0">
-          Admin Console
-        </div>
-      </div>
-
-      {/* Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Theories */}
-        <div className="p-5 premium-card flex items-center gap-3">
-          <div className="p-2 bg-indigo-500/10 text-indigo-500 rounded-xl">
-            <BookOpen className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-              Total Theories
-            </p>
-            <h4 className="text-lg font-bold text-foreground mt-0.5">{theories.length}</h4>
+      {/* Top Banner with compact stats inline */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between border-b border-border/80 pb-4 gap-4">
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl sm:text-2xl font-extrabold font-inria text-foreground">
+            Theory & MCQ Manager
+          </h1>
+          <div className="px-2.5 py-0.5 text-[9px] font-extrabold text-primary bg-primary/10 border border-primary/20 rounded-full uppercase tracking-wider select-none shrink-0">
+            Admin Console
           </div>
         </div>
 
-        {/* Questions */}
-        <div className="p-5 premium-card flex items-center gap-3">
-          <div className="p-2 bg-violet-500/10 text-violet-500 rounded-xl">
-            <HelpCircle className="w-5 h-5" />
+        <div className="hidden md:flex flex-wrap items-center gap-4 sm:gap-6 bg-card border border-border/85 rounded-2xl p-2.5 px-4 shadow-[0_8px_30px_rgb(0,0,0,0.015)] shrink-0 relative overflow-hidden backdrop-blur-sm glass-card">
+          {/* Total Theories */}
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-500 select-none">
+              <BookOpen className="w-3.5 h-3.5" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-foreground leading-tight font-mono">
+                {theories.length}
+              </div>
+              <p className="text-[8px] text-muted-foreground/80 font-bold uppercase tracking-wider">Total Theories</p>
+            </div>
           </div>
-          <div>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-              Approved MCQs
-            </p>
-            <h4 className="text-lg font-bold text-foreground mt-0.5">{approvedQuestions.length}</h4>
-          </div>
-        </div>
 
-        {/* Review Queue */}
-        <div className="p-5 premium-card flex items-center gap-3">
-          <div className={`p-2 rounded-xl ${draftQuestions.length > 0 ? 'bg-amber-500/10 text-amber-500' : 'bg-muted text-muted-foreground'}`}>
-            <Layers className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-              Review Queue
-            </p>
-            <h4 className="text-lg font-bold text-foreground mt-0.5">{draftQuestions.length} draft</h4>
-          </div>
-        </div>
+          <div className="border-l border-border/80 h-7" />
 
-        {/* Journeys */}
-        <div className="p-5 premium-card flex items-center gap-3">
-          <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-xl">
-            <Compass className="w-5 h-5" />
+          {/* Approved MCQs */}
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-500/10 text-violet-500 select-none">
+              <HelpCircle className="w-3.5 h-3.5" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-foreground leading-tight font-mono">
+                {approvedQuestions.length}
+              </div>
+              <p className="text-[8px] text-muted-foreground/80 font-bold uppercase tracking-wider">Approved MCQs</p>
+            </div>
           </div>
-          <div>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-              Active Journeys
-            </p>
-            <h4 className="text-lg font-bold text-foreground mt-0.5">{journeys.length} active</h4>
+
+          <div className="border-l border-border/80 h-7" />
+
+          {/* Review Queue */}
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500 select-none">
+              <Layers className="w-3.5 h-3.5" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-foreground leading-tight font-mono">
+                {draftQuestions.length} draft
+              </div>
+              <p className="text-[8px] text-muted-foreground/80 font-bold uppercase tracking-wider">Review Queue</p>
+            </div>
+          </div>
+
+          <div className="border-l border-border/80 h-7" />
+
+          {/* Active Journeys */}
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500 select-none">
+              <Compass className="w-3.5 h-3.5" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-foreground leading-tight font-mono">
+                {journeys.length} active
+              </div>
+              <p className="text-[8px] text-muted-foreground/80 font-bold uppercase tracking-wider">Active Journeys</p>
+            </div>
           </div>
         </div>
       </div>
@@ -218,6 +225,7 @@ function AdminPageContent() {
           <ManageMCQs
             theories={theories}
             questions={questions}
+            setQuestions={setQuestions}
             loadingLists={loadingLists}
             loadDbData={loadDbData}
           />
@@ -226,6 +234,7 @@ function AdminPageContent() {
         {activeTab === 'review' && (
           <ReviewQueue
             questions={questions}
+            setQuestions={setQuestions}
             loadingLists={loadingLists}
             loadDbData={loadDbData}
             setActiveTab={setActiveTab}

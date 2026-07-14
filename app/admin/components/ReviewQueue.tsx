@@ -7,6 +7,7 @@ import type { QuestionWithTheory, BloomLevel } from '@/lib/types';
 
 interface ReviewQueueProps {
   questions: QuestionWithTheory[];
+  setQuestions: React.Dispatch<React.SetStateAction<QuestionWithTheory[]>>;
   loadingLists: boolean;
   loadDbData: () => Promise<void>;
   setActiveTab: (tab: 'theories' | 'questions' | 'review' | 'journeys') => void;
@@ -14,6 +15,7 @@ interface ReviewQueueProps {
 
 export default function ReviewQueue({
   questions,
+  setQuestions,
   loadingLists,
   loadDbData,
   setActiveTab,
@@ -48,6 +50,24 @@ export default function ReviewQueue({
   };
 
   const handleSaveInlineEdit = async (id: string) => {
+    // Optimistic Update
+    setQuestions((prev) =>
+      prev.map((q) =>
+        q.id === id
+          ? {
+              ...q,
+              stem: inlineStem,
+              options: inlineOptions,
+              correct_index: inlineCorrectIndex,
+              explanation: inlineExplanation,
+              difficulty: inlineDifficulty,
+              bloom_level: inlineBloomLevel,
+            }
+          : q
+      )
+    );
+    setInlineEditingId(null);
+
     try {
       const { error } = await supabase
         .from('questions')
@@ -62,14 +82,19 @@ export default function ReviewQueue({
         .eq('id', id);
 
       if (error) throw error;
-      setInlineEditingId(null);
-      await loadDbData();
+      loadDbData();
     } catch (err: unknown) {
       console.error('Failed to save inline edit:', err);
+      loadDbData();
     }
   };
 
   const handleApproveQuestion = async (id: string) => {
+    // Optimistic Update
+    setQuestions((prev) =>
+      prev.map((q) => (q.id === id ? { ...q, status: 'approved' } : q))
+    );
+
     try {
       const { error } = await supabase
         .from('questions')
@@ -77,13 +102,18 @@ export default function ReviewQueue({
         .eq('id', id);
 
       if (error) throw error;
-      await loadDbData();
+      loadDbData();
     } catch (err: unknown) {
       console.error('[Foundations] Error approving question:', err);
+      loadDbData();
     }
   };
 
   const handleRejectQuestion = async (id: string) => {
+    // Optimistic Update
+    setQuestions((prev) => prev.filter((q) => q.id !== id));
+    setRejectingId(null);
+
     try {
       const { error } = await supabase
         .from('questions')
@@ -91,10 +121,10 @@ export default function ReviewQueue({
         .eq('id', id);
 
       if (error) throw error;
-      setRejectingId(null);
-      await loadDbData();
+      loadDbData();
     } catch (err: unknown) {
-      console.error('[Foundations] Error deleting question:', err);
+      console.error('[Foundations] Error rejecting question:', err);
+      loadDbData();
     }
   };
 

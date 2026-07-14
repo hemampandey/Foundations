@@ -266,12 +266,12 @@ export default function DashboardPage() {
                             {qCount} {qCount === 1 ? 'Question' : 'Questions'}
                           </span>
                           {isPlayable && (
-                            <span className="text-[10px] font-bold text-violet-600 dark:text-violet-400 bg-violet-500/5 dark:bg-violet-500/10 px-2 py-0.5 rounded-full">
+                            <span className="text-[10px] font-bold text-primary dark:text-violet-400 bg-[#DCF1FF] dark:bg-violet-500/10 px-2 py-0.5 rounded-full">
                               +{qCount * 2} to +{qCount * 10} XP
                             </span>
                           )}
                         </div>
-                        <span className="text-[10px] font-bold text-muted-foreground group-hover:text-primary transition-colors flex items-center gap-0.5">
+                        <span className="text-[10px] font-bold text-primary group-hover:text-primary transition-colors flex items-center gap-0.5">
                           Start Pathway →
                         </span>
                       </div>
@@ -355,7 +355,7 @@ export default function DashboardPage() {
                               {qCount} {qCount === 1 ? 'Question' : 'Questions'} available
                             </span>
                             {isPlayable && (
-                              <span className="text-[10px] font-bold text-violet-600 dark:text-violet-400 bg-violet-500/5 dark:bg-violet-500/10 px-2 py-0.5 rounded-full">
+                              <span className="text-[10px] font-bold text-primary dark:text-violet-400 bg-[#DCF1FF] dark:bg-violet-500/10 px-2 py-0.5 rounded-full">
                                 +{qCount * 2} to +{qCount * 10} XP
                               </span>
                             )}

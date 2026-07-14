@@ -11,7 +11,7 @@ import { xpToLevel } from '@/lib/utils';
 import { playSound } from '@/lib/audio';
 import {
   ArrowLeft, Award, Lightbulb, ChevronRight, Clock, CalendarCheck, Zap,
-  Search, SlidersHorizontal, History, Calendar, CheckSquare, ChevronDown, ChevronUp
+  Search, SlidersHorizontal, History, ChevronDown, ChevronUp
 } from 'lucide-react';
 
 function ConfettiShower() {
@@ -677,9 +677,8 @@ function ReviewContent() {
     return (
       <div className="bg-card border border-border/85 rounded-2xl p-5 space-y-4 shadow-[0_8px_30px_rgb(0,0,0,0.01)] text-left backdrop-blur-sm">
         <div className="flex items-center gap-2">
-          <span className="text-sm">📅</span>
           <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            Review Forecast & Spaced Study Load Planner
+            Review Forecast & Spaced Study Planner
           </h3>
         </div>
 
@@ -760,11 +759,8 @@ function ReviewContent() {
                     theoryTitle: s.questions!.theories?.title ?? 'General'
                   }));
 
-                handleForecastCardClick(
-                  e,
-                  `Forecast for ${day.dayName === 'Today' ? 'Today' : day.dayName === 'Tomorrow' ? 'Tomorrow' : day.dayLabel}`,
-                  items
-                );
+                handleForecastCardClick(e,
+                  `Forecast for ${day.dayName === 'Today' ? 'Today' : day.dayName === 'Tomorrow' ? 'Tomorrow' : day.dayLabel}`, items);
               }}
               role="button"
               tabIndex={0}
@@ -828,7 +824,6 @@ function ReviewContent() {
               <div className="flex items-center justify-between border-b border-border/60 pb-2">
                 <div className="space-y-0.5">
                   <h4 className="text-xs font-bold text-foreground font-display flex items-center gap-1.5">
-                    <span>📅</span>
                     {selectedForecastDay.title}
                   </h4>
                   <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">
@@ -840,10 +835,10 @@ function ReviewContent() {
                     setSelectedForecastDay(null);
                     setPopoverPosition(null);
                   }}
-                  className="p-1.5 rounded-xl hover:bg-secondary text-muted-foreground hover:text-foreground cursor-pointer transition-all"
+                  className="p-1 rounded-full hover:bg-secondary text-primary cursor-pointer transition-all"
                   aria-label="Close"
                 >
-                  <span className="text-[10px] font-bold font-mono">✕</span>
+                  <span className="text-[16px] font-extrabold font-inria">✕</span>
                 </button>
               </div>
 
@@ -1186,12 +1181,11 @@ function ReviewContent() {
           onClick={() => setActiveTab('forecast')}
           className={`px-6 py-3 text-xs font-bold transition-all cursor-pointer border-b-2 ${
             activeTab === 'forecast'
-              ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+              ? ' text-primary dark:text-indigo-400'
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
             Forecast & Stats
           </div>
         </button>
@@ -1199,12 +1193,11 @@ function ReviewContent() {
           onClick={() => setActiveTab('browse')}
           className={`px-6 py-3 text-xs font-bold transition-all cursor-pointer border-b-2 ${
             activeTab === 'browse'
-              ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+              ? 'text-primary dark:text-indigo-400'
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
           <div className="flex items-center gap-2">
-            <CheckSquare className="w-4 h-4" />
             Browse Schedules
           </div>
         </button>
@@ -1212,12 +1205,11 @@ function ReviewContent() {
           onClick={() => setActiveTab('history')}
           className={`px-6 py-3 text-xs font-bold transition-all cursor-pointer border-b-2 ${
             activeTab === 'history'
-              ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+              ? 'text-primary dark:text-indigo-400'
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
           <div className="flex items-center gap-2">
-            <History className="w-4 h-4" />
             Review History
           </div>
         </button>
@@ -1232,7 +1224,7 @@ function ReviewContent() {
             <div className="lg:col-span-4 bg-card border border-border rounded-2xl p-5 flex flex-col justify-between space-y-4">
               <div className="space-y-1">
                 <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider text-left">
-                  AI Diagnostic Weak Points
+                  Areas to Target
                 </h3>
                 <p className="text-[11px] text-muted-foreground text-left">
                   Theories below 80% accuracy based on your study attempts.

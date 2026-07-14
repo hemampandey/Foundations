@@ -32,7 +32,19 @@ export async function POST(req: Request) {
     }
 
     // ── Role Check ──
-    const { data: profile } = await supabaseAdmin
+    const userClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      }
+    );
+
+    const { data: profile } = await userClient
       .from('profiles')
       .select('role')
       .eq('id', user.id)

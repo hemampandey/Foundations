@@ -8,6 +8,7 @@ import type { Theory, QuestionWithTheory, BloomLevel } from '@/lib/types';
 interface ManageMCQsProps {
   theories: Theory[];
   questions: QuestionWithTheory[];
+  setQuestions: React.Dispatch<React.SetStateAction<QuestionWithTheory[]>>;
   loadingLists: boolean;
   loadDbData: () => Promise<void>;
 }
@@ -15,6 +16,7 @@ interface ManageMCQsProps {
 export default function ManageMCQs({
   theories,
   questions,
+  setQuestions,
   loadingLists,
   loadDbData,
 }: ManageMCQsProps) {
@@ -103,6 +105,24 @@ export default function ManageMCQs({
   };
 
   const handleSaveInlineEdit = async (id: string) => {
+    // Optimistic Update
+    setQuestions((prev) =>
+      prev.map((q) =>
+        q.id === id
+          ? {
+              ...q,
+              stem: inlineStem,
+              options: inlineOptions,
+              correct_index: inlineCorrectIndex,
+              explanation: inlineExplanation,
+              difficulty: inlineDifficulty,
+              bloom_level: inlineBloomLevel,
+            }
+          : q
+      )
+    );
+    setInlineEditingId(null);
+
     try {
       const { error } = await supabase
         .from('questions')
@@ -117,10 +137,10 @@ export default function ManageMCQs({
         .eq('id', id);
 
       if (error) throw error;
-      setInlineEditingId(null);
-      await loadDbData();
+      loadDbData();
     } catch (err: unknown) {
       console.error('Failed to save inline edit:', err);
+      loadDbData();
     }
   };
 

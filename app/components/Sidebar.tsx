@@ -372,7 +372,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
             <Link href="/dashboard" className="flex items-center gap-2 min-w-0">
               {!collapsed && (
                 <>
-                  <span className="font-display font-bold text-sm text-foreground tracking-tight truncate">
+                  <span className="font-inria font-bold text-lg text-foreground truncate">
                     Foundations
                   </span>
                 </>
@@ -498,8 +498,14 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                     )}
                   </button>
 
-                  {adminExpanded && !collapsed && (
-                    <div className="pl-4 space-y-0.5 border-l border-border/40 ml-5 mt-0.5">
+                  <div
+                    className={`grid transition-all duration-300 ease-in-out ${
+                      adminExpanded && !collapsed
+                        ? 'grid-rows-[1fr] opacity-100 mt-1'
+                        : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+                    }`}
+                  >
+                    <div className="overflow-hidden pl-4 space-y-0.5 border-l border-border/40 ml-5">
                       {/* Manage Theories */}
                       <Link
                         href="/admin?tab=theories"
@@ -551,7 +557,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                         <span>Manage Journeys</span>
                       </Link>
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })()}

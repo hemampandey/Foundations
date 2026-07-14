@@ -7,7 +7,7 @@ import { useProfile } from '@/app/components/ProfileProvider';
 import StatsHeader from '@/app/components/StatsHeader';
 import type { AttemptWithQuestion, UserProgress } from '@/lib/types';
 import {
-  BookOpen, Target,
+  ChevronRight
 } from 'lucide-react';
 
 export default function ProgressPage() {
@@ -314,26 +314,7 @@ export default function ProgressPage() {
         description="Track your accomplishments and domain mastery statistics."
       />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
-        <div className="p-5 premium-card">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold">
-            <Target className="w-4 h-4 text-primary" />
-            <span>Total XP</span>
-          </div>
-          <p className="text-xl font-bold mt-2">{xp}</p>
-        </div>
-
-        <div className="p-5 premium-card">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold">
-            <BookOpen className="w-4 h-4 text-violet-500" />
-            <span>Attempts</span>
-          </div>
-          <p className="text-xl font-bold mt-2">{totalAttempts}</p>
-        </div>
-      </div>
-
-      <div className="space-y-8 max-w-5xl mx-auto">
+      <div className="space-y-8 w-full">
         {/* ─── Daily Activity Heatmap ─── */}
         <div className="p-6 premium-card space-y-4 hover:translate-y-0">
           <div>
@@ -342,58 +323,81 @@ export default function ProgressPage() {
           </div>
 
           <div className="overflow-x-auto pb-2 scrollbar-thin">
-            <div className="flex gap-2 min-w-[650px] pt-2">
-              {/* Weekday Labels (Sun, Tue, Thu, Sat) */}
-              <div className="flex flex-col justify-between text-[9px] font-bold text-muted-foreground pr-2 h-[84px] py-0.5 shrink-0 select-none">
-                <span>Sun</span>
-                <span>Tue</span>
-                <span>Thu</span>
-                <span>Sat</span>
-              </div>
+            <div className="flex gap-2 min-w-[650px] pt-2 flex-col">
+              <div className="flex gap-2">
+                {/* Weekday Labels (Sun to Sat) */}
+                <div className="flex flex-col justify-between text-[9px] font-bold text-muted-foreground pr-2 h-[84px] py-0.5 shrink-0 select-none">
+                  <span>Sun</span>
+                  <span>Mon</span>
+                  <span>Tue</span>
+                  <span>Wed</span>
+                  <span>Thu</span>
+                  <span>Fri</span>
+                  <span>Sat</span>
+                </div>
 
-              {/* Heatmap Grid */}
-              <div className="flex gap-[3.5px]">
-                {heatmapData.map((week, wIdx) => (
-                  <div key={wIdx} className="flex flex-col gap-[3.5px]">
-                    {week.map((day) => {
-                      let colorClass = 'bg-secondary/40 dark:bg-neutral-800/30';
-                      if (day.count > 0 && day.count <= 2) {
-                        colorClass = 'bg-emerald-500/20 dark:bg-emerald-500/10 text-emerald-600';
-                      } else if (day.count > 2 && day.count <= 5) {
-                        colorClass = 'bg-emerald-500/50 dark:bg-emerald-500/30 text-emerald-400';
-                      } else if (day.count > 5) {
-                        colorClass = 'bg-emerald-500 dark:bg-emerald-400 text-emerald-100';
-                      }
+                {/* Heatmap Grid */}
+                <div className="flex gap-[3.5px]">
+                  {heatmapData.map((week, wIdx) => (
+                    <div key={wIdx} className="flex flex-col gap-[3.5px]">
+                      {week.map((day) => {
+                        let colorClass = 'bg-secondary/40 dark:bg-neutral-800/30';
+                        if (day.count > 0 && day.count <= 2) {
+                          colorClass = 'bg-emerald-500/20 dark:bg-emerald-500/10 text-emerald-600';
+                        } else if (day.count > 2 && day.count <= 5) {
+                          colorClass = 'bg-emerald-500/50 dark:bg-emerald-500/30 text-emerald-400';
+                        } else if (day.count > 5) {
+                          colorClass = 'bg-emerald-500 dark:bg-emerald-400 text-emerald-100';
+                        }
 
-                      // Format date for tooltip
-                      let formattedDate = day.dateStr;
-                      try {
-                        const dateObj = new Date(day.dateStr);
-                        formattedDate = dateObj.toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                        });
-                      } catch {
-                        // Safe fallback
-                      }
+                        // Format date for tooltip
+                        let formattedDate = day.dateStr;
+                        try {
+                          const dateObj = new Date(day.dateStr);
+                          formattedDate = dateObj.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          });
+                        } catch {
+                          // Safe fallback
+                        }
 
-                      return (
-                        <div
-                          key={day.dateStr}
-                          className={`w-[9px] h-[9px] rounded-[1.5px] transition-all duration-300 relative group cursor-pointer hover:ring-1 hover:ring-primary ${colorClass}`}
-                        >
-                          {/* Tooltip */}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-20 pointer-events-none">
-                            <div className="bg-popover border border-border text-popover-foreground text-[8px] font-bold py-1 px-1.5 rounded shadow-md whitespace-nowrap leading-tight">
-                              {day.count === 0 ? 'No' : day.count} practice attempts on {formattedDate}
+                        return (
+                          <div
+                            key={day.dateStr}
+                            className={`w-[9px] h-[9px] rounded-[1.5px] transition-all duration-300 relative group cursor-pointer hover:ring-1 hover:ring-primary ${colorClass}`}
+                          >
+                            {/* Tooltip */}
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-20 pointer-events-none">
+                              <div className="bg-popover border border-border text-popover-foreground text-[8px] font-bold py-1 px-1.5 rounded shadow-md whitespace-nowrap leading-tight">
+                                {day.count === 0 ? 'No' : day.count} practice attempts on {formattedDate}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))}
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Month Labels aligned to grid columns */}
+              <div className="flex gap-[3.5px] text-[9px] font-bold text-muted-foreground pt-1.5 select-none ml-[30px] relative h-4">
+                {heatmapData.map((week, wIdx) => {
+                  const dayObj = new Date(week[0].dateStr);
+                  const isFirstWeekOfMonth = dayObj.getDate() <= 7;
+                  if (isFirstWeekOfMonth) {
+                    return (
+                      <div key={wIdx} className="w-[9px] relative">
+                        <span className="absolute left-0 top-0 whitespace-nowrap">
+                          {dayObj.toLocaleString('default', { month: 'short' })}
+                        </span>
+                      </div>
+                    );
+                  }
+                  return <div key={wIdx} className="w-[9px]" />;
+                })}
               </div>
             </div>
           </div>
@@ -414,9 +418,11 @@ export default function ProgressPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Accuracy Chart */}
             <div className="p-6 premium-card space-y-4">
-              <div>
-                <h3 className="text-sm font-bold text-foreground">Mastery Progression</h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5">Rolling accuracy over the last 15 MCQ practice attempts</p>
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">Mastery Progression</h3>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">Rolling accuracy over the last 15 MCQ practice attempts</p>
+                </div>
               </div>
 
               <div className="w-full">
@@ -469,9 +475,11 @@ export default function ProgressPage() {
 
             {/* Speed Chart */}
             <div className="p-6 premium-card space-y-4">
-              <div>
-                <h3 className="text-sm font-bold text-foreground">Response Speed Curve</h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5">Average time elapsed per question for the last 15 MCQ practice attempts</p>
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">Response Speed Curve</h3>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">Average time elapsed per question for the last 15 MCQ practice attempts</p>
+                </div>
               </div>
 
               <div className="w-full">
@@ -526,9 +534,9 @@ export default function ProgressPage() {
         )}
 
         {/* Performance Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Weekly Activity columns */}
-          <div className="p-6 premium-card flex flex-col justify-between md:col-span-1">
+          <div className="p-6 premium-card flex flex-col justify-between">
             <div>
               <h3 className="text-sm font-bold text-foreground">Weekly Practice Activity</h3>
               <p className="text-[10px] text-muted-foreground mt-0.5">MCQ attempts in the last 7 days</p>
@@ -539,15 +547,15 @@ export default function ProgressPage() {
                 return (
                   <div key={index} className="flex flex-col items-center flex-1 gap-1">
                     <div
-                      className="w-4 bg-primary/20 hover:bg-primary rounded-t transition-all relative group"
+                      className="w-4 bg-emerald-500 hover:opacity-90 rounded-t transition-all relative group cursor-pointer"
                       style={{ height: `${percent}%` }}
                       title={`${count} attempts`}
                     >
-                      <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-[8px] font-bold px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity font-mono">
+                      <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-[8px] font-bold px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity font-mono shadow-sm">
                         {count}
                       </span>
                     </div>
-                    <span className="text-[9px] font-medium text-muted-foreground">{dayNames[index]}</span>
+                    <span className="text-[9px] font-semibold text-muted-foreground">{dayNames[index]}</span>
                   </div>
                 );
               })}
@@ -555,35 +563,33 @@ export default function ProgressPage() {
           </div>
 
           {/* Theory Mastery Progress */}
-          <div className="p-6 premium-card md:col-span-2">
+          <div className="p-6 premium-card">
             <h3 className="text-sm font-bold text-foreground mb-4">Domain Mastery</h3>
             {theoryMastery.length === 0 ? (
               <div className="text-center py-8 text-xs text-muted-foreground italic">
                 Complete MCQ attempts to populate domain estimates.
               </div>
             ) : (
-              <div className="space-y-3.5 max-h-[140px] overflow-y-auto pr-1">
+              <div className="space-y-3 max-h-[140px] overflow-y-auto pr-1">
                 {theoryMastery.map((tm) => (
-                  <div key={tm.id} className="space-y-1">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="font-semibold text-foreground truncate max-w-[200px]" title={tm.title}>
-                        {tm.title}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground font-medium font-mono">
-                        {tm.correct}/{tm.total} Correct ({tm.accuracy}%)
-                      </span>
+                  <div key={tm.id} className="flex items-center gap-3 hover:bg-secondary/40 p-1.5 rounded-xl transition-all cursor-pointer">
+                    <div className="flex-1 space-y-1">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="font-semibold text-foreground truncate max-w-[200px]" title={tm.title}>
+                          {tm.title}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground font-medium font-mono">
+                          {tm.correct}/{tm.total} Correct ({tm.accuracy}%)
+                        </span>
+                      </div>
+                      <div className="w-full h-2 bg-secondary rounded-full overflow-hidden border border-border">
+                        <div
+                          className="h-full bg-emerald-500 transition-all duration-500"
+                          style={{ width: `${tm.accuracy}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="w-full h-2 bg-secondary rounded-full overflow-hidden border border-border">
-                      <div
-                        className={`h-full transition-all duration-500 ${tm.accuracy >= 80
-                          ? 'bg-emerald-500'
-                          : tm.accuracy >= 50
-                            ? 'bg-amber-500'
-                            : 'bg-destructive'
-                          }`}
-                        style={{ width: `${tm.accuracy}%` }}
-                      />
-                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
                   </div>
                 ))}
               </div>
@@ -597,33 +603,41 @@ export default function ProgressPage() {
             <h3 className="text-sm font-bold text-foreground">Accomplishments</h3>
             <p className="text-[10px] text-muted-foreground mt-0.5">Badges unlocked through active learning</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {achievements.map((ach) => (
-              <div
-                key={ach.id}
-                className={`p-4 border rounded-2xl flex gap-3.5 items-center relative transition-all duration-300 ${ach.unlocked
-                  ? 'border-indigo-500/20 bg-gradient-to-br from-indigo-500/[0.02] to-purple-500/[0.02] shadow-[0_8px_30px_rgb(0,0,0,0.015)] hover:border-indigo-500/30'
-                  : 'border-border/60 opacity-55 bg-secondary/15'
-                  }`}
-              >
-                <div className="text-2.5xl shrink-0 select-none">{ach.icon}</div>
-                <div className="min-w-0">
-                  <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                    <span>{ach.title}</span>
-                    {ach.unlocked ? (
-                      <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-500/20 px-1.5 py-0.5 rounded">
-                        Unlocked
-                      </span>
-                    ) : (
-                      <span className="text-[9px] font-bold text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">
-                        Locked
-                      </span>
-                    )}
-                  </h4>
-                  <p className="text-[10px] text-muted-foreground/95 mt-0.5 leading-snug">{ach.desc}</p>
+          
+          <div className="relative group">
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory">
+              {achievements.map((ach) => (
+                <div
+                  key={ach.id}
+                  className={`p-4 border rounded-2xl flex gap-3.5 items-center shrink-0 w-[280px] snap-start relative transition-all duration-300 ${ach.unlocked
+                    ? 'border-indigo-500/20 bg-gradient-to-br from-indigo-500/[0.02] to-purple-500/[0.02] shadow-[0_8px_30px_rgb(0,0,0,0.015)] hover:border-indigo-500/30'
+                    : 'border-border/60 opacity-55 bg-secondary/15'
+                    }`}
+                >
+                  <div className="text-2.5xl shrink-0 select-none">{ach.icon}</div>
+                  <div className="min-w-0">
+                    <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                      <span>{ach.title}</span>
+                      {ach.unlocked ? (
+                        <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-500/20 px-1.5 py-0.5 rounded">
+                          Unlocked
+                        </span>
+                      ) : (
+                        <span className="text-[9px] font-bold text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">
+                          Locked
+                        </span>
+                      )}
+                    </h4>
+                    <p className="text-[10px] text-muted-foreground/95 mt-0.5 leading-snug">{ach.desc}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            {/* Scroll Indicator button on hover */}
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white border border-border shadow flex items-center justify-center cursor-pointer z-10 hover:bg-secondary select-none shadow-sm translate-x-3 opacity-0 group-hover:opacity-100 transition-opacity">
+              <ChevronRight className="w-4 h-4 text-foreground" />
+            </div>
           </div>
         </div>
       </div>

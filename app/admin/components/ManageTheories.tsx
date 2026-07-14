@@ -170,6 +170,8 @@ export default function ManageTheories({
       const { error: dbErr } = await supabase.from('questions').insert(rows);
       if (dbErr) throw dbErr;
 
+      setGeneratingForTheoryId(null);
+
       setTheoryMessage({
         type: 'success',
         text: `Successfully generated ${generatedQuestions.length} draft questions! Review them in the Review Queue.`,
@@ -182,7 +184,7 @@ export default function ManageTheories({
           instructions: '',
         }
       }));
-      await loadDbData();
+      loadDbData();
     } catch (err: unknown) {
       if (err instanceof Error && err.name === 'AbortError') {
         setTheoryMessage({ type: 'success', text: 'MCQ generation was cancelled.' });
