@@ -312,16 +312,16 @@ export default function ReviewQueue({
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 border-t border-border/40 pt-4 mt-auto">
-                      <button
-                        onClick={() => handleApproveQuestion(q.id)}
-                        className="flex-1 py-2 px-3 rounded-4xl text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 shadow-sm transition-all cursor-pointer text-center">Approve</button>
+                    <div className="flex items-center justify-end gap-2 border-t border-border/40 pt-3 mt-auto">
                       <button
                         onClick={() => handleStartInlineEdit(q)}
-                        className="flex-1 py-2 px-3 rounded-4xl text-xs font-bold text-secondary-foreground border border-border bg-card hover:bg-secondary transition-all cursor-pointer text-center">Edit</button>
+                        className="py-1.5 px-3.5 rounded-xl text-[10px] font-bold text-secondary-foreground border border-border bg-card hover:bg-secondary transition-all cursor-pointer text-center">Edit</button>
                       <button
                         onClick={() => setRejectingId(q.id)}
-                        className="flex-1 py-2 px-3 rounded-4xl text-xs font-bold text-white bg-destructive hover:opacity-95 transition-all cursor-pointer text-center">Reject</button>
+                        className="py-1.5 px-3.5 rounded-xl text-[10px] font-bold text-white bg-destructive hover:opacity-95 transition-all cursor-pointer text-center">Reject</button>
+                      <button
+                        onClick={() => handleApproveQuestion(q.id)}
+                        className="py-1.5 px-3.5 rounded-xl text-[10px] font-bold text-white bg-emerald-500 hover:bg-emerald-600 shadow-sm transition-all cursor-pointer text-center">Approve</button>
                     </div>
                   )}
                 </>

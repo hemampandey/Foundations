@@ -272,9 +272,7 @@ export default function DashboardPage() {
 
           {/* PRACTICE BY DOMAIN */}
           <div className="space-y-4">
-            <h2 className="text-lg italic font-serif text-foreground flex items-center gap-2 border-b border-border pb-2">
-              Practice by Theory
-            </h2>
+            <h2 className="text-lg italic font-serif text-foreground flex items-center gap-2 border-b border-border pb-2">Practice by Theory</h2>
             {loadingData ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <CardSkeleton />
@@ -283,7 +281,7 @@ export default function DashboardPage() {
             ) : theories.length === 0 ? (
               <div className="text-center py-12 border border-dashed border-border rounded-2xl bg-card">
                 <BookOpen className="w-12 h-12 mx-auto mb-2 text-muted-foreground/30" />
-                <p className="font-semibold text-muted-foreground text-xs">No theories available right now.</p>
+                <p className="font-semibold font-inria text-muted-foreground text-sm">No theories available right now.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -325,8 +323,8 @@ export default function DashboardPage() {
                               <span className="text-[9px] font-bold text-muted-foreground">{attemptsCount} attempts • {accuracyVal}% acc</span>
                             )}
                           </div>
-                          <h3 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors leading-snug">{theory.title}</h3>
-                          <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-3">{theory.body_text}</p>
+                          <h3 className="text-sm font-bold font-inria text-foreground group-hover:text-primary transition-colors leading-snug">{theory.title}</h3>
+                          <p className="text-[11px] font-inria text-muted-foreground line-clamp-3">{theory.body_text}</p>
                         </div>
 
                         <div className="pt-3 border-t border-border/60 flex items-center justify-between">
@@ -354,7 +352,7 @@ export default function DashboardPage() {
               className="p-6 border border-violet-500/10 bg-gradient-to-br from-violet-500/5 to-indigo-500/5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-3 relative overflow-hidden backdrop-blur-sm cursor-pointer group hover:border-violet-500/20 transition-all">
               <div className="flex items-center gap-2">
                 <span className="text-base">📖</span>
-                <h3 className="text-[10px] font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider bg-violet-500/10 dark:bg-violet-500/25 px-2 py-0.5 rounded-full select-none">Due for Review</h3>
+                <h3 className="text-[10px] font-inria font-bold text-secondary dark:text-secondary uppercase tracking-wider bg-primary/70 dark:bg-primary/25 px-2 py-0.5 rounded-full select-none">Due for Review</h3>
               </div>
 
               <div className="space-y-1">
@@ -362,7 +360,7 @@ export default function DashboardPage() {
                 <p className="text-[11px] text-muted-foreground leading-relaxed">{reviewDueCount === 1 ? 'question is' : 'questions are'} due for spaced review. Review now to strengthen long-term retention.</p>
               </div>
 
-              <span className="text-[10px] font-bold text-violet-600 dark:text-violet-400 group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
+              <span className="text-xs font-inria font-bold text-primary dark:text-primary group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
                 Start Review →
               </span>
             </div>
@@ -373,17 +371,17 @@ export default function DashboardPage() {
             <div className="p-6 border border-indigo-500/10 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-4 relative overflow-hidden backdrop-blur-sm">
               <div className="flex items-center gap-2">
                 <span className="text-base">🎯</span>
-                <h3 className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider bg-indigo-500/10 dark:bg-indigo-500/25 px-2 py-0.5 rounded-full select-none">Today&rsquo;s Challenge</h3>
+                <h3 className="text-[10px] font-bold text-secondary dark:text-secondary uppercase tracking-wider bg-primary/70 px-2 py-0.5 rounded-full select-none">Today's Challenge</h3>
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-sm font-bold text-foreground">{dailySuggestion.theory.title}</h4>
+                <h4 className="text-sm font-inria font-bold text-primary dark:text-primary">{dailySuggestion.theory.title}</h4>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">{dailySuggestion.reason}</p>
               </div>
 
               <button
                 onClick={() => router.push(`/practice?theoryId=${dailySuggestion.theory.id}`)}
-                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-xs hover:opacity-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-indigo-500/15">Accept Challenge</button>
+                className="w-full py-2.5 px-4 rounded-xl bg-primary text-secondary font-bold text-xs hover:opacity-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-indigo-500/15">Accept Challenge</button>
             </div>
           )}
         </div>

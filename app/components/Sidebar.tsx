@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
@@ -80,9 +80,28 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
   const [theoryPractices, setTheoryPractices] = useState<SidebarTheoryPractice[]>([]);
   const [attemptsExpanded, setAttemptsExpanded] = useState(true);
   const [adminExpanded, setAdminExpanded] = useState(pathname.startsWith('/admin'));
+  const [reviewExpanded, setReviewExpanded] = useState(pathname.startsWith('/review'));
   const [draftCount, setDraftCount] = useState(0);
   const [reviewDueCount, setReviewDueCount] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  // Close sub-menus / popovers when clicking outside the sidebar (only when collapsed)
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+        if (collapsed) {
+          setAdminExpanded(false);
+          setReviewExpanded(false);
+        }
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [collapsed]);
 
   // Sync local profile with context profile
   const [prevContextProfile, setPrevContextProfile] = useState(contextProfile);
@@ -357,6 +376,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
       )}
 
       <aside
+        ref={sidebarRef}
         className={`h-full border-r border-border bg-[#f9f9fb] dark:bg-[#0b0f19] flex-col justify-between p-4 transition-all duration-300 shrink-0 select-none relative z-20
           ${mobileOpen
             ? 'fixed inset-y-0 left-0 w-[240px] z-50 flex animate-slide-in'
@@ -444,27 +464,6 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
             </Link>
 
             <Link
-              href="/review"
-              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-200 border hover-glow-sweep ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
-                } ${pathname === '/review'
-                  ? 'bg-primary/5 text-primary border-primary/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary/45 border-transparent'
-                }`}
-            >
-              <Brain className="w-4 h-4 shrink-0 transition-transform duration-250 group-hover:scale-110" />
-              {!collapsed && (
-                <span className="flex items-center gap-2">
-                  Review
-                  {reviewDueCount > 0 && (
-                    <span className="text-[9px] font-bold text-white bg-indigo-500 px-1.5 py-0.5 rounded-full leading-none animate-scale-in">
-                      {reviewDueCount}
-                    </span>
-                  )}
-                </span>
-              )}
-            </Link>
-
-            <Link
               href="/progress"
               className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-200 border hover-glow-sweep ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
                 } ${pathname === '/progress'
@@ -476,13 +475,153 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
               {!collapsed && <span>Progress</span>}
             </Link>
 
+            {(() => {
+              const activeReviewTab = searchParams.get('tab') || 'forecast';
+              return (
+                <div className="space-y-0.5 relative">
+                  <button
+                    onClick={() => {
+                      const nextVal = !reviewExpanded;
+                      setReviewExpanded(nextVal);
+                      if (nextVal) {
+                        setAdminExpanded(false);
+                      }
+                    }}
+                    className={`flex items-center justify-between w-full rounded-xl text-xs font-semibold transition-all duration-150 border cursor-pointer ${collapsed ? 'justify-center p-2.5' : 'px-3 py-2'
+                      } ${pathname.startsWith('/review') && !reviewExpanded
+                        ? 'bg-primary/5 text-primary border-primary/10'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary/45 border-transparent'
+                      }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Brain className="w-4 h-4 shrink-0" />
+                      {!collapsed && (
+                        <span className="flex items-center gap-2">
+                          Review
+                          {reviewDueCount > 0 && (
+                            <span className="text-[9px] font-bold text-white bg-indigo-500 px-1.5 py-0.5 rounded-full leading-none animate-scale-in">
+                              {reviewDueCount}
+                            </span>
+                          )}
+                        </span>
+                      )}
+                    </div>
+                    {!collapsed && (
+                      reviewExpanded ? <ChevronUp className="w-3.5 h-3.5 font-bold" /> : <ChevronDown className="w-3.5 h-3.5 font-bold" />
+                    )}
+                  </button>
+
+                  {/* Desktop Expanded sub-menu */}
+                  <div
+                    className={`grid transition-all duration-300 ease-in-out ${
+                      reviewExpanded && !collapsed
+                        ? 'grid-rows-[1fr] opacity-100 mt-1'
+                        : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+                    }`}
+                  >
+                    <div className="overflow-hidden pl-4 space-y-0.5 border-l border-border/40 ml-5">
+                      {/* Forecast & Stats */}
+                      <Link
+                        href="/review?tab=forecast"
+                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'forecast'
+                          ? 'text-primary font-bold bg-primary/5'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          }`}
+                      >
+                        <span>Forecast &amp; Stats</span>
+                      </Link>
+
+                      {/* Browse Schedules */}
+                      <Link
+                        href="/review?tab=browse"
+                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'browse'
+                          ? 'text-primary font-bold bg-primary/5'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          }`}
+                      >
+                        <span>Browse Schedules</span>
+                      </Link>
+
+                      {/* Attempt History */}
+                      <Link
+                        href="/review?tab=history"
+                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'history'
+                          ? 'text-primary font-bold bg-primary/5'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          }`}
+                      >
+                        <span>Attempt History</span>
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Collapsed flyout popover menu */}
+                  {collapsed && (
+                    <div
+                      className={`absolute left-[54px] top-0 z-50 bg-card border border-border rounded-2xl p-2.5 shadow-xl w-[150px] space-y-0.5 transition-all duration-300 ease-in-out transform origin-left ${
+                        reviewExpanded
+                          ? 'translate-x-2 opacity-100 scale-100 pointer-events-auto'
+                          : 'translate-x-0 opacity-0 scale-95 pointer-events-none'
+                      }`}
+                    >
+                      <div className="text-[10px] font-extrabold text-muted-foreground/80 uppercase tracking-wider px-2.5 pb-1 border-b border-border/40 mb-1">
+                        Review Menu
+                      </div>
+                      
+                      {/* Forecast & Stats */}
+                      <Link
+                        href="/review?tab=forecast"
+                        onClick={() => setReviewExpanded(false)}
+                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'forecast'
+                          ? 'text-primary font-bold bg-primary/5'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          }`}
+                      >
+                        <span>Forecast &amp; Stats</span>
+                      </Link>
+
+                      {/* Browse Schedules */}
+                      <Link
+                        href="/review?tab=browse"
+                        onClick={() => setReviewExpanded(false)}
+                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'browse'
+                          ? 'text-primary font-bold bg-primary/5'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          }`}
+                      >
+                        <span>Browse Schedules</span>
+                      </Link>
+
+                      {/* Attempt History */}
+                      <Link
+                        href="/review?tab=history"
+                        onClick={() => setReviewExpanded(false)}
+                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'history'
+                          ? 'text-primary font-bold bg-primary/5'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          }`}
+                      >
+                        <span>Attempt History</span>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
             {/* Admin Panel collapsible sub-menu */}
             {!profileLoading && profile?.role === 'admin' && (() => {
               const activeTab = searchParams.get('tab') || 'theories';
               return (
                 <div className="space-y-0.5 relative">
                   <button
-                    onClick={() => setAdminExpanded(!adminExpanded)}
+                    onClick={() => {
+                      const nextVal = !adminExpanded;
+                      setAdminExpanded(nextVal);
+                      if (nextVal) {
+                        setReviewExpanded(false);
+                      }
+                    }}
                     className={`flex items-center justify-between w-full rounded-xl text-xs font-semibold transition-all duration-150 border cursor-pointer ${collapsed ? 'justify-center p-2.5' : 'px-3 py-2'
                       } ${pathname.startsWith('/admin') && !adminExpanded
                         ? 'bg-primary/5 text-primary border-primary/10'

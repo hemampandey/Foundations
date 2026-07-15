@@ -109,7 +109,8 @@ function ReviewContent() {
   const { profile, loading: authLoading } = useProfile();
 
   // Navigation Tab
-  const [activeTab, setActiveTab] = useState<'forecast' | 'browse' | 'history'>('forecast');
+  const activeTabParam = searchParams.get('tab') || 'forecast';
+  const activeTab = (['forecast', 'browse', 'history'].includes(activeTabParam) ? activeTabParam : 'forecast') as 'forecast' | 'browse' | 'history';
 
   // Review data (due questions)
   const [dueItems, setDueItems] = useState<ReviewScheduleWithQuestion[]>([]);
@@ -535,35 +536,9 @@ function ReviewContent() {
       {/* Premium Dashboard Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-border/80 pb-6 gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold font-display text-foreground tracking-tight flex items-center gap-2">Review</h1>
-          <p className="text-xs text-muted-foreground mt-1 leading-relaxed max-w-md">Strengthen long-term concepts. Tracks card repetition intervals and manages scheduled memory retention.</p>
+          <h1 className="text-3xl font-extrabold text-primary font-inria text-foreground tracking-tight flex items-center gap-2">Review</h1>
+          <p className="text-xs text-primary font-inria text-muted-foreground mt-1 leading-relaxed max-w-md">Tracks card repetition intervals and manages scheduled memory retention.</p>
         </div>
-      </div>
-
-      {/* Navigation Tab Bar */}
-      <div className="flex border-b border-border/60">
-        <button
-          onClick={() => setActiveTab('forecast')}
-          className={`px-6 py-3 text-xs font-bold transition-all cursor-pointer border-b-2 ${
-            activeTab === 'forecast'
-              ? 'text-primary border-primary dark:text-indigo-400 dark:border-indigo-400'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}
-        >Forecast & Stats</button>
-        <button
-          onClick={() => setActiveTab('browse')}
-          className={`px-6 py-3 text-xs font-bold transition-all cursor-pointer border-b-2 ${
-            activeTab === 'browse'
-              ? 'text-primary border-primary dark:text-indigo-400 dark:border-indigo-400'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}>Browse Schedules</button>
-        <button
-          onClick={() => setActiveTab('history')}
-          className={`px-6 py-3 text-xs font-bold transition-all cursor-pointer border-b-2 ${
-            activeTab === 'history'
-              ? 'text-primary border-primary dark:text-indigo-400 dark:border-indigo-400'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}>Attempt History</button>
       </div>
 
       {/* Tab Panels */}
@@ -575,7 +550,6 @@ function ReviewContent() {
           weakTheories={weakTheories}
           allForecastSchedules={allForecastSchedules}
           onStartPractice={() => setStarted(true)}
-          onSwitchTab={(tab) => setActiveTab(tab)}
         />
       )}
 

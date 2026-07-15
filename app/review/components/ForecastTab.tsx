@@ -47,7 +47,6 @@ interface ForecastTabProps {
   weakTheories: { id: string; title: string; accuracy: number; total: number }[];
   allForecastSchedules: ForecastScheduleItem[];
   onStartPractice: () => void;
-  onSwitchTab: (tab: 'forecast' | 'browse' | 'history') => void;
 }
 
 export default function ForecastTab({
@@ -56,8 +55,7 @@ export default function ForecastTab({
   overdueData,
   weakTheories,
   allForecastSchedules,
-  onStartPractice,
-  onSwitchTab
+  onStartPractice
 }: ForecastTabProps) {
   const [selectedForecastDay, setSelectedForecastDay] = useState<SelectedDayDetails | null>(null);
   const [popoverPosition, setPopoverPosition] = useState<{ left: string; right?: string; top: string } | null>(null);
@@ -115,20 +113,16 @@ export default function ForecastTab({
         {/* Left Card: AI Diagnostic Insights */}
         <div className="lg:col-span-4 bg-card border border-border rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-sm">
           <div className="space-y-1">
-            <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider text-left">
-              Areas to Target
-            </h3>
-            <p className="text-[11px] text-muted-foreground text-left">
-              Theories below 80% accuracy based on your study attempts.
-            </p>
+            <h3 className="text-xs font-inria font-bold text-primary uppercase tracking-wider text-left">Areas to Target</h3>
+            <p className="text-xs font-inria text-muted-foreground text-left">Theories below 80% accuracy based on your study attempts.</p>
           </div>
 
           <div className="flex-1 flex flex-col justify-center space-y-3 py-1">
             {weakTheories.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-4 text-center text-muted-foreground">
                 <span className="text-xl mb-1 select-none">🎯</span>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-500">All Metrics Strong</p>
-                <p className="text-[9px] text-muted-foreground mt-0.5">Keep maintaining your scores above 80%!</p>
+                <p className="text-xs font-inria font-bold uppercase tracking-wider text-emerald-500">All Metrics Strong</p>
+                <p className="text-xs font-inria text-muted-foreground mt-0.5">Keep maintaining your scores above 80%!</p>
               </div>
             ) : (
               weakTheories.map((theory, idx) => (
@@ -141,18 +135,11 @@ export default function ForecastTab({
                   </div>
                   <Link
                     href={`/practice?theoryId=${theory.id}`}
-                    className="py-1 px-3 rounded-lg bg-indigo-500 text-white font-bold text-[10px] hover:bg-indigo-600 transition-all shrink-0 select-none shadow-sm shadow-indigo-500/10"
-                  >
-                    Retry
-                  </Link>
+                    className="py-1 px-3 rounded-lg bg-primary text-white font-inria text-xs font-bold hover:bg-primary/85 transition-all shrink-0 select-none shadow-sm shadow-primary/10">Retry</Link>
                 </div>
               ))
             )}
           </div>
-
-          <p className="text-[9px] text-muted-foreground leading-tight text-left">
-            Targeting these domains helps stabilize memory retention decay rates.
-          </p>
         </div>
 
         {/* Middle Card: Completed Celebration or Launcher */}
@@ -165,23 +152,12 @@ export default function ForecastTab({
                   <CalendarCheck className="w-6 h-6 z-10" />
                 </div>
                 <div className="space-y-1">
-                  <h2 className="text-base font-bold text-foreground leading-none">
-                    All Caught Up!
-                  </h2>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    Congratulations! You have completed all scheduled card reviews. New items will become due as their intervals elapse.
-                  </p>
+                  <h2 className="text-lg font-inria font-bold text-primary leading-none">All Caught Up!</h2>
+                  <p className="text-xs font-inria text-muted-foreground leading-relaxed">Congratulations! You have completed all scheduled card reviews. New items will become due as their intervals elapse.</p>
                 </div>
               </div>
 
-              <div className="flex gap-2">
-                <button
-                  onClick={() => onSwitchTab('browse')}
-                  className="flex-1 py-2 px-3 rounded-xl border border-border bg-card text-foreground font-bold text-[11px] hover:bg-secondary transition-all cursor-pointer text-center"
-                >
-                  Browse Schedule
-                </button>
-              </div>
+
             </>
           ) : (
             <>
@@ -191,12 +167,10 @@ export default function ForecastTab({
                   <Zap className="w-6 h-6 z-10" />
                 </div>
                 <div className="space-y-1">
-                  <h2 className="text-base font-bold text-foreground leading-none">
+                  <h2 className="text-lg font-inria font-bold text-primary leading-none">
                     {dueItems.length} {dueItems.length === 1 ? 'Review Due' : 'Reviews Due'}
                   </h2>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    Reinforce counseling models scheduled to decay today. Immediate testing cements learning pathways.
-                  </p>
+                  <p className="text-xs font-inria text-muted-foreground leading-relaxed">Ready to reinforce foundational knowledge. Let&apos;s start your review deck.</p>
                 </div>
               </div>
 
@@ -213,13 +187,11 @@ export default function ForecastTab({
 
         {/* Right Card: Theory Breakdown */}
         <div className="lg:col-span-3 bg-card border border-border rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-sm">
-          <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider text-left">
-            Theory Breakdown
-          </h3>
+          <h3 className="text-xs font-inria font-bold text-primary uppercase tracking-wider text-left">Theory Breakdown</h3>
           {dueItems.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center py-4 text-center text-muted-foreground">
               <span className="text-xl mb-1 select-none">✅</span>
-              <p className="text-[10px] font-bold uppercase tracking-wider">No pending reviews</p>
+              <p className="text-xs font-inria font-bold uppercase tracking-wider">No pending reviews</p>
             </div>
           ) : (
             <div className="flex-1 overflow-y-auto max-h-[100px] pr-0.5 space-y-2 scroll-thin">
@@ -406,9 +378,7 @@ export default function ForecastTab({
                 <div className="space-y-2">
                   <p className="text-[9px] font-extrabold text-muted-foreground/80 uppercase tracking-wider pl-0.5">Scheduled Questions</p>
                   {selectedForecastDay.count === 0 ? (
-                    <div className="py-6 text-center text-muted-foreground text-[10px] border border-dashed border-border rounded-xl">
-                      0 reviews scheduled
-                    </div>
+                    <div className="py-6 text-center text-muted-foreground text-[10px] border border-dashed border-border rounded-xl">0 reviews scheduled</div>
                   ) : (
                     <div className="max-h-60 overflow-y-auto pr-1 space-y-2">
                       {selectedForecastDay.items.map((item, idx) => (
