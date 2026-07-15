@@ -14,10 +14,6 @@ interface ConfirmDialogProps {
   onCancel: () => void;
 }
 
-/**
- * Styled confirmation dialog that replaces native `confirm()` / `alert()`.
- * Uses a backdrop overlay and traps focus inside the dialog.
- */
 export default function ConfirmDialog({
   open,
   title,
@@ -60,13 +56,9 @@ export default function ConfirmDialog({
       className="fixed inset-0 z-[100] flex items-center justify-center"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="confirm-dialog-title"
-    >
+      aria-labelledby="confirm-dialog-title">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in"
-        onClick={onCancel}
-      />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in" onClick={onCancel}/>
 
       {/* Dialog */}
       <div
@@ -77,43 +69,27 @@ export default function ConfirmDialog({
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               {variant === 'danger' && (
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-500/10 text-red-500">
-                  <AlertTriangle className="w-5 h-5" />
-                </div>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-500/10 text-red-500"> <AlertTriangle className="w-5 h-5" /> </div>
               )}
               <div>
-                <h3
-                  id="confirm-dialog-title"
-                  className="text-base font-bold font-display text-foreground"
-                >
-                  {title}
-                </h3>
+                <h3 id="confirm-dialog-title" className="text-base font-bold font-display text-foreground">{title}</h3>
                 <p className="text-sm text-muted-foreground mt-1">{description}</p>
               </div>
             </div>
             <button
               onClick={onCancel}
               className="p-1 text-muted-foreground hover:text-foreground transition-colors cursor-pointer rounded-xl"
-              aria-label="Close"
-            >
-              <X className="w-4 h-4" />
-            </button>
+              aria-label="Close"><X className="w-4 h-4" /></button>
           </div>
         </div>
 
         <div className="flex gap-3 p-4 pt-0">
           <button
             onClick={onCancel}
-            className="flex-1 py-2.5 px-4 rounded-xl font-semibold text-sm border border-border bg-background text-foreground hover:bg-secondary transition-all cursor-pointer"
-          >
-            {cancelLabel}
-          </button>
+            className="flex-1 py-2.5 px-4 rounded-xl font-semibold text-sm border border-border bg-background text-foreground hover:bg-secondary transition-all cursor-pointer">{cancelLabel}</button>
           <button
             onClick={onConfirm}
-            className={`flex-1 py-2.5 px-4 rounded-xl font-semibold text-sm transition-all cursor-pointer shadow-md ${confirmClasses}`}
-          >
-            {confirmLabel}
-          </button>
+            className={`flex-1 py-2.5 px-4 rounded-xl font-semibold text-sm transition-all cursor-pointer shadow-md ${confirmClasses}`}>{confirmLabel}</button>
         </div>
       </div>
     </div>

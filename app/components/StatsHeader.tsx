@@ -40,12 +40,8 @@ export default function StatsHeader({
   return (
     <div className="flex flex-col lg:flex-row lg:items-center justify-between border-b border-border/80 pb-6 gap-6">
       <div className="space-y-1">
-        <h1 className="text-xl sm:text-2xl font-extrabold font-display text-foreground tracking-tight flex items-center gap-2">
-          {greetingText}
-        </h1>
-        <p className="text-xs text-muted-foreground">
-          {description}
-        </p>
+        <h1 className="text-xl sm:text-2xl font-extrabold font-display text-foreground tracking-tight flex items-center gap-2">{greetingText}</h1>
+        <p className="text-xs text-muted-foreground">{description}</p>
       </div>
 
       <div className="hidden md:flex flex-wrap items-center gap-4 sm:gap-6 bg-card border border-border/85 rounded-2xl p-3 px-5 shadow-[0_8px_30px_rgb(0,0,0,0.02)] shrink-0 relative overflow-hidden backdrop-blur-sm glass-card">
@@ -55,9 +51,7 @@ export default function StatsHeader({
             <span className={streak > 0 ? "animate-pulse" : ""}>🔥</span>
           </div>
           <div>
-            <div className="text-sm font-bold text-foreground leading-tight">
-              {animatedStreak}
-            </div>
+            <div className="text-sm font-bold text-foreground leading-tight">{animatedStreak}</div>
             <p className="text-[9px] text-muted-foreground/80 font-bold uppercase tracking-wider">Day Streak</p>
           </div>
         </div>
@@ -66,13 +60,9 @@ export default function StatsHeader({
 
         {/* Accuracy */}
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 font-bold select-none text-base">
-            🎯
-          </div>
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 font-bold select-none text-base">🎯</div>
           <div>
-            <div className={`text-sm font-bold leading-tight ${accuracy >= 60 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-500"}`}>
-              {animatedAccuracy}%
-            </div>
+            <div className={`text-sm font-bold leading-tight ${accuracy >= 60 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-500"}`}>{animatedAccuracy}%</div>
             <p className="text-[9px] text-muted-foreground/80 font-bold uppercase tracking-wider">Accuracy</p>
           </div>
         </div>
@@ -84,15 +74,12 @@ export default function StatsHeader({
           <div className="text-left">
             <div className="flex items-center justify-between gap-6 text-xs font-bold text-foreground">
               <span>Level {targetLevelInfo.level}</span>
-              <span className="text-[10px] text-muted-foreground/85 font-mono">
-                {levelInfo.currentXp}/{levelInfo.requiredXp} XP
-              </span>
+              <span className="text-[10px] text-muted-foreground/85 font-mono">{levelInfo.currentXp}/{levelInfo.requiredXp} XP</span>
             </div>
             <div className="w-32 sm:w-40 h-2 bg-secondary rounded-full overflow-hidden border border-border/70 mt-1 relative">
               <div
                 className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-300 ease-out"
-                style={{ width: `${Math.min(100, (levelInfo.currentXp / levelInfo.requiredXp) * 100)}%` }}
-              />
+                style={{ width: `${Math.min(100, (levelInfo.currentXp / levelInfo.requiredXp) * 100)}%` }}/>
             </div>
           </div>
 

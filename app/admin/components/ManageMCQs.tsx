@@ -48,7 +48,7 @@ export default function ManageMCQs({
     return () => clearTimeout(t);
   }, [qMessage]);
 
-  const handleCreateQuestion = async (e: React.FormEvent) => {
+  const handleCreateQuestion = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setQMessage(null);
 
@@ -72,8 +72,7 @@ export default function ManageMCQs({
           bloom_level: qBloomLevel,
           status: qStatus,
           source_excerpt: qSourceExcerpt || null,
-        })
-        .select();
+        }).select();
 
       if (error) throw error;
       setQMessage({ type: 'success', text: 'MCQ created successfully!' });
@@ -105,11 +104,9 @@ export default function ManageMCQs({
   };
 
   const handleSaveInlineEdit = async (id: string) => {
-    // Optimistic Update
     setQuestions((prev) =>
       prev.map((q) =>
-        q.id === id
-          ? {
+        q.id === id ? {
               ...q,
               stem: inlineStem,
               options: inlineOptions,
@@ -117,9 +114,7 @@ export default function ManageMCQs({
               explanation: inlineExplanation,
               difficulty: inlineDifficulty,
               bloom_level: inlineBloomLevel,
-            }
-          : q
-      )
+            } : q)
     );
     setInlineEditingId(null);
 
@@ -157,7 +152,7 @@ export default function ManageMCQs({
       {/* Create MCQ Form */}
       <div className="lg:col-span-6 bg-card border border-border rounded-2xl p-6 h-fit shadow-sm">
         <h3 className="text-lg font-bold font-display mb-4 flex items-center gap-2">
-          <Plus className="w-5 h-5 text-primary" />
+          <Plus className="w-4 h-4 text-inria" />
           Write MCQ Question
         </h3>
 
@@ -209,9 +204,7 @@ export default function ManageMCQs({
 
           {/* MCQ Choices */}
           <div className="space-y-2">
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Choices &amp; Correct Answer
-            </label>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider">Choices &amp; Correct Answer</label>
             {qOptions.map((opt, idx) => (
               <div key={idx} className="flex items-center gap-3">
                 <input
@@ -228,16 +221,13 @@ export default function ManageMCQs({
                   value={opt}
                   onChange={(e) => handleOptionChange(idx, e.target.value)}
                   placeholder={`Choice ${String.fromCharCode(65 + idx)}`}
-                  className="w-full px-3 py-2 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-                />
+                  className="w-full px-3 py-2 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"/>
               </div>
             ))}
           </div>
 
           <div>
-            <label htmlFor="q-explanation" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-              Explanation
-            </label>
+            <label htmlFor="q-explanation" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Explanation</label>
             <textarea
               id="q-explanation"
               required
@@ -245,14 +235,11 @@ export default function ManageMCQs({
               value={qExplanation}
               onChange={(e) => setQExplanation(e.target.value)}
               placeholder="Provide a detailed explanation of why the correct answer is right and why others are incorrect."
-              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm resize-none"
-            />
+              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm resize-none"/>
           </div>
 
           <div>
-            <label htmlFor="q-source" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-              Source Excerpt (Optional)
-            </label>
+            <label htmlFor="q-source" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Source Excerpt (Optional)</label>
             <textarea
               id="q-source"
               rows={2}
@@ -265,9 +252,7 @@ export default function ManageMCQs({
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label htmlFor="q-difficulty" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                Difficulty
-              </label>
+              <label htmlFor="q-difficulty" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Difficulty</label>
               <select
                 id="q-difficulty"
                 value={qDifficulty}
@@ -281,9 +266,7 @@ export default function ManageMCQs({
             </div>
 
             <div>
-              <label htmlFor="q-bloom" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                Bloom Level
-              </label>
+              <label htmlFor="q-bloom" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Bloom Level</label>
               <select
                 id="q-bloom"
                 value={qBloomLevel}
@@ -300,9 +283,7 @@ export default function ManageMCQs({
             </div>
 
             <div>
-              <label htmlFor="q-status" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                Status
-              </label>
+              <label htmlFor="q-status" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Status</label>
               <select
                 id="q-status"
                 value={qStatus}
@@ -318,25 +299,20 @@ export default function ManageMCQs({
           <button
             type="submit"
             disabled={qSubmitLoading}
-            className="w-full py-2.5 px-4 bg-primary text-primary-foreground font-semibold rounded-xl hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-primary/10 disabled:opacity-50"
-          >
+            className="w-full py-2.5 px-4 bg-primary text-primary-foreground font-semibold rounded-xl hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-primary/10 disabled:opacity-50">
             {qSubmitLoading ? (
               <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-            ) : (
-              <>
+            ) : (<>
                 <Plus className="w-4 h-4" />
                 Add &amp; Approve MCQ
-              </>
-            )}
+              </>)}
           </button>
         </form>
       </div>
 
       {/* Questions List */}
       <div className="lg:col-span-6 bg-card border border-border rounded-2xl p-6 h-fit min-h-[400px]">
-        <h3 className="text-lg font-bold font-display mb-4">
-          Existing Questions ({approvedQuestions.length})
-        </h3>
+        <h3 className="text-lg font-bold font-display mb-4">Existing Questions ({approvedQuestions.length})</h3>
 
         {loadingLists ? (
           <div className="flex justify-center py-12">
@@ -362,9 +338,7 @@ export default function ManageMCQs({
                     </div>
 
                     <div>
-                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                        Question Stem
-                      </label>
+                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Question Stem</label>
                       <textarea
                         value={inlineStem}
                         onChange={(e) => setInlineStem(e.target.value)}
@@ -397,8 +371,7 @@ export default function ManageMCQs({
                               newOpts[oIdx] = e.target.value;
                               setInlineOptions(newOpts);
                             }}
-                            className="flex-1 px-2.5 py-1.5 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"
-                          />
+                            className="flex-1 px-2.5 py-1.5 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"/>
                         </div>
                       ))}
                     </div>
@@ -411,8 +384,7 @@ export default function ManageMCQs({
                         value={inlineExplanation}
                         onChange={(e) => setInlineExplanation(e.target.value)}
                         rows={3}
-                        className="w-full px-2.5 py-2 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"
-                      />
+                        className="w-full px-2.5 py-2 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"/>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
@@ -453,10 +425,7 @@ export default function ManageMCQs({
                       <button
                         type="button"
                         onClick={() => setInlineEditingId(null)}
-                        className="flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80 transition-all cursor-pointer"
-                      >
-                        Cancel
-                      </button>
+                        className="flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80 transition-all cursor-pointer">Cancel</button>
                       <button
                         type="button"
                         onClick={() => handleSaveInlineEdit(q.id)}
@@ -526,5 +495,4 @@ export default function ManageMCQs({
         )}
       </div>
     </>
-  );
-}
+  );}

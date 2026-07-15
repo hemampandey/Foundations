@@ -1,11 +1,7 @@
 /**
  * SM-2 Spaced Repetition Algorithm
- *
- * Implementation of the SuperMemo SM-2 algorithm used by Anki.
  * Given a user's current review state and a quality grade (0–5),
  * computes the next review interval, ease factor, and due date.
- *
- * Reference: https://www.supermemo.com/en/archives1990-2015/english/ol/sm2
  */
 
 export interface SM2State {
@@ -36,8 +32,6 @@ export function gradeFromAttempt(isCorrect: boolean, responseMs: number): number
 }
 
 /**
- * Run one step of the SM-2 algorithm.
- *
  * @param state   Current review state (or defaults for new items)
  * @param quality Quality grade 0–5
  * @returns       Updated state with new due date

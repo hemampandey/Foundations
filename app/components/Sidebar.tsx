@@ -727,9 +727,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
           {profile && dropdownOpen && !collapsed && (
             <div className="absolute bottom-14 left-1 right-1 bg-card border border-border rounded-xl shadow-lg z-50 p-1.5 space-y-0.5 animate-fade-in text-xs text-foreground">
               {/* Header Email */}
-              <div className="px-3 py-2 text-[10px] text-muted-foreground truncate border-b border-border/40 pb-2 mb-1.5 font-bold tracking-wider">
-                {userEmail ?? 'Guest Session'}
-              </div>
+              <div className="px-3 py-2 text-[10px] text-muted-foreground truncate border-b border-border/40 pb-2 mb-1.5 font-bold tracking-wider">{userEmail ?? 'Guest Session'}</div>
 
               {/* Settings */}
               <button
@@ -737,8 +735,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                   setDropdownOpen(false);
                   setShowSearchModal(true);
                 }}
-                className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-xl text-left hover:bg-secondary/50 transition-all cursor-pointer group"
-              >
+                className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-xl text-left hover:bg-secondary/50 transition-all cursor-pointer group">
                 <div className="flex items-center gap-2.5 font-medium">
                   <Settings className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
                   <span>Settings</span>
@@ -748,51 +745,43 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
 
               {/* Language */}
               <button
-                className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-xl text-left hover:bg-secondary/50 transition-all cursor-pointer group"
-              >
+                className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-xl text-left hover:bg-secondary/50 transition-all cursor-pointer group">
                 <div className="flex items-center gap-2.5 font-medium">
                   <Globe className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
                   <span>Language</span>
                 </div>
                 <ChevronRight className="w-3 h-3 text-muted-foreground/60" />
               </button>
-
               {/* Get Help */}
               <button
-                className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-xl text-left hover:bg-secondary/50 transition-all cursor-pointer group font-medium"
-              >
+                className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-xl text-left hover:bg-secondary/50 transition-all cursor-pointer group font-medium">
                 <HelpCircle className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
                 <span>Get help</span>
               </button>
-
               <div className="border-t border-border/40 my-1"></div>
 
               {/* Upgrade Plan */}
               <button
-                className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-xl text-left hover:bg-secondary/50 transition-all cursor-pointer group font-medium"
-              >
+                className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-xl text-left hover:bg-secondary/50 transition-all cursor-pointer group font-medium">
                 <ArrowUpCircle className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
                 <span>Upgrade plan</span>
               </button>
 
               {/* Learn more */}
               <button
-                className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-xl text-left hover:bg-secondary/50 transition-all cursor-pointer group"
-              >
+                className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-xl text-left hover:bg-secondary/50 transition-all cursor-pointer group">
                 <div className="flex items-center gap-2.5 font-medium">
                   <Info className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
                   <span>Learn more</span>
                 </div>
                 <ChevronRight className="w-3 h-3 text-muted-foreground/60" />
               </button>
-
               <div className="border-t border-border/40 my-1"></div>
 
               {/* Log out */}
               <button
                 onClick={handleSignOut}
-                className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-xl text-left text-destructive hover:bg-destructive/5 transition-all cursor-pointer group font-semibold"
-              >
+                className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-xl text-left text-destructive hover:bg-destructive/5 transition-all cursor-pointer group font-semibold">
                 <LogOut className="w-3.5 h-3.5 transition-colors" />
                 <span>Log out</span>
               </button>
@@ -820,8 +809,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                 <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="p-0.5 text-muted-foreground/60 hover:text-foreground transition-all cursor-pointer"
-                  >
+                    className="p-0.5 text-muted-foreground/60 hover:text-foreground transition-all cursor-pointer">
                     <ChevronsUpDown className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -831,8 +819,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
             !profileLoading && (
               <Link
                 href="/auth"
-                className="flex w-full items-center justify-center gap-2 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-all shadow-sm"
-              >
+                className="flex w-full items-center justify-center gap-2 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-all shadow-sm">
                 <User className="w-4 h-4" />
                 {!collapsed && <span>Sign In</span>}
               </Link>
@@ -847,8 +834,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                 alt="Ally Logo"
                 width={50}
                 height={24}
-                className="shrink-0"
-              />
+                className="shrink-0"/>
             </div>
           )}
         </div>
@@ -858,12 +844,10 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
       {showSearchModal && (
         <div
           className="fixed inset-0 z-50 flex items-start justify-center pt-24 bg-background/80 animate-fade-in"
-          onClick={() => setShowSearchModal(false)}
-        >
+          onClick={() => setShowSearchModal(false)}>
           <div
             className="bg-card border border-border rounded-xl w-full max-w-lg mx-4 shadow-2xl overflow-hidden animate-scale-in"
-            onClick={(e) => e.stopPropagation()}
-          >
+            onClick={(e) => e.stopPropagation()}>
             {/* Search Input Bar */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-secondary/30">
               <Search className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -873,8 +857,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1 bg-transparent border-none text-sm outline-none text-foreground placeholder-muted-foreground"
-                autoFocus
-              />
+                autoFocus/>
             </div>
 
             {/* Results Body */}
@@ -922,8 +905,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                             key={t.id}
                             href={`/practice?theoryId=${t.id}`}
                             onClick={() => setShowSearchModal(false)}
-                            className="flex items-center justify-between p-2 hover:bg-secondary/60 rounded-xl transition-all text-xs font-semibold text-foreground group"
-                          >
+                            className="flex items-center justify-between p-2 hover:bg-secondary/60 rounded-xl transition-all text-xs font-semibold text-foreground group">
                             <div className="min-w-0 pr-2">
                               <p className="truncate group-hover:text-primary transition-colors">{t.title}</p>
                               <p className="text-[9px] text-muted-foreground font-normal mt-0.5">{t.domain}</p>

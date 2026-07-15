@@ -45,7 +45,7 @@ export default function ManageJourneys({
     }
   };
 
-  const handleSaveJourney = async (e: React.FormEvent) => {
+  const handleSaveJourney = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setJourneyMessage(null);
     setJourneySubmitLoading(true);
@@ -169,8 +169,7 @@ export default function ManageJourneys({
               value={journeyTitle}
               onChange={(e) => setJourneyTitle(e.target.value)}
               placeholder="Journey Title"
-              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-            />
+              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"/>
           </div>
 
           <div className="flex items-center gap-2 py-2">
@@ -179,11 +178,8 @@ export default function ManageJourneys({
               type="checkbox"
               checked={journeyPublished}
               onChange={(e) => setJourneyPublished(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-            />
-            <label htmlFor="j-published" className="text-xs font-semibold text-foreground cursor-pointer">
-              Publish Journey (Make visible to learners)
-            </label>
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"/>
+            <label htmlFor="j-published" className="text-xs font-semibold text-foreground cursor-pointer">Publish Journey (Make visible to learners)</label>
           </div>
 
           {/* Selected Questions (Ordered List) */}
@@ -267,10 +263,7 @@ export default function ManageJourneys({
                   setJourneySelectedQuestionIds([]);
                   setJourneyMessage(null);
                 }}
-                className="flex-1 py-2.5 px-4 bg-secondary text-secondary-foreground font-semibold rounded-xl hover:bg-secondary/80 transition-all cursor-pointer"
-              >
-                Cancel
-              </button>
+                className="flex-1 py-2.5 px-4 bg-secondary text-secondary-foreground font-semibold rounded-xl hover:bg-secondary/80 transition-all cursor-pointer">Cancel</button>
             )}
             <button
               type="submit"
@@ -321,16 +314,11 @@ export default function ManageJourneys({
                       type="checkbox"
                       checked={isChecked}
                       readOnly
-                      className="mt-0.5 h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer shrink-0"
-                    />
+                      className="mt-0.5 h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer shrink-0"/>
                     <div className="space-y-0.5 min-w-0">
-                      <p className="font-semibold text-foreground truncate" title={q.stem}>
-                        {q.stem}
-                      </p>
+                      <p className="font-semibold text-foreground truncate" title={q.stem}>{q.stem}</p>
                       <div className="flex gap-1.5 text-[9px] font-medium text-muted-foreground">
-                        <span className="bg-secondary px-1 py-0.2 rounded truncate max-w-[120px]">
-                          {q.theories?.title ?? 'Unknown'}
-                        </span>
+                        <span className="bg-secondary px-1 py-0.2 rounded truncate max-w-[120px]">{q.theories?.title ?? 'Unknown'}</span>
                         <span>Difficulty: L{q.difficulty}</span>
                         <span className="uppercase">{q.bloom_level}</span>
                       </div>
@@ -367,9 +355,7 @@ export default function ManageJourneys({
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-bold font-display text-sm text-foreground">
-                      {j.title}
-                    </h4>
+                    <h4 className="font-bold font-display text-sm text-foreground">{j.title}</h4>
                     <span
                       className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase border ${j.published
                         ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/10'
@@ -379,23 +365,19 @@ export default function ManageJourneys({
                       {j.published ? 'Published' : 'Draft'}
                     </span>
                   </div>
-                  <p className="text-[10px] text-muted-foreground">
-                    Created: {new Date(j.created_at).toLocaleDateString()}
-                  </p>
+                  <p className="text-[10px] text-muted-foreground">Created: {new Date(j.created_at).toLocaleDateString()}</p>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleEditJourney(j)}
-                    className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/10 hover:bg-primary/20 transition-all cursor-pointer flex items-center gap-1 font-semibold"
-                  >
+                    className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/10 hover:bg-primary/20 transition-all cursor-pointer flex items-center gap-1 font-semibold">
                     <Edit className="w-3.5 h-3.5" />
                     Edit
                   </button>
                   <button
                     onClick={() => handleDeleteJourney(j.id)}
-                    className="p-2 rounded-xl bg-destructive/10 text-destructive border border-destructive/10 hover:bg-destructive/20 transition-all cursor-pointer flex items-center gap-1 font-semibold"
-                  >
+                    className="p-2 rounded-xl bg-destructive/10 text-destructive border border-destructive/10 hover:bg-destructive/20 transition-all cursor-pointer flex items-center gap-1 font-semibold">
                     <Trash2 className="w-3.5 h-3.5" />
                     Delete
                   </button>
@@ -405,6 +387,4 @@ export default function ManageJourneys({
           </div>
         )}
       </div>
-    </>
-  );
-}
+    </>);}

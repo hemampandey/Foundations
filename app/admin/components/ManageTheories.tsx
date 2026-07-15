@@ -64,7 +64,7 @@ export default function ManageTheories({
     return () => clearTimeout(t);
   }, [theoryMessage]);
 
-  const handleCreateTheory = async (e: React.FormEvent) => {
+  const handleCreateTheory = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setTheoryMessage(null);
     setTheorySubmitLoading(true);
@@ -220,50 +220,39 @@ export default function ManageTheories({
               ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
               : 'bg-destructive/10 border-destructive/20 text-destructive'
               }`}
-          >
-            {theoryMessage.text}
-          </div>
+          >{theoryMessage.text}</div>
         )}
 
         <form onSubmit={handleCreateTheory} className="space-y-4">
           <div>
-            <label htmlFor="theory-title" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-              Theory Title
-            </label>
+            <label htmlFor="theory-title" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Theory Title</label>
             <input
               id="theory-title"
               type="text"
               required
               value={theoryTitle}
               onChange={(e) => setTheoryTitle(e.target.value)}
-              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-            />
+              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"/>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="theory-domain" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                Domain / Tag
-              </label>
+              <label htmlFor="theory-domain" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Domain / Tag</label>
               <input
                 id="theory-domain"
                 type="text"
                 required
                 value={theoryDomain}
                 onChange={(e) => setTheoryDomain(e.target.value)}
-                className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-              />
+                className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"/>
             </div>
             <div>
-              <label htmlFor="theory-status" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                Status
-              </label>
+              <label htmlFor="theory-status" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Status</label>
               <select
                 id="theory-status"
                 value={theoryStatus}
                 onChange={(e) => setTheoryStatus(e.target.value as 'draft' | 'published')}
-                className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-              >
+                className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
                 <option value="published">Published</option>
                 <option value="draft">Draft</option>
               </select>
@@ -271,32 +260,26 @@ export default function ManageTheories({
           </div>
 
           <div>
-            <label htmlFor="theory-body" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-              Theory Text/Notes
-            </label>
+            <label htmlFor="theory-body" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Theory Text/Notes</label>
             <textarea
               id="theory-body"
               required
               rows={6}
               value={theoryBody}
               onChange={(e) => setTheoryBody(e.target.value)}
-              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm font-sans resize-y"
-            />
+              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm font-sans resize-y"/>
           </div>
 
           <button
             type="submit"
             disabled={theorySubmitLoading}
-            className="w-full py-2.5 px-4 bg-primary text-primary-foreground font-semibold rounded-xl hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-primary/10 disabled:opacity-50"
-          >
+            className="w-full py-2.5 px-4 bg-primary text-primary-foreground font-semibold rounded-xl hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-primary/10 disabled:opacity-50">
             {theorySubmitLoading ? (
               <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-            ) : (
-              <>
+            ) : (<>
                 <Plus className="w-4 h-4" />
                 Add Theory
-              </>
-            )}
+              </>)}
           </button>
         </form>
       </div>
@@ -304,9 +287,7 @@ export default function ManageTheories({
       {/* Theory List */}
       <div className="lg:col-span-7 bg-card border border-border rounded-2xl p-6 h-fit min-h-[400px]">
         <div className="border-b border-border pb-4 mb-4">
-          <h3 className="text-sm font-bold font-display text-foreground">
-            Existing Theories ({theories.length})
-          </h3>
+          <h3 className="text-sm font-bold font-display text-foreground">Existing Theories ({theories.length})</h3>
         </div>
 
         {loadingLists ? (
@@ -335,8 +316,7 @@ export default function ManageTheories({
                 return (
                   <div
                     key={theory.id}
-                    className="p-5 rounded-xl border border-primary bg-card/75 shadow-sm space-y-4 text-xs animate-fade-in"
-                  >
+                    className="p-5 rounded-xl border border-primary bg-card/75 shadow-sm space-y-4 text-xs animate-fade-in">
                     <div className="flex justify-between items-center border-b border-border/40 pb-1">
                       <span className="text-[10px] font-bold text-primary uppercase">Edit Theory</span>
                       <span className="text-[10px] text-muted-foreground">ID: {theory.id.substring(0, 8)}…</span>
@@ -344,39 +324,30 @@ export default function ManageTheories({
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                          Theory Title
-                        </label>
+                        <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Theory Title</label>
                         <input
                           type="text"
                           value={inlineTheoryTitle}
                           onChange={(e) => setInlineTheoryTitle(e.target.value)}
-                          className="w-full px-2.5 py-1.5 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"
-                        />
+                          className="w-full px-2.5 py-1.5 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"/>
                       </div>
                       <div>
-                        <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                          Domain / Tag
-                        </label>
+                        <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Domain / Tag</label>
                         <input
                           type="text"
                           value={inlineTheoryDomain}
                           onChange={(e) => setInlineTheoryDomain(e.target.value)}
-                          className="w-full px-2.5 py-1.5 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"
-                        />
+                          className="w-full px-2.5 py-1.5 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"/>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-4">
                       <div>
-                        <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                          Status
-                        </label>
+                        <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Status</label>
                         <select
                           value={inlineTheoryStatus}
                           onChange={(e) => setInlineTheoryStatus(e.target.value as 'draft' | 'published')}
-                          className="w-full px-2.5 py-1.5 border border-border bg-background rounded-xl text-xs"
-                        >
+                          className="w-full px-2.5 py-1.5 border border-border bg-background rounded-xl text-xs">
                           <option value="published">Published</option>
                           <option value="draft">Draft</option>
                         </select>
@@ -384,30 +355,24 @@ export default function ManageTheories({
                     </div>
 
                     <div>
-                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                        Theory Body Text (Material)
-                      </label>
+                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Theory Body Text (Material)</label>
                       <textarea
                         value={inlineTheoryBody}
                         onChange={(e) => setInlineTheoryBody(e.target.value)}
                         rows={5}
-                        className="w-full px-2.5 py-2 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"
-                      />
+                        className="w-full px-2.5 py-2 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"/>
                     </div>
 
                     <div className="flex gap-2 pt-3 border-t border-border/40">
                       <button
                         type="button"
                         onClick={() => setInlineEditingTheoryId(null)}
-                        className="flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80 transition-all cursor-pointer"
-                      >
-                        Cancel
+                        className="flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80 transition-all cursor-pointer">Cancel
                       </button>
                       <button
                         type="button"
                         onClick={() => handleSaveInlineTheory(theory.id)}
-                        className="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-white bg-primary hover:opacity-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                      >
+                        className="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-white bg-primary hover:opacity-95 transition-all cursor-pointer flex items-center justify-center gap-1.5">
                         <Save className="w-3.5 h-3.5" />
                         Save Changes
                       </button>
@@ -419,18 +384,13 @@ export default function ManageTheories({
               return (
                 <div
                   key={theory.id}
-                  className="p-4 rounded-xl border border-border hover:border-primary/20 transition-all bg-background/50 flex flex-col justify-between gap-3 animate-fade-in"
-                >
+                  className="p-4 rounded-xl border border-border hover:border-primary/20 transition-all bg-background/50 flex flex-col justify-between gap-3 animate-fade-in">
                   <div>
                     <div className="flex justify-between items-start gap-2">
                       <h4 className="font-bold font-display text-sm">{theory.title}</h4>
-                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase border ${pillClass}`}>
-                        {theory.domain}
-                      </span>
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase border ${pillClass}`}>{theory.domain}</span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-2 line-clamp-3">
-                      {theory.body_text}
-                    </p>
+                    <p className="text-xs text-muted-foreground mt-2 line-clamp-3">{theory.body_text}</p>
 
                     {activeSettingsTheoryId === theory.id && (
                       <div className="mt-3 p-3 bg-secondary/40 rounded-xl border border-border/60 space-y-2.5 animate-fade-in text-[10px]">
@@ -488,12 +448,7 @@ export default function ManageTheories({
                   <div className="border-t border-border/40 pt-3 flex justify-between items-center text-[10px] text-muted-foreground/75">
                     <span>ID: {theory.id.substring(0, 8)}…</span>
                     <div className="flex items-center gap-2.5">
-                      <span
-                        className={`font-semibold ${theory.status === 'published' ? 'text-emerald-500' : 'text-amber-500'
-                          }`}
-                      >
-                        {theory.status.toUpperCase()}
-                      </span>
+                      <span className={`font-semibold ${theory.status === 'published' ? 'text-emerald-500' : 'text-amber-500'}`}>{theory.status.toUpperCase()}</span>
                       <button
                         onClick={() => {
                           setInlineEditingTheoryId(theory.id);
@@ -515,8 +470,7 @@ export default function ManageTheories({
                           ? 'bg-primary/15 text-primary border-primary/30'
                           : 'bg-secondary/40 text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground'
                           }`}
-                        title="Generation Settings"
-                      >
+                        title="Generation Settings">
                         <Settings className="w-3.5 h-3.5" />
                       </button>
                       <button
@@ -525,8 +479,7 @@ export default function ManageTheories({
                         className={`px-3 py-1.5 rounded-xl text-[10px] font-bold text-white transition-all cursor-pointer flex items-center gap-1 ${generatingForTheoryId === theory.id
                           ? 'bg-primary/50 cursor-not-allowed'
                           : 'bg-primary hover:bg-primary/95 shadow-sm'
-                          }`}
-                      >
+                          }`}>
                         <span>{generatingForTheoryId === theory.id ? 'Generating...' : 'Generate MCQs'}</span>
                       </button>
                     </div>
@@ -544,20 +497,14 @@ export default function ManageTheories({
             <div className="w-12 h-12 mx-auto border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
             <div className="space-y-2">
               <h3 className="text-base font-bold font-display text-foreground">AI MCQ Generation in Progress</h3>
-              <p className="text-xs text-muted-foreground italic h-8 flex items-center justify-center px-4">
-                &ldquo;{GENERATION_TIPS[currentTipIdx]}&rdquo;
-              </p>
+              <p className="text-xs text-muted-foreground italic h-8 flex items-center justify-center px-4">&ldquo;{GENERATION_TIPS[currentTipIdx]}&rdquo;</p>
             </div>
             <button
               type="button"
               onClick={handleCancelGeneration}
-              className="w-full py-2 px-4 rounded-xl border border-border bg-secondary text-secondary-foreground text-xs font-bold hover:bg-secondary/80 transition-all cursor-pointer"
-            >
-              Cancel Generation
-            </button>
+              className="w-full py-2 px-4 rounded-xl border border-border bg-secondary text-secondary-foreground text-xs font-bold hover:bg-secondary/80 transition-all cursor-pointer">Cancel Generation</button>
           </div>
         </div>
       )}
     </>
-  );
-}
+  );}

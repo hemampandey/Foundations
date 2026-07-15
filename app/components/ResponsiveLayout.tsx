@@ -85,7 +85,6 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
             <div className="w-8 h-8 shrink-0" /> {/* Balance spacer */}
           </header>
         )}
-
         {children}
       </div>
     </div>

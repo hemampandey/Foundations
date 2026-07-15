@@ -50,7 +50,6 @@ export default function ReviewQueue({
   };
 
   const handleSaveInlineEdit = async (id: string) => {
-    // Optimistic Update
     setQuestions((prev) =>
       prev.map((q) =>
         q.id === id
@@ -62,9 +61,7 @@ export default function ReviewQueue({
               explanation: inlineExplanation,
               difficulty: inlineDifficulty,
               bloom_level: inlineBloomLevel,
-            }
-          : q
-      )
+            } : q )
     );
     setInlineEditingId(null);
 
@@ -90,7 +87,6 @@ export default function ReviewQueue({
   };
 
   const handleApproveQuestion = async (id: string) => {
-    // Optimistic Update
     setQuestions((prev) =>
       prev.map((q) => (q.id === id ? { ...q, status: 'approved' } : q))
     );
@@ -110,7 +106,6 @@ export default function ReviewQueue({
   };
 
   const handleRejectQuestion = async (id: string) => {
-    // Optimistic Update
     setQuestions((prev) => prev.filter((q) => q.id !== id));
     setRejectingId(null);
 
@@ -133,12 +128,8 @@ export default function ReviewQueue({
   return (
     <div className="lg:col-span-12 bg-card border border-border rounded-2xl p-6 min-h-[400px]">
       <div className="border-b border-border pb-4 mb-6">
-        <h3 className="text-xl font-bold font-display text-foreground">
-          MCQ Review Queue ({draftQuestions.length})
-        </h3>
-        <p className="text-xs text-muted-foreground mt-1">
-          Approve or edit generated question drafts before they go live on learner dashboards.
-        </p>
+        <h3 className="text-xl font-bold font-display text-foreground">MCQ Review Queue ({draftQuestions.length})</h3>
+        <p className="text-xs text-muted-foreground mt-1">Approve or edit generated question drafts before they go live on learner dashboards.</p>
       </div>
 
       {loadingLists ? (
@@ -175,14 +166,11 @@ export default function ReviewQueue({
                       value={inlineStem}
                       onChange={(e) => setInlineStem(e.target.value)}
                       rows={3}
-                      className="w-full px-2.5 py-2 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
+                      className="w-full px-2.5 py-2 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"/>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                      Choices &amp; Correct Index
-                    </label>
+                    <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Choices &amp; Correct Index</label>
                     {inlineOptions.map((opt, oIdx) => (
                       <div key={oIdx} className="flex items-center gap-2">
                         <input
@@ -190,11 +178,8 @@ export default function ReviewQueue({
                           name={`inline-correct-${q.id}`}
                           checked={inlineCorrectIndex === oIdx}
                           onChange={() => setInlineCorrectIndex(oIdx)}
-                          className="h-3.5 w-3.5 text-primary border-gray-300 focus:ring-primary shrink-0 cursor-pointer"
-                        />
-                        <span className="text-[10px] font-bold text-muted-foreground shrink-0 w-3">
-                          {String.fromCharCode(65 + oIdx)}
-                        </span>
+                          className="h-3.5 w-3.5 text-primary border-gray-300 focus:ring-primary shrink-0 cursor-pointer"/>
+                        <span className="text-[10px] font-bold text-muted-foreground shrink-0 w-3">{String.fromCharCode(65 + oIdx)}</span>
                         <input
                           type="text"
                           value={opt}
@@ -203,48 +188,38 @@ export default function ReviewQueue({
                             newOpts[oIdx] = e.target.value;
                             setInlineOptions(newOpts);
                           }}
-                          className="flex-1 px-2.5 py-1.5 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"
-                        />
+                          className="flex-1 px-2.5 py-1.5 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"/>
                       </div>
                     ))}
                   </div>
 
                   <div>
-                    <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                      Explanation
-                    </label>
+                    <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Explanation</label>
                     <textarea
                       value={inlineExplanation}
                       onChange={(e) => setInlineExplanation(e.target.value)}
                       rows={3}
-                      className="w-full px-2.5 py-2 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
+                      className="w-full px-2.5 py-2 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"/>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                        Difficulty
-                      </label>
+                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Difficulty</label>
                       <select
                         value={inlineDifficulty}
                         onChange={(e) => setInlineDifficulty(Number(e.target.value) as 1 | 2 | 3)}
-                        className="w-full px-2 py-1.5 border border-border bg-background rounded-xl text-xs"
-                      >
+                        className="w-full px-2 py-1.5 border border-border bg-background rounded-xl text-xs">
                         <option value={1}>L1 (Easy)</option>
                         <option value={2}>L2 (Medium)</option>
                         <option value={3}>L3 (Hard)</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                        Bloom Level
-                      </label>
+                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Bloom Level</label>
                       <select
                         value={inlineBloomLevel}
                         onChange={(e) => setInlineBloomLevel(e.target.value as BloomLevel)}
-                        className="w-full px-2 py-1.5 border border-border bg-background rounded-xl text-xs"
-                      >
+                        className="w-full px-2 py-1.5 border border-border bg-background rounded-xl text-xs">
                         <option value="remember">Remember</option>
                         <option value="understand">Understand</option>
                         <option value="apply">Apply</option>
@@ -259,22 +234,17 @@ export default function ReviewQueue({
                     <button
                       type="button"
                       onClick={() => setInlineEditingId(null)}
-                      className="flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80 transition-all cursor-pointer"
-                    >
-                      Cancel
-                    </button>
+                      className="flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80 transition-all cursor-pointer">Cancel</button>
                     <button
                       type="button"
                       onClick={() => handleSaveInlineEdit(q.id)}
-                      className="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-white bg-primary hover:opacity-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                    >
+                      className="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-white bg-primary hover:opacity-95 transition-all cursor-pointer flex items-center justify-center gap-1.5">
                       <Save className="w-3.5 h-3.5" />
                       Save Changes
                     </button>
                   </div>
                 </div>
-              ) : (
-                <>
+              ) : (<>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-primary/10 text-primary border border-primary/10 max-w-[200px] truncate" title={q.theories?.title}>
@@ -300,11 +270,7 @@ export default function ReviewQueue({
                         return (
                           <li
                             key={oIdx}
-                            className={`flex items-start gap-2 p-1.5 rounded-xl border ${isCorrect
-                              ? 'bg-emerald-500/5 text-emerald-600 border-emerald-500/10 dark:text-emerald-400 font-semibold'
-                              : 'border-transparent'
-                              }`}
-                          >
+                            className={`flex items-start gap-2 p-1.5 rounded-xl border ${isCorrect ? 'bg-emerald-500/5 text-emerald-600 border-emerald-500/10 dark:text-emerald-400 font-semibold' : 'border-transparent'}`}>
                             <span className="font-bold shrink-0">{String.fromCharCode(65 + oIdx)}.</span>
                             <span>{opt}</span>
                           </li>
@@ -316,20 +282,13 @@ export default function ReviewQueue({
                       <button
                         type="button"
                         onClick={() => toggleExplanation(q.id)}
-                        className="w-full flex items-center justify-between p-3 font-bold text-[10px] uppercase text-muted-foreground tracking-wider hover:bg-secondary/60 transition-all cursor-pointer"
-                      >
+                        className="w-full flex items-center justify-between p-3 font-bold text-[10px] uppercase text-muted-foreground tracking-wider hover:bg-secondary/60 transition-all cursor-pointer">
                         <span>Explanation</span>
-                        {expandedExplanations[q.id] ? (
-                          <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" />
-                        ) : (
-                          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
-                        )}
+                        {expandedExplanations[q.id] ? (<ChevronUp className="w-3.5 h-3.5 text-muted-foreground" />) : (<ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />)}
                       </button>
 
                       {expandedExplanations[q.id] && (
-                        <div className="p-3 pt-0 border-t border-border/20 text-muted-foreground leading-relaxed animate-fade-in">
-                          {q.explanation}
-                        </div>
+                        <div className="p-3 pt-0 border-t border-border/20 text-muted-foreground leading-relaxed animate-fade-in">{q.explanation}</div>
                       )}
                     </div>
 
@@ -347,39 +306,24 @@ export default function ReviewQueue({
                         <button
                           type="button"
                           onClick={() => setRejectingId(null)}
-                          className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80 transition-all cursor-pointer"
-                        >
-                          Cancel
-                        </button>
+                          className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80 transition-all cursor-pointer">Cancel</button>
                         <button
                           type="button"
                           onClick={() => handleRejectQuestion(q.id)}
-                          className="px-3 py-1.5 rounded-lg text-[10px] font-bold text-white bg-destructive hover:opacity-90 transition-all cursor-pointer"
-                        >
-                          Confirm
-                        </button>
+                          className="px-3 py-1.5 rounded-lg text-[10px] font-bold text-white bg-destructive hover:opacity-90 transition-all cursor-pointer">Confirm</button>
                       </div>
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 border-t border-border/40 pt-4 mt-auto">
                       <button
                         onClick={() => handleApproveQuestion(q.id)}
-                        className="flex-1 py-2 px-3 rounded-4xl text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 shadow-sm transition-all cursor-pointer text-center"
-                      >
-                        Approve
-                      </button>
+                        className="flex-1 py-2 px-3 rounded-4xl text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 shadow-sm transition-all cursor-pointer text-center">Approve</button>
                       <button
                         onClick={() => handleStartInlineEdit(q)}
-                        className="flex-1 py-2 px-3 rounded-4xl text-xs font-bold text-secondary-foreground border border-border bg-card hover:bg-secondary transition-all cursor-pointer text-center"
-                      >
-                        Edit
-                      </button>
+                        className="flex-1 py-2 px-3 rounded-4xl text-xs font-bold text-secondary-foreground border border-border bg-card hover:bg-secondary transition-all cursor-pointer text-center">Edit</button>
                       <button
                         onClick={() => setRejectingId(q.id)}
-                        className="flex-1 py-2 px-3 rounded-4xl text-xs font-bold text-white bg-destructive hover:opacity-95 transition-all cursor-pointer text-center"
-                      >
-                        Reject
-                      </button>
+                        className="flex-1 py-2 px-3 rounded-4xl text-xs font-bold text-white bg-destructive hover:opacity-95 transition-all cursor-pointer text-center">Reject</button>
                     </div>
                   )}
                 </>

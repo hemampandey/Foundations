@@ -234,9 +234,7 @@ export default function DashboardPage() {
             </div>
           ) : journeys.length > 0 ? (
             <div className="space-y-4">
-              <h2 className="text-lg italic font-serif text-foreground flex items-center gap-2 border-b border-border pb-2">
-                Journeys
-              </h2>
+              <h2 className="text-lg italic font-serif text-foreground flex items-center gap-2 border-b border-border pb-2">Journeys</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {journeys.map((journey, idx) => {
                   const qCount = journeyQuestionCounts[journey.id] || 0;
@@ -247,33 +245,23 @@ export default function DashboardPage() {
                     <div
                       key={journey.id}
                       onClick={() => isPlayable && router.push(`/practice?journeyId=${journey.id}`)}
-                      className={`group premium-card p-6 flex flex-col justify-between cursor-pointer overflow-hidden animate-fade-in ${staggerClass}`}
-                    >
-                      {/* Interactive category background glow */}
+                      className={`group premium-card p-6 flex flex-col justify-between cursor-pointer overflow-hidden animate-fade-in ${staggerClass}`}>
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
                       <div className="space-y-3 relative z-10">
                         <div className="flex justify-between items-start">
-                          <h3 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors leading-snug">
-                            {journey.title}
-                          </h3>
+                          <h3 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors leading-snug">{journey.title}</h3>
                         </div>
                       </div>
 
                       <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between relative z-10">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-full">
-                            {qCount} {qCount === 1 ? 'Question' : 'Questions'}
-                          </span>
+                          <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-full">{qCount} {qCount === 1 ? 'Question' : 'Questions'}</span>
                           {isPlayable && (
-                            <span className="text-[10px] font-bold text-primary dark:text-violet-400 bg-[#DCF1FF] dark:bg-violet-500/10 px-2 py-0.5 rounded-full">
-                              +{qCount * 2} to +{qCount * 10} XP
-                            </span>
+                            <span className="text-[10px] font-bold text-primary dark:text-violet-400 bg-[#DCF1FF] dark:bg-violet-500/10 px-2 py-0.5 rounded-full">+{qCount * 2} to +{qCount * 10} XP</span>
                           )}
                         </div>
-                        <span className="text-[10px] font-bold text-primary group-hover:text-primary transition-colors flex items-center gap-0.5">
-                          Start Pathway →
-                        </span>
+                        <span className="text-[10px] font-bold text-primary group-hover:text-primary transition-colors flex items-center gap-0.5">Start Pathway →</span>
                       </div>
                     </div>
                   );
@@ -332,37 +320,23 @@ export default function DashboardPage() {
                       <div className="space-y-3.5 relative z-10 flex-1 flex flex-col justify-between">
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
-                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase border ${pillClass}`}>
-                              {theory.domain}
-                            </span>
+                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase border ${pillClass}`}>{theory.domain}</span>
                             {attemptsCount > 0 && (
-                              <span className="text-[9px] font-bold text-muted-foreground">
-                                {attemptsCount} attempts • {accuracyVal}% acc
-                              </span>
+                              <span className="text-[9px] font-bold text-muted-foreground">{attemptsCount} attempts • {accuracyVal}% acc</span>
                             )}
                           </div>
-                          <h3 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors leading-snug">
-                            {theory.title}
-                          </h3>
-                          <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-3">
-                            {theory.body_text}
-                          </p>
+                          <h3 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors leading-snug">{theory.title}</h3>
+                          <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-3">{theory.body_text}</p>
                         </div>
 
                         <div className="pt-3 border-t border-border/60 flex items-center justify-between">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-bold text-muted-foreground">
-                              {qCount} {qCount === 1 ? 'Question' : 'Questions'} available
-                            </span>
+                            <span className="text-[10px] font-bold text-muted-foreground">{qCount} {qCount === 1 ? 'Question' : 'Questions'} available</span>
                             {isPlayable && (
-                              <span className="text-[10px] font-bold text-primary dark:text-violet-400 bg-[#DCF1FF] dark:bg-violet-500/10 px-2 py-0.5 rounded-full">
-                                +{qCount * 2} to +{qCount * 10} XP
-                              </span>
+                              <span className="text-[10px] font-bold text-primary dark:text-violet-400 bg-[#DCF1FF] dark:bg-violet-500/10 px-2 py-0.5 rounded-full">+{qCount * 2} to +{qCount * 10} XP</span>
                             )}
                           </div>
-                          <span className="text-[10px] font-bold text-primary group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                            Practice Now →
-                          </span>
+                          <span className="text-[10px] font-bold text-primary group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">Practice Now →</span>
                         </div>
                       </div>
                     </div>
@@ -377,22 +351,15 @@ export default function DashboardPage() {
           {reviewDueCount > 0 && (
             <div
               onClick={() => router.push('/review')}
-              className="p-6 border border-violet-500/10 bg-gradient-to-br from-violet-500/5 to-indigo-500/5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-3 relative overflow-hidden backdrop-blur-sm cursor-pointer group hover:border-violet-500/20 transition-all"
-            >
+              className="p-6 border border-violet-500/10 bg-gradient-to-br from-violet-500/5 to-indigo-500/5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-3 relative overflow-hidden backdrop-blur-sm cursor-pointer group hover:border-violet-500/20 transition-all">
               <div className="flex items-center gap-2">
                 <span className="text-base">📖</span>
-                <h3 className="text-[10px] font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider bg-violet-500/10 dark:bg-violet-500/25 px-2 py-0.5 rounded-full select-none">
-                  Due for Review
-                </h3>
+                <h3 className="text-[10px] font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider bg-violet-500/10 dark:bg-violet-500/25 px-2 py-0.5 rounded-full select-none">Due for Review</h3>
               </div>
 
               <div className="space-y-1">
-                <h4 className="text-2xl font-bold text-foreground">
-                  {reviewDueCount}
-                </h4>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  {reviewDueCount === 1 ? 'question is' : 'questions are'} due for spaced review. Review now to strengthen long-term retention.
-                </p>
+                <h4 className="text-2xl font-bold text-foreground">{reviewDueCount}</h4>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">{reviewDueCount === 1 ? 'question is' : 'questions are'} due for spaced review. Review now to strengthen long-term retention.</p>
               </div>
 
               <span className="text-[10px] font-bold text-violet-600 dark:text-violet-400 group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
@@ -406,24 +373,17 @@ export default function DashboardPage() {
             <div className="p-6 border border-indigo-500/10 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-4 relative overflow-hidden backdrop-blur-sm">
               <div className="flex items-center gap-2">
                 <span className="text-base">🎯</span>
-                <h3 className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider bg-indigo-500/10 dark:bg-indigo-500/25 px-2 py-0.5 rounded-full select-none">
-                  Today&rsquo;s Challenge
-                </h3>
+                <h3 className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider bg-indigo-500/10 dark:bg-indigo-500/25 px-2 py-0.5 rounded-full select-none">Today&rsquo;s Challenge</h3>
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-sm font-bold text-foreground">
-                  {dailySuggestion.theory.title}
-                </h4>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  {dailySuggestion.reason}
-                </p>
+                <h4 className="text-sm font-bold text-foreground">{dailySuggestion.theory.title}</h4>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">{dailySuggestion.reason}</p>
               </div>
 
               <button
                 onClick={() => router.push(`/practice?theoryId=${dailySuggestion.theory.id}`)}
-                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-xs hover:opacity-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-indigo-500/15">
-                Accept Challenge</button>
+                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-xs hover:opacity-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-indigo-500/15">Accept Challenge</button>
             </div>
           )}
         </div>
