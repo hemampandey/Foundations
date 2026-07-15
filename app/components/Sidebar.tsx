@@ -357,7 +357,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
       )}
 
       <aside
-        className={`h-full border-r border-border bg-[#f9f9fb] dark:bg-[#0b0f19] flex-col justify-between p-4 transition-all duration-300 shrink-0 select-none
+        className={`h-full border-r border-border bg-[#f9f9fb] dark:bg-[#0b0f19] flex-col justify-between p-4 transition-all duration-300 shrink-0 select-none relative z-20
           ${mobileOpen
             ? 'fixed inset-y-0 left-0 w-[240px] z-50 flex animate-slide-in'
             : 'hidden md:flex'
@@ -480,7 +480,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
             {!profileLoading && profile?.role === 'admin' && (() => {
               const activeTab = searchParams.get('tab') || 'theories';
               return (
-                <div className="space-y-0.5">
+                <div className="space-y-0.5 relative">
                   <button
                     onClick={() => setAdminExpanded(!adminExpanded)}
                     className={`flex items-center justify-between w-full rounded-xl text-xs font-semibold transition-all duration-150 border cursor-pointer ${collapsed ? 'justify-center p-2.5' : 'px-3 py-2'
@@ -498,6 +498,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                     )}
                   </button>
 
+                  {/* Desktop Expanded sub-menu */}
                   <div
                     className={`grid transition-all duration-300 ease-in-out ${
                       adminExpanded && !collapsed
@@ -558,6 +559,76 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                       </Link>
                     </div>
                   </div>
+
+                  {/* Collapsed flyout popover menu */}
+                  {collapsed && (
+                    <div
+                      className={`absolute left-[54px] top-0 z-50 bg-card border border-border rounded-2xl p-2.5 shadow-xl w-[150px] space-y-0.5 transition-all duration-300 ease-in-out transform origin-left ${
+                        adminExpanded
+                          ? 'translate-x-2 opacity-100 scale-100 pointer-events-auto'
+                          : 'translate-x-0 opacity-0 scale-95 pointer-events-none'
+                      }`}
+                    >
+                      <div className="text-[10px] font-extrabold text-muted-foreground/80 uppercase tracking-wider px-2.5 pb-1 border-b border-border/40 mb-1">
+                        Admin Menu
+                      </div>
+                      
+                      {/* Manage Theories */}
+                      <Link
+                        href="/admin?tab=theories"
+                        onClick={() => setAdminExpanded(false)}
+                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'theories'
+                          ? 'text-primary font-bold bg-primary/5'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          }`}
+                      >
+                        <span>Manage Theories</span>
+                      </Link>
+
+                      {/* Manage MCQs */}
+                      <Link
+                        href="/admin?tab=questions"
+                        onClick={() => setAdminExpanded(false)}
+                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'questions'
+                          ? 'text-primary font-bold bg-primary/5'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          }`}
+                      >
+                        <span>Manage MCQs</span>
+                      </Link>
+
+                      {/* Review Queue */}
+                      <Link
+                        href="/admin?tab=review"
+                        onClick={() => setAdminExpanded(false)}
+                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'review'
+                          ? 'text-primary font-bold bg-primary/5'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          }`}
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <span>Review Queue</span>
+                          {draftCount > 0 && (
+                            <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-amber-500 text-white">
+                              {draftCount}
+                            </span>
+                          )}
+                        </div>
+                      </Link>
+
+                      {/* Manage Journeys */}
+                      <Link
+                        href="/admin?tab=journeys"
+                        onClick={() => setAdminExpanded(false)}
+                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'journeys'
+                          ? 'text-primary font-bold bg-primary/5'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          }`}
+                      >
+                        <span>Manage Journeys</span>
+                      </Link>
+                    </div>
+                  )}
                 </div>
               );
             })()}

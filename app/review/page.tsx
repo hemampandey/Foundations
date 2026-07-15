@@ -1210,7 +1210,7 @@ function ReviewContent() {
           }`}
         >
           <div className="flex items-center gap-2">
-            Review History
+            Attempt History
           </div>
         </button>
       </div>
@@ -1251,7 +1251,7 @@ function ReviewContent() {
                         href={`/practice?theoryId=${theory.id}`}
                         className="py-1 px-3 rounded-lg bg-indigo-500 text-white font-bold text-[10px] hover:bg-indigo-600 transition-all shrink-0 select-none shadow-sm shadow-indigo-500/10"
                       >
-                        Reinforce
+                        Retry
                       </Link>
                     </div>
                   ))
