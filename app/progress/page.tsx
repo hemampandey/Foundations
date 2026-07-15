@@ -575,18 +575,13 @@ export default function ProgressPage() {
                   <div key={tm.id} className="flex items-center gap-3 hover:bg-secondary/40 p-1.5 rounded-xl transition-all cursor-pointer">
                     <div className="flex-1 space-y-1">
                       <div className="flex justify-between items-center text-xs">
-                        <span className="font-semibold text-foreground truncate max-w-[200px]" title={tm.title}>
-                          {tm.title}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground font-medium font-mono">
-                          {tm.correct}/{tm.total} Correct ({tm.accuracy}%)
-                        </span>
+                        <span className="font-semibold text-foreground truncate max-w-[200px]" title={tm.title}>{tm.title}</span>
+                        <span className="text-[10px] text-muted-foreground font-medium font-mono">{tm.correct}/{tm.total} Correct ({tm.accuracy}%)</span>
                       </div>
                       <div className="w-full h-2 bg-secondary rounded-full overflow-hidden border border-border">
                         <div
                           className="h-full bg-emerald-500 transition-all duration-500"
-                          style={{ width: `${tm.accuracy}%` }}
-                        />
+                          style={{ width: `${tm.accuracy}%` }}/>
                       </div>
                     </div>
                     <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
@@ -612,20 +607,15 @@ export default function ProgressPage() {
                   className={`p-4 border rounded-2xl flex gap-3.5 items-center shrink-0 w-[280px] snap-start relative transition-all duration-300 ${ach.unlocked
                     ? 'border-indigo-500/20 bg-gradient-to-br from-indigo-500/[0.02] to-purple-500/[0.02] shadow-[0_8px_30px_rgb(0,0,0,0.015)] hover:border-indigo-500/30'
                     : 'border-border/60 opacity-55 bg-secondary/15'
-                    }`}
-                >
+                    }`}>
                   <div className="text-2.5xl shrink-0 select-none">{ach.icon}</div>
                   <div className="min-w-0">
                     <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
                       <span>{ach.title}</span>
                       {ach.unlocked ? (
-                        <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-500/20 px-1.5 py-0.5 rounded">
-                          Unlocked
-                        </span>
+                        <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-500/20 px-1.5 py-0.5 rounded">Unlocked</span>
                       ) : (
-                        <span className="text-[9px] font-bold text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">
-                          Locked
-                        </span>
+                        <span className="text-[9px] font-bold text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">Locked</span>
                       )}
                     </h4>
                     <p className="text-[10px] text-muted-foreground/95 mt-0.5 leading-snug">{ach.desc}</p>

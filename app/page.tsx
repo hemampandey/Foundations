@@ -312,9 +312,6 @@ export default function Home() {
                   Questions are scheduled precisely using difficulty curves to trigger just before your memory decays, maximizing retention.
                 </p>
               </div>
-              <span className="text-[10px] font-bold text-primary flex items-center gap-0.5">
-                Learn Spaced Recall →
-              </span>
             </div>
 
             {/* AI Diagnostics card */}
@@ -328,9 +325,6 @@ export default function Home() {
                   Transform reading notes, case excerpts, or counseling theories into high-fidelity assessments automatically.
                 </p>
               </div>
-              <span className="text-[10px] font-bold text-violet-500 flex items-center gap-0.5">
-                Explore Assessments →
-              </span>
             </div>
 
             {/* Analytics card */}
@@ -344,9 +338,6 @@ export default function Home() {
                   Track accuracy curves, daily streak streaks, experience milestones (XP), and forecast upcoming study intervals.
                 </p>
               </div>
-              <span className="text-[10px] font-bold text-emerald-500 flex items-center gap-0.5">
-                View Performance Metrics →
-              </span>
             </div>
           </div>
         </div>
@@ -355,13 +346,9 @@ export default function Home() {
       {/* ─── INTERACTIVE FEATURES SHOWCASE ─── */}
       <section className="w-full py-20 px-6 bg-secondary border-y border-border/10">
         <div className="max-w-7xl mx-auto w-full space-y-12">
-        <div className="text-center space-y-3">
-          <h2 className="text-2xl sm:text-4xl font-extrabold font-inria tracking-tight text-primary">
-            See the Platform in Action
-          </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
-            Choose a feature tab to preview interactive animations demonstrating product workflows.
-          </p>
+        <div className="text-center pb-5space-y-3">
+          <h2 className="text-2xl sm:text-4xl font-extrabold font-inria tracking-tight text-primary">See the Platform in Action</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">Choose a feature tab to preview the user experience.</p>
         </div>
 
         {/* Dynamic Tab triggers */}
@@ -369,20 +356,15 @@ export default function Home() {
           <button
             onClick={() => setActiveFeatureTab('spaced')}
             className={`flex-1 py-2 text-xs font-bold rounded-sm transition-all cursor-pointer ${activeFeatureTab === 'spaced' ? 'bg-primary text-secondary shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              }`}
-          >Spaced Recall</button>
+              }`}>Spaced Recall</button>
           <button
             onClick={() => setActiveFeatureTab('ai')}
             className={`flex-1 py-2 text-xs font-bold rounded-sm transition-all cursor-pointer ${activeFeatureTab === 'ai' ? 'bg-primary text-secondary shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              }`}
-          >AI Generator</button>
+              }`}>AI Generator</button>
           <button
             onClick={() => setActiveFeatureTab('analytics')}
             className={`flex-1 py-2 text-xs font-bold rounded-sm transition-all cursor-pointer ${activeFeatureTab === 'analytics' ? 'bg-primary text-secondary shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              }`}
-          >
-            Milestone Metrics
-          </button>
+              }`}>Milestone Metrics</button>
         </div>
 
         {/* Interactive Feature Video/Mock Box */}
@@ -463,13 +445,8 @@ export default function Home() {
                     <div className="absolute left-[100%] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-border" />
 
                     {/* Active target cursor dot */}
-                    <div
-                      className={`absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full transition-all duration-700 ease-out shadow-lg flex items-center justify-center -ml-1.5 ${spacedActiveStep === 0 ? 'bg-rose-500 shadow-rose-500/30' : spacedActiveStep === 1 ? 'bg-emerald-500 shadow-emerald-500/30' : 'bg-violet-500 shadow-violet-500/30'
-                        }`}
-                      style={{
-                        left: spacedActiveStep === 0 ? '0%' : spacedActiveStep === 1 ? '50%' : '100%'
-                      }}
-                    >
+                    <div className={`absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full transition-all duration-700 ease-out shadow-lg flex items-center justify-center -ml-1.5 ${spacedActiveStep === 0 ? 'bg-rose-500 shadow-rose-500/30' : spacedActiveStep === 1 ? 'bg-emerald-500 shadow-emerald-500/30' : 'bg-violet-500 shadow-violet-500/30'
+                        }`} style={{left: spacedActiveStep === 0 ? '0%' : spacedActiveStep === 1 ? '50%' : '100%'}}>
                       <div className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
                     </div>
                   </div>

@@ -209,7 +209,7 @@ export default function ManageTheories({
     <>
       {/* Create Theory Form */}
       <div className="lg:col-span-5 bg-card border border-border rounded-2xl p-6 h-fit shadow-sm">
-        <h3 className="text-lg font-bold font-display mb-4 flex items-center gap-2">
+        <h3 className="text-lg text-primary font-bold font-inria mb-4 flex items-center gap-2">
           <Plus className="w-5 h-5 text-primary" />
           Add New Theory
         </h3>
@@ -219,13 +219,12 @@ export default function ManageTheories({
             className={`p-4 mb-4 rounded-xl text-xs border transition-opacity ${theoryMessage.type === 'success'
               ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
               : 'bg-destructive/10 border-destructive/20 text-destructive'
-              }`}
-          >{theoryMessage.text}</div>
+              }`}>{theoryMessage.text}</div>
         )}
 
         <form onSubmit={handleCreateTheory} className="space-y-4">
           <div>
-            <label htmlFor="theory-title" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Theory Title</label>
+            <label htmlFor="theory-title" className="block text-xs font-inria text-primary uppercase tracking-wider mb-1.5">Theory Title</label>
             <input
               id="theory-title"
               type="text"
@@ -237,7 +236,7 @@ export default function ManageTheories({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="theory-domain" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Domain / Tag</label>
+              <label htmlFor="theory-domain" className="block text-xs font-inria text-primary uppercase tracking-wider mb-1.5">Domain / Tag</label>
               <input
                 id="theory-domain"
                 type="text"
@@ -247,7 +246,7 @@ export default function ManageTheories({
                 className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"/>
             </div>
             <div>
-              <label htmlFor="theory-status" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Status</label>
+              <label htmlFor="theory-status" className="block text-xs font-inria text-primary uppercase tracking-wider mb-1.5">Status</label>
               <select
                 id="theory-status"
                 value={theoryStatus}
@@ -260,7 +259,7 @@ export default function ManageTheories({
           </div>
 
           <div>
-            <label htmlFor="theory-body" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Theory Text/Notes</label>
+            <label htmlFor="theory-body" className="block text-xs font-inria text-primary uppercase tracking-wider mb-1.5">Theory Text/Notes</label>
             <textarea
               id="theory-body"
               required
@@ -273,7 +272,7 @@ export default function ManageTheories({
           <button
             type="submit"
             disabled={theorySubmitLoading}
-            className="w-full py-2.5 px-4 bg-primary text-primary-foreground font-semibold rounded-xl hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-primary/10 disabled:opacity-50">
+            className="w-full py-2.5 px-4 bg-primary text-secondary font-semibold font-inria tracking-wider rounded-xl hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-primary/10 disabled:opacity-50">
             {theorySubmitLoading ? (
               <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
             ) : (<>
@@ -285,9 +284,9 @@ export default function ManageTheories({
       </div>
 
       {/* Theory List */}
-      <div className="lg:col-span-7 bg-card border border-border rounded-2xl p-6 h-fit min-h-[400px]">
+      <div className="lg:col-span-7 bg-card border border-border rounded-3xl p-6 h-fit min-h-[400px]">
         <div className="border-b border-border pb-4 mb-4">
-          <h3 className="text-sm font-bold font-display text-foreground">Existing Theories ({theories.length})</h3>
+          <h3 className="text-md font-bold font-inria text-primary">Existing Theories ({theories.length})</h3>
         </div>
 
         {loadingLists ? (

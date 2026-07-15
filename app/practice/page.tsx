@@ -253,8 +253,7 @@ function PracticeContent() {
                 easeFactor: existingSchedule.ease_factor,
                 intervalDays: existingSchedule.interval_days,
                 repetitions: existingSchedule.repetitions,
-              }
-            : DEFAULT_SM2_STATE;
+              } : DEFAULT_SM2_STATE;
 
           const quality = gradeFromAttempt(isCorrect, responseMs);
           const result = sm2(currentState, quality);
@@ -404,8 +403,7 @@ function PracticeContent() {
         <p className="text-muted-foreground mt-2">{errorMsg || 'Could not launch practice session.'}</p>
         <button
           onClick={() => router.push('/dashboard')}
-          className="mt-6 px-5 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5"
-        >
+          className="mt-6 px-5 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5">
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
         </button>
@@ -428,15 +426,11 @@ function PracticeContent() {
     return (
       <div className="w-full max-w-md mx-auto py-8 text-center space-y-6 animate-fade-in relative">
         <ConfettiShower />
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-emerald-500/10 text-emerald-500 mb-2">
-          <Award className="w-8 h-8" />
-        </div>
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-emerald-500/10 text-emerald-500 mb-2"><Award className="w-8 h-8" /></div>
 
         <div>
           <h2 className="text-2xl font-bold font-display text-foreground">Session Complete</h2>
-          <p className="text-xs text-muted-foreground mt-1">
-            Finished practice for <strong className="text-primary font-semibold">{theory.title}</strong>
-          </p>
+          <p className="text-xs text-muted-foreground mt-1">Finished practice for <strong className="text-primary font-semibold">{theory.title}</strong></p>
         </div>
 
         {/* 3-Column Metrics Grid */}
@@ -451,9 +445,7 @@ function PracticeContent() {
           </div>
           <div className="bg-card border border-border p-4 rounded-2xl shadow-sm text-center">
             <p className="text-[10px] font-bold text-muted-foreground/80 uppercase tracking-wider">Accuracy</p>
-            <p className={`text-base sm:text-lg font-bold mt-1 ${finalAccuracy >= 80 ? 'text-emerald-500' : finalAccuracy >= 50 ? 'text-amber-500' : 'text-destructive'}`}>
-              {finalAccuracy}%
-            </p>
+            <p className={`text-base sm:text-lg font-bold mt-1 ${finalAccuracy >= 80 ? 'text-emerald-500' : finalAccuracy >= 50 ? 'text-amber-500' : 'text-destructive'}`}>{finalAccuracy}%</p>
           </div>
         </div>
 
@@ -478,48 +470,34 @@ function PracticeContent() {
           <div className="bg-amber-500/5 border border-amber-500/20 p-5 rounded-2xl text-left space-y-2 animate-scale-in">
             <div className="flex items-center gap-2">
               <span className="text-base">💡</span>
-              <h4 className="text-[10px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
-                Recommended Focus Area
-              </h4>
+              <h4 className="text-[10px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">Recommended Focus Area</h4>
             </div>
             <div className="space-y-1">
-              <p className="text-xs sm:text-sm font-bold text-foreground leading-tight">
-                {recommendation.title}
-              </p>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Your historical accuracy in this domain is currently <strong className="text-amber-600 dark:text-amber-400 font-bold">{recommendation.accuracy}%</strong>. We suggest spending more time practicing this theory to strengthen your mastery.
-              </p>
+              <p className="text-xs sm:text-sm font-bold text-foreground leading-tight">{recommendation.title}</p>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">Your historical accuracy in this domain is currently <strong className="text-amber-600 dark:text-amber-400 font-bold">{recommendation.accuracy}%</strong>. We suggest spending more time practicing this theory to strengthen your mastery.</p>
             </div>
           </div>
         ) : (
           <div className="bg-emerald-500/5 border border-emerald-500/20 p-5 rounded-2xl text-left space-y-1.5 animate-scale-in">
             <div className="flex items-center gap-2">
               <span className="text-base">🌟</span>
-              <h4 className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">
-                Mastery Status
-              </h4>
+              <h4 className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">Mastery Status</h4>
             </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              Superb performance! All clinical domains are currently evaluated at master level. Keep up the clean streak!
-            </p>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">Superb performance! All clinical domains are currently evaluated at master level. Keep up the clean streak!</p>
           </div>
         )}
 
         <div className="flex gap-3">
           <button
             onClick={handleRestart}
-            className="flex-1 py-3 px-4 rounded-full border border-border bg-card font-bold hover:bg-secondary transition-all flex items-center justify-center gap-1.5 cursor-pointer text-xs"
-          >
+            className="flex-1 py-3 px-4 rounded-full border border-border bg-card font-bold hover:bg-secondary transition-all flex items-center justify-center gap-1.5 cursor-pointer text-xs">
             <RefreshCw className="w-3.5 h-3.5" />
             Restart
           </button>
 
           <button
             onClick={() => router.push('/dashboard')}
-            className="flex-1 py-3 px-4 rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-xs shadow-md shadow-primary/10"
-          >
-            Dashboard
-          </button>
+            className="flex-1 py-3 px-4 rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-xs shadow-md shadow-primary/10">Dashboard</button>
         </div>
       </div>
     );
@@ -539,16 +517,12 @@ function PracticeContent() {
             </div>
             <div className="space-y-2">
               <h3 className="text-2xl font-bold font-display text-foreground">Level Up!</h3>
-              <p className="text-sm text-muted-foreground">
-                Congratulations! You have reached <strong className="text-primary font-bold">Level {leveledUpTo}</strong>.
-              </p>
+              <p className="text-sm text-muted-foreground">Congratulations! You have reached <strong className="text-primary font-bold">Level {leveledUpTo}</strong>.</p>
             </div>
             <button
               onClick={() => setLeveledUpTo(null)}
               className="w-full py-3 px-4 rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 transition-all cursor-pointer text-sm shadow-lg shadow-primary/10"
-            >
-              Awesome!
-            </button>
+            >Awesome!</button>
           </div>
         </div>
       )}
@@ -569,11 +543,9 @@ function PracticeContent() {
       <div className="flex items-center justify-between border-b border-border pb-4">
         <button
           onClick={() => setShowExitConfirm(true)}
-          className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
-        >
+          className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-all cursor-pointer">
           <ArrowLeft className="w-4 h-4" />
-          <span>
-            Back to{' '}
+          <span>Back to{' '}
             <span className="font-serif italic font-semibold text-primary">Journeys</span>
           </span>
         </button>
@@ -604,24 +576,16 @@ function PracticeContent() {
         <div className="p-6 md:p-8 space-y-6">
           {/* Progress and tags */}
           <div className="flex items-center justify-between border-b border-border/50 pb-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              Question {currentIdx + 1} of {questions.length}
-            </span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Question {currentIdx + 1} of {questions.length}</span>
             <div className="flex gap-1.5 text-[9px] font-bold">
-              <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-600 uppercase">
-                {currentQ.bloom_level}
-              </span>
-              <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-600">
-                L{currentQ.difficulty}
-              </span>
+              <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-600 uppercase">{currentQ.bloom_level}</span>
+              <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-600">L{currentQ.difficulty}</span>
             </div>
           </div>
 
           {/* Question text */}
           <div className="space-y-4">
-            <h3 className="text-base sm:text-lg font-bold font-display text-foreground leading-snug">
-              {currentQ.stem}
-            </h3>
+            <h3 className="text-base sm:text-lg font-bold font-display text-foreground leading-snug">{currentQ.stem}</h3>
           </div>
 
           {/* Options */}
@@ -660,18 +624,11 @@ function PracticeContent() {
                   className={`relative w-full flex items-center gap-3.5 p-3.5 text-left border rounded-xl transition-all duration-200 text-xs sm:text-sm cursor-pointer ${optionStyle} ${animationClass}`}
                   role="radio"
                   aria-checked={selectedIdx === idx}
-                  aria-label={`Option ${optionLetter}: ${option}`}
-                >
-                  <span
-                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-all ${badgeStyle}`}
-                  >
-                    {optionLetter}
-                  </span>
+                  aria-label={`Option ${optionLetter}: ${option}`}>
+                  <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-all ${badgeStyle}`}>{optionLetter}</span>
                   <span>{option}</span>
                   {isSubmitted && selectedIdx === idx && (
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-xs font-bold text-primary animate-float-xp">
-                      +{idx === currentQ.correct_index ? 10 : 2} XP
-                    </span>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-xs font-bold text-primary animate-float-xp">+{idx === currentQ.correct_index ? 10 : 2} XP</span>
                   )}
                 </button>
               );
@@ -686,15 +643,11 @@ function PracticeContent() {
                   <Lightbulb className="w-4 h-4 text-amber-500 shrink-0" />
                   <span>Analysis:</span>
                 </div>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  {currentQ.explanation}
-                </p>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{currentQ.explanation}</p>
               </div>
 
               {currentQ.source_excerpt && (
-                <p className="text-[10px] text-muted-foreground/70 italic pl-1">
-                  <strong>Theory Reference:</strong> &ldquo;{currentQ.source_excerpt}&rdquo;
-                </p>
+                <p className="text-[10px] text-muted-foreground/70 italic pl-1"><strong>Theory Reference:</strong> &ldquo;{currentQ.source_excerpt}&rdquo;</p>
               )}
             </div>
           )}
@@ -708,15 +661,11 @@ function PracticeContent() {
               <button
                 onClick={handleSubmitAnswer}
                 disabled={selectedIdx === null}
-                className="py-3 px-6 rounded-full font-bold bg-primary text-primary-foreground text-xs hover:opacity-95 transition-all shadow-md shadow-primary/10 cursor-pointer disabled:opacity-50"
-              >
-                Submit Answer
-              </button>
+                className="py-3 px-6 rounded-full font-bold bg-primary text-primary-foreground text-xs hover:opacity-95 transition-all shadow-md shadow-primary/10 cursor-pointer disabled:opacity-50">Submit Answer</button>
             ) : (
               <button
                 onClick={handleNext}
-                className="py-3 px-6 rounded-full font-bold bg-primary text-primary-foreground text-xs hover:opacity-95 transition-all shadow-md shadow-primary/10 cursor-pointer flex items-center gap-1"
-              >
+                className="py-3 px-6 rounded-full font-bold bg-primary text-primary-foreground text-xs hover:opacity-95 transition-all shadow-md shadow-primary/10 cursor-pointer flex items-center gap-1">
                 {currentIdx + 1 < questions.length ? 'Next Question' : 'Complete Journey'}
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
@@ -730,16 +679,14 @@ function PracticeContent() {
 
 export default function PracticePage() {
   return (
-    <Suspense
-      fallback={
+    <Suspense fallback={
         <div className="flex flex-1 items-center justify-center min-h-[50vh]">
           <div className="space-y-3 text-center">
             <div className="w-10 h-10 mx-auto border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
             <p className="text-sm text-muted-foreground font-medium">Preparing practice session…</p>
           </div>
         </div>
-      }
-    >
+      }>
       <PracticeContent />
     </Suspense>
   );

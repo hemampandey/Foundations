@@ -159,9 +159,7 @@ export default function ReviewQueue({
                   </div>
 
                   <div>
-                    <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                      Question Stem
-                    </label>
+                    <label className="block text-sm font-bold font-inria text-primary mb-1">Question Stem</label>
                     <textarea
                       value={inlineStem}
                       onChange={(e) => setInlineStem(e.target.value)}
@@ -170,7 +168,7 @@ export default function ReviewQueue({
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Choices &amp; Correct Index</label>
+                    <label className="block text-sm font-bold font-inria text-primary">Choices & Correct Index</label>
                     {inlineOptions.map((opt, oIdx) => (
                       <div key={oIdx} className="flex items-center gap-2">
                         <input
@@ -194,7 +192,7 @@ export default function ReviewQueue({
                   </div>
 
                   <div>
-                    <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Explanation</label>
+                    <label className="block text-sm font-bold font-inria text-primary mb-1">Explanation</label>
                     <textarea
                       value={inlineExplanation}
                       onChange={(e) => setInlineExplanation(e.target.value)}
@@ -204,22 +202,22 @@ export default function ReviewQueue({
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Difficulty</label>
+                      <label className="block text-sm font-bold font-inria text-primary mb-1">Difficulty</label>
                       <select
                         value={inlineDifficulty}
                         onChange={(e) => setInlineDifficulty(Number(e.target.value) as 1 | 2 | 3)}
-                        className="w-full px-2 py-1.5 border border-border bg-background rounded-xl text-xs">
+                        className="w-max px-2 py-1.5 border border-border bg-background rounded-xl text-xs">
                         <option value={1}>L1 (Easy)</option>
                         <option value={2}>L2 (Medium)</option>
                         <option value={3}>L3 (Hard)</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Bloom Level</label>
+                      <label className="block text-sm font-bold font-inria text-primary mb-1">Bloom Level</label>
                       <select
                         value={inlineBloomLevel}
                         onChange={(e) => setInlineBloomLevel(e.target.value as BloomLevel)}
-                        className="w-full px-2 py-1.5 border border-border bg-background rounded-xl text-xs">
+                        className="w-max px-2 py-1.5 border border-border bg-background rounded-xl text-xs">
                         <option value="remember">Remember</option>
                         <option value="understand">Understand</option>
                         <option value="apply">Apply</option>

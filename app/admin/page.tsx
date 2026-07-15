@@ -155,7 +155,7 @@ function AdminPageContent() {
 
           {/* Approved MCQs */}
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-500/10 text-violet-500 select-none">\<HelpCircle className="w-3.5 h-3.5" /></div>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-500/10 text-violet-500 select-none"><HelpCircle className="w-3.5 h-3.5" /></div>
             <div>
               <div className="text-xs font-bold text-foreground leading-tight font-mono">{approvedQuestions.length}</div>
               <p className="text-[8px] text-muted-foreground/80 font-bold uppercase tracking-wider">Approved MCQs</p>

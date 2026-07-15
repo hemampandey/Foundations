@@ -151,47 +151,36 @@ export default function ManageMCQs({
     <>
       {/* Create MCQ Form */}
       <div className="lg:col-span-6 bg-card border border-border rounded-2xl p-6 h-fit shadow-sm">
-        <h3 className="text-lg font-bold font-display mb-4 flex items-center gap-2">
-          <Plus className="w-4 h-4 text-inria" />
-          Write MCQ Question
+        <h3 className="text-lg text-primary font-bold font-inria mb-4 flex items-center gap-2">
+          <Plus className="w-5 h-5 text-primary" />
+          Write MCQ Manually
         </h3>
 
         {qMessage && (
-          <div
-            className={`p-4 mb-4 rounded-xl text-xs border transition-opacity ${qMessage.type === 'success'
+          <div className={`p-4 mb-4 rounded-xl text-xs border transition-opacity ${qMessage.type === 'success'
               ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
               : 'bg-destructive/10 border-destructive/20 text-destructive'
-              }`}
-          >
-            {qMessage.text}
-          </div>
+              }`}>{qMessage.text}</div>
         )}
 
         <form onSubmit={handleCreateQuestion} className="space-y-4">
           <div>
-            <label htmlFor="q-theory" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-              Select Theory
-            </label>
+            <label htmlFor="q-theory" className="block text-sm font-bold font-inria text-primary mb-1.5">Select Theory</label>
             <select
               id="q-theory"
               required
               value={selectedTheoryId}
               onChange={(e) => setSelectedTheoryId(e.target.value)}
-              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-            >
+              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
               <option value="">Choose a Theory</option>
               {theories.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.title} ({t.domain})
-                </option>
+                <option key={t.id} value={t.id}>{t.title} ({t.domain})</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label htmlFor="q-stem" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-              Question
-            </label>
+            <label htmlFor="q-stem" className="block text-sm font-bold font-inria text-primary mb-1.5">Question</label>
             <textarea
               id="q-stem"
               required
@@ -204,7 +193,7 @@ export default function ManageMCQs({
 
           {/* MCQ Choices */}
           <div className="space-y-2">
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider">Choices &amp; Correct Answer</label>
+            <label className="block text-sm font-bold font-inria text-primary">Choices & Correct Answer</label>
             {qOptions.map((opt, idx) => (
               <div key={idx} className="flex items-center gap-3">
                 <input
@@ -212,7 +201,7 @@ export default function ManageMCQs({
                   name="correct-choice"
                   checked={qCorrectIndex === idx}
                   onChange={() => setQCorrectIndex(idx)}
-                  className="w-4 h-4 text-primary focus:ring-primary border-border bg-background cursor-pointer"
+                  className="w-4 h-4 focus:ring-primary border-border bg-background cursor-pointer"
                   aria-label={`Mark choice ${String.fromCharCode(65 + idx)} as correct`}
                 />
                 <input
@@ -227,7 +216,7 @@ export default function ManageMCQs({
           </div>
 
           <div>
-            <label htmlFor="q-explanation" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Explanation</label>
+            <label htmlFor="q-explanation" className="block text-sm font-inria font-bold text-primary mb-1.5">Explanation</label>
             <textarea
               id="q-explanation"
               required
@@ -235,11 +224,11 @@ export default function ManageMCQs({
               value={qExplanation}
               onChange={(e) => setQExplanation(e.target.value)}
               placeholder="Provide a detailed explanation of why the correct answer is right and why others are incorrect."
-              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm resize-none"/>
+              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-xs resize-none"/>
           </div>
 
           <div>
-            <label htmlFor="q-source" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Source Excerpt (Optional)</label>
+            <label htmlFor="q-source" className="block text-sm font-inria font-bold text-primary mb-1.5">Source Excerpt (Optional)</label>
             <textarea
               id="q-source"
               rows={2}
@@ -252,7 +241,7 @@ export default function ManageMCQs({
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label htmlFor="q-difficulty" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Difficulty</label>
+              <label htmlFor="q-difficulty" className="block text-sm font-inria font-bold text-primary mb-1.5">Difficulty</label>
               <select
                 id="q-difficulty"
                 value={qDifficulty}
@@ -266,7 +255,7 @@ export default function ManageMCQs({
             </div>
 
             <div>
-              <label htmlFor="q-bloom" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Bloom Level</label>
+              <label htmlFor="q-bloom" className="block text-sm font-inria font-bold text-primary mb-1.5">Bloom Level</label>
               <select
                 id="q-bloom"
                 value={qBloomLevel}
@@ -283,7 +272,7 @@ export default function ManageMCQs({
             </div>
 
             <div>
-              <label htmlFor="q-status" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Status</label>
+              <label htmlFor="q-status" className="block text-sm font-inria font-bold text-primary mb-1.5">Status</label>
               <select
                 id="q-status"
                 value={qStatus}
@@ -296,15 +285,14 @@ export default function ManageMCQs({
             </div>
           </div>
 
-          <button
-            type="submit"
+          <button type="submit"
             disabled={qSubmitLoading}
             className="w-full py-2.5 px-4 bg-primary text-primary-foreground font-semibold rounded-xl hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-primary/10 disabled:opacity-50">
             {qSubmitLoading ? (
               <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
             ) : (<>
                 <Plus className="w-4 h-4" />
-                Add &amp; Approve MCQ
+                Add & Approve MCQ
               </>)}
           </button>
         </form>
@@ -324,7 +312,7 @@ export default function ManageMCQs({
             <p>No approved questions created yet.</p>
           </div>
         ) : (
-          <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+          <div className="space-y-4 max-h-[760px] overflow-y-auto pr-2">
             {approvedQuestions.map((q) => (
               <div
                 key={q.id}
@@ -377,9 +365,7 @@ export default function ManageMCQs({
                     </div>
 
                     <div>
-                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                        Explanation
-                      </label>
+                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Explanation</label>
                       <textarea
                         value={inlineExplanation}
                         onChange={(e) => setInlineExplanation(e.target.value)}
@@ -389,9 +375,7 @@ export default function ManageMCQs({
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                          Difficulty
-                        </label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">Difficulty</label>
                         <select
                           value={inlineDifficulty}
                           onChange={(e) => setInlineDifficulty(Number(e.target.value) as 1 | 2 | 3)}

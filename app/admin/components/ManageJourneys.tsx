@@ -145,14 +145,13 @@ export default function ManageJourneys({
     <>
       {/* Create/Edit Journey Form */}
       <div className="lg:col-span-5 bg-card border border-border rounded-2xl p-6 h-fit shadow-sm space-y-5">
-        <h3 className="text-lg font-bold font-display flex items-center gap-2">
-          <Compass className="w-5 h-5 text-primary" />
+        <h3 className="text-xl font-bold font-inria text-primary">
           {editingJourney ? 'Edit Journey' : 'Create New Journey'}
         </h3>
 
         {journeyMessage && (
           <div
-            className={`p-3 rounded-xl text-xs font-semibold ${journeyMessage.type === 'success'
+            className={`p-1 rounded-xl text-xs font-semibold ${journeyMessage.type === 'success'
               ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/10'
               : 'bg-destructive/10 text-destructive border border-destructive/10'
               }`}>
@@ -161,15 +160,15 @@ export default function ManageJourneys({
         )}
 
         <form onSubmit={handleSaveJourney} className="space-y-2">
-          <div>
+          <div className="py-1">
+            <label className="block text-sm font-bold font-inria text-muted-foreground">Journey Title</label>
             <input
               id="j-title"
               type="text"
               required
               value={journeyTitle}
               onChange={(e) => setJourneyTitle(e.target.value)}
-              placeholder="Journey Title"
-              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"/>
+              className="w-full px-3 py-2 border border-border bg-background rounded-xl focus:outline-none focus:ring-3 focus:ring-primary focus:border-transparent text-sm"/>
           </div>
 
           <div className="flex items-center gap-2 py-2">
@@ -179,12 +178,12 @@ export default function ManageJourneys({
               checked={journeyPublished}
               onChange={(e) => setJourneyPublished(e.target.checked)}
               className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"/>
-            <label htmlFor="j-published" className="text-xs font-semibold text-foreground cursor-pointer">Publish Journey (Make visible to learners)</label>
+            <label htmlFor="j-published" className="text-xs font-semibold font-inria text-muted-foreground cursor-pointer">Publish Journey (Make visible to learners)</label>
           </div>
 
           {/* Selected Questions (Ordered List) */}
           <div className="space-y-1">
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <label className="block text-sm font-semibold font-inria text-muted-foreground">
               Journey Questions Order ({journeySelectedQuestionIds.length} Selected)
             </label>
             {journeySelectedQuestionIds.length === 0 ? (
@@ -284,9 +283,7 @@ export default function ManageJourneys({
 
         {/* Available Questions List */}
         <div className="pt-4 border-t border-border space-y-3">
-          <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Available Questions to Add
-          </label>
+          <label className="block text-sm font-inria text-muted-foreground">Available Questions to Add</label>
           {approvedQuestions.length === 0 ? (
             <p className="text-xs text-muted-foreground">No approved MCQs to add to journey.</p>
           ) : (
@@ -333,9 +330,7 @@ export default function ManageJourneys({
 
       {/* Journeys List */}
       <div className="lg:col-span-7 bg-card border border-border rounded-2xl p-6 h-fit min-h-[400px]">
-        <h3 className="text-lg font-bold font-display mb-4">
-          Existing Journeys ({journeys.length})
-        </h3>
+        <h3 className="text-xl font-bold font-inria mb-4">Existing Journeys ({journeys.length})</h3>
 
         {loadingLists ? (
           <div className="flex justify-center py-12">
@@ -351,8 +346,7 @@ export default function ManageJourneys({
             {journeys.map((j) => (
               <div
                 key={j.id}
-                className="p-4 rounded-2xl border border-border bg-background/30 hover:border-primary/20 transition-all flex justify-between items-center text-xs"
-              >
+                className="p-4 rounded-2xl border border-border bg-background/30 hover:border-primary/20 transition-all flex justify-between items-center text-xs">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <h4 className="font-bold font-display text-sm text-foreground">{j.title}</h4>
