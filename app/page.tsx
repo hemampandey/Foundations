@@ -198,8 +198,8 @@ export default function Home() {
               </div>
 
               <div className="space-y-1.5">
-                <span className="px-2 py-0.5 rounded bg-violet-500/10 text-violet-600 text-[8px] font-extrabold uppercase font-sans">CBT Domain</span>
-                <h4 className="text-sm font-bold text-foreground leading-snug">
+                <span className="px-2 py-1 rounded-xl bg-primary/80 text-secondary text-[8px] font-extrabold uppercase font-serif">Foundations</span>
+                <h4 className="text-sm pt-1.5 font-bold text-foreground leading-snug">
                   Why does Foundations schedule some questions to appear again after a few days?
                 </h4>
               </div>
@@ -376,18 +376,18 @@ export default function Home() {
           {activeFeatureTab === 'spaced' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center flex-1 animate-scale-in text-left relative z-10">
               <div className="lg:col-span-5 space-y-4">
-                <h3 className="text-xl font-bold font-display leading-snug">SM-2 Spaced Recall Engine</h3>
+                <h3 className="text-xl font-bold font-display leading-snug">Learning That Adapts to You</h3>
                 <p className="text-xs text-primary leading-relaxed">
-                  Instead of passive cramming, Foundations tests recall intervals. Questions are rescheduled dynamically based on accuracy and speed.
+                  Foundations automatically schedules review sessions based on your performance, helping you spend less time reviewing what you already know and more time strengthening what you don't.
                 </p>
                 <div className="space-y-2 pt-2 text-xs font-semibold">
                   <div className="flex items-center gap-2">
                     <Zap className="w-4 h-4 text-primary" />
-                    <span>Interval increments on correct answers</span>
+                    <span>Correct answers are reviewed less frequently.</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-primary" />
-                    <span>Immediate resets on incorrect choices</span>
+                    <span>Difficult concepts return sooner for extra practice.</span>
                   </div>
                 </div>
               </div>
