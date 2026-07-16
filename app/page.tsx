@@ -293,10 +293,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto space-y-12">
           <div className="text-center space-y-3">
             <h2 className="text-2xl sm:text-4xl font-extrabold font-inria leading-tight text-primary">
-              Designed for Cognitive Permanence
+              Learn Smarter. Remember Longer.
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
-              Foundations wraps complex cognitive science workflows into a simple, beautiful study habit.
+              Foundations transforms your study material into quizzes and personalized review sessions, helping you build lasting knowledge instead of cramming.
             </p>
           </div>
 
