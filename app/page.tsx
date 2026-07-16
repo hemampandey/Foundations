@@ -200,17 +200,17 @@ export default function Home() {
               <div className="space-y-1.5">
                 <span className="px-2 py-0.5 rounded bg-violet-500/10 text-violet-600 text-[8px] font-extrabold uppercase font-sans">CBT Domain</span>
                 <h4 className="text-sm font-bold text-foreground leading-snug">
-                  Which cognitive distortion describes filtering out positive aspects while magnifying negative details?
+                  Why does Foundations schedule some questions to appear again after a few days?
                 </h4>
               </div>
 
               {/* Options list */}
               <div className="space-y-2">
                 {[
-                  'Personalization and emotional projection',
-                  'Mental filtering and selective abstraction',
-                  'Catastrophizing outcomes and predicting failure',
-                  'Black-and-white thinking polarization'
+                  'To increase the total number of questions',
+                  'To reinforce memory before concepts are forgotten',
+                  'To make quizzes longer',
+                  'To improve loading speed'
                 ].map((opt, idx) => {
                   let optStyle = 'border-border bg-secondary/15 hover:bg-secondary/35 text-foreground';
                   let badgeStyle = 'bg-secondary text-muted-foreground';
