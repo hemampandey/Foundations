@@ -125,13 +125,6 @@ function ReviewContent() {
     count: number;
     theories: string[];
   }[]>([]);
-  const [overdueData, setOverdueData] = useState<{
-    count: number;
-    theories: string[];
-  }>({ count: 0, theories: [] });
-
-  // Interactive Forecast Details State
-  const [allForecastSchedules, setAllForecastSchedules] = useState<ForecastScheduleItem[]>([]);
 
   // AI Diagnostics weak theories state
   const [weakTheories, setWeakTheories] = useState<{ id: string; title: string; accuracy: number; total: number }[]>([]);
@@ -147,6 +140,13 @@ function ReviewContent() {
 
   // Completed Session Metrics
   const [completedAttempts, setCompletedAttempts] = useState<{ isCorrect: boolean; responseMs: number }[] | null>(null);
+
+  // Extra dashboard metrics
+  const [streak, setStreak] = useState(0);
+  const [weeklyHistory, setWeeklyHistory] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
+  const [recentDays, setRecentDays] = useState<{ dateLabel: string; count: number; xp: number }[]>([]);
+  const [thisWeekCount, setThisWeekCount] = useState(0);
+  const [nextWeekCount, setNextWeekCount] = useState(0);
 
   // Fetch due review items
   const fetchDueItems = useCallback(async () => {
@@ -222,7 +222,6 @@ function ReviewContent() {
         };
       });
 
-      setAllForecastSchedules(formattedForecast);
 
       // Fetch user attempts to compute weak theories diagnostics
       const { data: attemptsData } = await supabase
@@ -296,10 +295,6 @@ function ReviewContent() {
         }
       });
 
-      setOverdueData({
-        count: overdueCount,
-        theories: Array.from(overdueTheories),
-      });
 
       // Compute local 7-day forecast
       const days = [];
@@ -344,6 +339,102 @@ function ReviewContent() {
       });
 
       setForecastData(forecast);
+
+      // 1. Fetch user progress for streak
+      const { data: progData } = await supabase
+        .from('user_progress')
+        .select('*')
+        .eq('user_id', profile.id)
+        .maybeSingle();
+
+      if (progData) {
+        setStreak(progData.streak_days ?? 0);
+      }
+
+      // 2. Fetch attempts in the last 7 days for the weekly history bar chart
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      sevenDaysAgo.setHours(0, 0, 0, 0);
+
+      const { data: recentAttempts } = await supabase
+        .from('attempts')
+        .select('created_at, is_correct')
+        .eq('user_id', profile.id)
+        .gte('created_at', sevenDaysAgo.toISOString());
+
+      const weeklyCounts = [0, 0, 0, 0, 0, 0, 0]; // Mon = 0, Tue = 1 ... Sun = 6
+      if (recentAttempts) {
+        recentAttempts.forEach((att) => {
+          const date = new Date(att.created_at);
+          const day = date.getDay(); // Sun = 0, Mon = 1 ... Sat = 6
+          const index = day === 0 ? 6 : day - 1;
+          weeklyCounts[index] += 1;
+        });
+      }
+      setWeeklyHistory(weeklyCounts);
+
+      // 3. Group attempts by date for recent history feed (last 3 active days)
+      const { data: allHistory } = await supabase
+        .from('attempts')
+        .select('created_at, is_correct')
+        .eq('user_id', profile.id)
+        .order('created_at', { ascending: false });
+
+      const dateGroups: Record<string, { count: number; xp: number }> = {};
+      if (allHistory) {
+        allHistory.forEach((att) => {
+          const dateStr = new Date(att.created_at).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          });
+          if (!dateGroups[dateStr]) {
+            dateGroups[dateStr] = { count: 0, xp: 0 };
+          }
+          dateGroups[dateStr].count += 1;
+          dateGroups[dateStr].xp += att.is_correct ? 10 : 2;
+        });
+      }
+
+      const formattedHistory = Object.entries(dateGroups).map(([dateLabel, val]) => {
+        const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+        let displayLabel = dateLabel;
+        if (dateLabel === todayStr) displayLabel = 'Today';
+        else if (dateLabel === yesterdayStr) displayLabel = 'Yesterday';
+
+        return {
+          dateLabel: displayLabel,
+          count: val.count,
+          xp: val.xp
+        };
+      }).slice(0, 3);
+      setRecentDays(formattedHistory);
+
+      // 4. Calculate upcoming review counts for Today, Tomorrow, This Week, and Next Week
+      const endOfWeek = new Date(todayStart);
+      endOfWeek.setDate(endOfWeek.getDate() + 7);
+      const endOfNextWeek = new Date(todayStart);
+      endOfNextWeek.setDate(endOfNextWeek.getDate() + 14);
+
+      let thisWeekVal = 0;
+      let nextWeekVal = 0;
+
+      (forecastSchedules ?? []).forEach(s => {
+        if (!s.due_at) return;
+        const due = new Date(s.due_at);
+        if (due >= todayStart && due < endOfWeek) {
+          thisWeekVal++;
+        } else if (due >= endOfWeek && due < endOfNextWeek) {
+          nextWeekVal++;
+        }
+      });
+
+      setThisWeekCount(thisWeekVal);
+      setNextWeekCount(nextWeekVal);
     } catch (err) {
       console.error('[Foundations] Error fetching review items:', err);
     } finally {
@@ -546,10 +637,13 @@ function ReviewContent() {
         <ForecastTab
           dueItems={dueItems}
           forecastData={forecastData}
-          overdueData={overdueData}
           weakTheories={weakTheories}
-          allForecastSchedules={allForecastSchedules}
           onStartPractice={() => setStarted(true)}
+          streak={streak}
+          weeklyHistory={weeklyHistory}
+          recentDays={recentDays}
+          thisWeekCount={thisWeekCount}
+          nextWeekCount={nextWeekCount}
         />
       )}
 

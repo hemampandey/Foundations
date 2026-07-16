@@ -104,12 +104,6 @@ export default function Home() {
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-[#DCF1FF]">
-            <a href="#features" className="hover:text-foreground transition-all">Features</a>
-            <a href="#spaced" className="hover:text-foreground transition-all">Spaced Recall</a>
-            <a href="https://github.com/hemampandey/Foundations" target="_blank" rel="noreferrer" className="hover:text-foreground transition-all">Repository</a>
-          </nav>
-
           <div className="flex items-center gap-3">
             {profileLoading ? (
               <div className="w-5 h-5 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
@@ -378,7 +372,7 @@ export default function Home() {
               <div className="lg:col-span-5 space-y-4">
                 <h3 className="text-xl font-bold font-display leading-snug">Learning That Adapts to You</h3>
                 <p className="text-xs text-primary leading-relaxed">
-                  Foundations automatically schedules review sessions based on your performance, helping you spend less time reviewing what you already know and more time strengthening what you don't.
+                  Foundations automatically schedules review sessions based on your performance, helping you spend less time reviewing what you already know and more time strengthening what you don&apos;t.
                 </p>
                 <div className="space-y-2 pt-2 text-xs font-semibold">
                   <div className="flex items-center gap-2">
