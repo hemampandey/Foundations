@@ -250,7 +250,7 @@ export default function DashboardPage() {
 
                       <div className="space-y-3 relative z-10">
                         <div className="flex justify-between items-start">
-                          <h3 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors leading-snug">{journey.title}</h3>
+                          <h3 className="text-sm font-bold font-inria text-foreground group-hover:text-primary transition-colors">{journey.title}</h3>
                         </div>
                       </div>
 
@@ -371,7 +371,7 @@ export default function DashboardPage() {
             <div className="p-6 border border-indigo-500/10 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-4 relative overflow-hidden backdrop-blur-sm">
               <div className="flex items-center gap-2">
                 <span className="text-base">🎯</span>
-                <h3 className="text-[10px] font-bold text-secondary dark:text-secondary uppercase tracking-wider bg-primary/70 px-2 py-0.5 rounded-full select-none">Today's Challenge</h3>
+                <h3 className="text-[10px] font-bold text-secondary dark:text-secondary uppercase tracking-wider bg-primary/70 px-2 py-0.5 rounded-full select-none">Today&apos;s Challenge</h3>
               </div>
 
               <div className="space-y-2">

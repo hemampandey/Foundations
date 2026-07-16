@@ -135,7 +135,7 @@ export default function ForecastTab({
                   </div>
                   <Link
                     href={`/practice?theoryId=${theory.id}`}
-                    className="py-1 px-3 rounded-lg bg-primary text-white font-inria text-xs font-bold hover:bg-primary/85 transition-all shrink-0 select-none shadow-sm shadow-primary/10">Retry</Link>
+                    className="py-1 px-3 rounded-lg bg-primary text-white font-serif text-xs font-bold hover:bg-primary/85 transition-all shrink-0 select-none shadow-sm shadow-primary/10">Retry</Link>
                 </div>
               ))
             )}
@@ -162,8 +162,8 @@ export default function ForecastTab({
           ) : (
             <>
               <div className="flex items-start gap-4 text-left">
-                <div className="relative flex items-center justify-center shrink-0 w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500">
-                  <div className="absolute inset-0 rounded-2xl border border-indigo-500/20 pulse-glow-ring" />
+                <div className="relative flex items-center justify-center shrink-0 w-12 h-12 rounded-2xl bg-primary/10 text-primary">
+                  <div className="absolute inset-0 rounded-2xl border border-primary/20 pulse-glow-ring" />
                   <Zap className="w-6 h-6 z-10" />
                 </div>
                 <div className="space-y-1">
@@ -176,7 +176,7 @@ export default function ForecastTab({
 
               <button
                 onClick={onStartPractice}
-                className="w-full py-2.5 rounded-xl bg-indigo-500 text-white font-bold text-xs hover:bg-indigo-600 transition-all cursor-pointer shadow-md shadow-indigo-500/10 text-center flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 rounded-xl bg-primary text-white font-serif text-xs font-bold hover:bg-primary/90 transition-all cursor-pointer shadow-md shadow-primary/20 text-center flex items-center justify-center gap-1.5"
               >
                 <span>Launch Review Deck</span>
                 <ChevronRight className="w-4 h-4" />

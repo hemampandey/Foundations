@@ -78,7 +78,7 @@ export default function StatsHeader({
             </div>
             <div className="w-32 sm:w-40 h-2 bg-secondary rounded-full overflow-hidden border border-border/70 mt-1 relative">
               <div
-                className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-300 ease-out"
+                className="h-full bg-gradient-to-r from-slate-400/50 via-slate-500/50 to-primary transition-all duration-300 ease-out"
                 style={{ width: `${Math.min(100, (levelInfo.currentXp / levelInfo.requiredXp) * 100)}%` }}/>
             </div>
           </div>
@@ -94,8 +94,8 @@ export default function StatsHeader({
               <path d="M50,28 L54,39 L66,39 L56,47 L60,58 L50,51 L40,58 L44,47 L34,39 L46,39 Z" fill="#ffffff" />
               <defs>
                 <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#c084fc" />
-                  <stop offset="100%" stopColor="#6366f1" />
+                  <stop offset="0%" stopColor="#8b9fc3ff" />
+                  <stop offset="100%" stopColor="#264D8E" />
                 </linearGradient>
               </defs>
             </svg>

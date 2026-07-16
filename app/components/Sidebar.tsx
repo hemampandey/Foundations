@@ -377,7 +377,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
 
       <aside
         ref={sidebarRef}
-        className={`h-full border-r border-border bg-[#f9f9fb] dark:bg-[#0b0f19] flex-col justify-between p-4 transition-all duration-300 shrink-0 select-none relative z-20
+        className={`h-full border-r border-border bg-[#f9f9fb] dark:bg-[#0b0f19] flex-col justify-between p-4 transition-all duration-200 shrink-0 select-none relative z-20
           ${mobileOpen
             ? 'fixed inset-y-0 left-0 w-[240px] z-50 flex animate-slide-in'
             : 'hidden md:flex'
@@ -431,7 +431,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
           <div className="px-1 shrink-0">
             <Link
               href="/review?action=start"
-              className={`flex items-center gap-2.5 border border-transparent bg-ally hover:bg-slate-900 text-white rounded-full text-xs font-bold transition-all duration-200 cursor-pointer shadow-md w-full ${collapsed ? 'justify-center p-2 h-9 w-9' : 'px-3.5 py-2.5'
+              className={`flex items-center gap-2.5 border border-transparent bg-ally hover:bg-slate-900 text-white rounded-full text-xs font-bold transition-all duration-500 cursor-pointer shadow-md w-full ${collapsed ? 'justify-center p-2 h-9 w-9' : 'px-3.5 py-2.5'
                 } ${reviewDueCount > 0 ? 'shadow-[0_0_12px_rgba(38,77,142,0.35)] animate-pulse-glow' : ''}`}
             >
               {collapsed ? (
@@ -455,8 +455,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
               href="/dashboard"
               className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-200 border hover-glow-sweep ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
                 } ${pathname === '/dashboard' || pathname.startsWith('/practice')
-                  ? 'bg-primary/5 text-primary border-primary/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary/45 border-transparent'
+                  ? 'bg-primary/5 text-primary font-serif border-primary/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
+                  : 'text-muted-foreground hover:text-foreground font-serif hover:bg-secondary/45 border-transparent'
                 }`}
             >
               <BookOpen className="w-4 h-4 shrink-0 transition-transform duration-250 group-hover:scale-110" />
@@ -467,8 +467,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
               href="/progress"
               className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-200 border hover-glow-sweep ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
                 } ${pathname === '/progress'
-                  ? 'bg-primary/5 text-primary border-primary/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary/45 border-transparent'
+                  ? 'bg-primary/5 text-primary font-serif border-primary/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
+                  : 'text-muted-foreground font-serif hover:text-foreground hover:bg-secondary/45 border-transparent'
                 }`}
             >
               <BarChart3 className="w-4 h-4 shrink-0 transition-transform duration-250 group-hover:scale-110" />
@@ -489,8 +489,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                     }}
                     className={`flex items-center justify-between w-full rounded-xl text-xs font-semibold transition-all duration-150 border cursor-pointer ${collapsed ? 'justify-center p-2.5' : 'px-3 py-2'
                       } ${pathname.startsWith('/review') && !reviewExpanded
-                        ? 'bg-primary/5 text-primary border-primary/10'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary/45 border-transparent'
+                        ? 'bg-primary/5 font-serif text-primary border-primary/10'
+                        : 'text-muted-foreground hover:text-foreground font-serif hover:bg-secondary/45 border-transparent'
                       }`}
                   >
                     <div className="flex items-center gap-3">
@@ -499,7 +499,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                         <span className="flex items-center gap-2">
                           Review
                           {reviewDueCount > 0 && (
-                            <span className="text-[9px] font-bold text-white bg-indigo-500 px-1.5 py-0.5 rounded-full leading-none animate-scale-in">
+                            <span className="text-[9px] font-bold text-secondary bg-primary px-2 py-1 rounded-full leading-none animate-scale-in">
                               {reviewDueCount}
                             </span>
                           )}
@@ -524,19 +524,19 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                       <Link
                         href="/review?tab=forecast"
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'forecast'
-                          ? 'text-primary font-bold bg-primary/5'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold font-serif bg-primary/5'
+                          : 'text-muted-foreground font-bold hover:text-foreground font-serif hover:bg-secondary/35'
                           }`}
                       >
-                        <span>Forecast &amp; Stats</span>
+                        <span>Forecast & Stats</span>
                       </Link>
 
                       {/* Browse Schedules */}
                       <Link
                         href="/review?tab=browse"
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'browse'
-                          ? 'text-primary font-bold bg-primary/5'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold font-serif bg-primary/5'
+                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
                         <span>Browse Schedules</span>
@@ -546,8 +546,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                       <Link
                         href="/review?tab=history"
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'history'
-                          ? 'text-primary font-bold bg-primary/5'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold font-serif bg-primary/5'
+                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
                         <span>Attempt History</span>
@@ -558,23 +558,21 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                   {/* Collapsed flyout popover menu */}
                   {collapsed && (
                     <div
-                      className={`absolute left-[54px] top-0 z-50 bg-card border border-border rounded-2xl p-2.5 shadow-xl w-[150px] space-y-0.5 transition-all duration-300 ease-in-out transform origin-left ${
+                      className={`absolute left-[54px] top-0 z-50 bg-card border border-border rounded-2xl p-2.5 shadow-xl w-[150px] space-y-0.5 transition-all duration-300 ease-out transform origin-left ${
                         reviewExpanded
                           ? 'translate-x-2 opacity-100 scale-100 pointer-events-auto'
                           : 'translate-x-0 opacity-0 scale-95 pointer-events-none'
                       }`}
                     >
-                      <div className="text-[10px] font-extrabold text-muted-foreground/80 uppercase tracking-wider px-2.5 pb-1 border-b border-border/40 mb-1">
-                        Review Menu
-                      </div>
+                      <div className="text-[10px] font-bold font-serif text-primary/80 uppercase tracking-wider px-2.5 pb-1 border-b border-border/40 mb-1">Review Menu</div>
                       
                       {/* Forecast & Stats */}
                       <Link
                         href="/review?tab=forecast"
                         onClick={() => setReviewExpanded(false)}
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'forecast'
-                          ? 'text-primary font-bold bg-primary/5'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold font-serif bg-primary/5'
+                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
                         <span>Forecast &amp; Stats</span>
@@ -585,8 +583,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                         href="/review?tab=browse"
                         onClick={() => setReviewExpanded(false)}
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'browse'
-                          ? 'text-primary font-bold bg-primary/5'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold font-serif bg-primary/5'
+                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
                         <span>Browse Schedules</span>
@@ -597,8 +595,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                         href="/review?tab=history"
                         onClick={() => setReviewExpanded(false)}
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'history'
-                          ? 'text-primary font-bold bg-primary/5'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold font-serif bg-primary/5'
+                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
                         <span>Attempt History</span>
@@ -624,8 +622,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                     }}
                     className={`flex items-center justify-between w-full rounded-xl text-xs font-semibold transition-all duration-150 border cursor-pointer ${collapsed ? 'justify-center p-2.5' : 'px-3 py-2'
                       } ${pathname.startsWith('/admin') && !adminExpanded
-                        ? 'bg-primary/5 text-primary border-primary/10'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary/45 border-transparent'
+                        ? 'bg-primary/5 font-serif text-primary border-primary/10'
+                        : 'text-muted-foreground font-serif hover:text-foreground hover:bg-secondary/45 border-transparent'
                       }`}
                   >
                     <div className="flex items-center gap-3">
@@ -650,8 +648,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                       <Link
                         href="/admin?tab=theories"
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'theories'
-                          ? 'text-primary font-bold bg-primary/5'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold font-serif bg-primary/5'
+                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
                         <span>Manage Theories</span>
@@ -661,8 +659,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                       <Link
                         href="/admin?tab=questions"
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'questions'
-                          ? 'text-primary font-bold bg-primary/5'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold font-serif bg-primary/5'
+                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
                         <span>Manage MCQs</span>
@@ -672,14 +670,14 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                       <Link
                         href="/admin?tab=review"
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'review'
-                          ? 'text-primary font-bold bg-primary/5'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold font-serif bg-primary/5'
+                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
                         <div className="flex items-center gap-1.5">
                           <span>Review Queue</span>
                           {draftCount > 0 && (
-                            <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-amber-500 text-white">
+                            <span className="px-2 py-1 rounded-full text-[8px] font-bold bg-amber-500 text-white">
                               {draftCount}
                             </span>
                           )}
@@ -690,8 +688,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                       <Link
                         href="/admin?tab=journeys"
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'journeys'
-                          ? 'text-primary font-bold bg-primary/5'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold font-serif bg-primary/5'
+                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
                         <span>Manage Journeys</span>
@@ -708,17 +706,15 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                           : 'translate-x-0 opacity-0 scale-95 pointer-events-none'
                       }`}
                     >
-                      <div className="text-[10px] font-extrabold text-muted-foreground/80 uppercase tracking-wider px-2.5 pb-1 border-b border-border/40 mb-1">
-                        Admin Menu
-                      </div>
+                      <div className="text-[10px] font-serif font-bold text-primary/80 uppercase tracking-wider px-2.5 pb-1 border-b border-border/40 mb-1">Admin Menu</div>
                       
                       {/* Manage Theories */}
                       <Link
                         href="/admin?tab=theories"
                         onClick={() => setAdminExpanded(false)}
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'theories'
-                          ? 'text-primary font-bold bg-primary/5'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold font-serif bg-primary/5'
+                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
                         <span>Manage Theories</span>
@@ -729,8 +725,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                         href="/admin?tab=questions"
                         onClick={() => setAdminExpanded(false)}
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'questions'
-                          ? 'text-primary font-bold bg-primary/5'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold font-serif bg-primary/5'
+                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
                         <span>Manage MCQs</span>
@@ -741,16 +737,14 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                         href="/admin?tab=review"
                         onClick={() => setAdminExpanded(false)}
                         className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'review'
-                          ? 'text-primary font-bold bg-primary/5'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
+                          ? 'text-primary font-bold font-serif bg-primary/5'
+                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
                         <div className="flex items-center gap-1.5">
                           <span>Review Queue</span>
                           {draftCount > 0 && (
-                            <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-amber-500 text-white">
-                              {draftCount}
-                            </span>
+                            <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-amber-500 text-white">{draftCount}</span>
                           )}
                         </div>
                       </Link>
@@ -778,7 +772,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
             <div className="flex-1 flex flex-col min-h-0 pt-4 border-t border-border/40 px-1">
               <button
                 onClick={() => setAttemptsExpanded(!attemptsExpanded)}
-                className="flex items-center justify-between w-full text-[10px] font-bold tracking-wider text-muted-foreground/75 uppercase px-2 py-1 hover:text-foreground transition-all cursor-pointer text-left"
+                className="flex items-center justify-between w-full text-[11px] font-bold font-serif text-muted-foreground/90 uppercase px-2 py-1 hover:text-foreground transition-all cursor-pointer text-left"
               >
                 <span>Recent Attempts</span>
                 {attemptsExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -796,7 +790,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                         className="flex items-center justify-between p-2 hover:bg-secondary/50 rounded-xl transition-all cursor-pointer group"
                       >
                         <div className="min-w-0 pr-2">
-                          <p className="text-[11px] font-bold text-foreground truncate group-hover:text-primary transition-colors" title={practice.theoryTitle}>
+                          <p className="text-[11px] font-serif font-bold text-foreground truncate group-hover:text-primary transition-colors" title={practice.theoryTitle}>
                             {practice.theoryTitle}
                           </p>
                           <p className="text-[9px] text-muted-foreground mt-0.5">
@@ -1014,9 +1008,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                   {/* Journeys Category */}
                   {searchResults.journeys.length > 0 && (
                     <div className="space-y-1.5">
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider pl-1.5">
-                        Journeys
-                      </h4>
+                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider pl-1.5">Journeys</h4>
                       <div className="space-y-1">
                         {searchResults.journeys.map((j) => (
                           <Link
@@ -1035,9 +1027,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                   {/* Theories Category */}
                   {searchResults.theories.length > 0 && (
                     <div className="space-y-1.5">
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider pl-1.5">
-                        Theories
-                      </h4>
+                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider pl-1.5">Theories</h4>
                       <div className="space-y-1">
                         {searchResults.theories.map((t) => (
                           <Link

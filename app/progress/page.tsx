@@ -64,14 +64,17 @@ export default function ProgressPage() {
             is_correct: boolean;
             response_ms: number;
             created_at: string;
-            questions: {
-              stem: string;
-              theories: {
-                id: string;
-                title: string;
-              } | null;
-            } | null;
+            questions: unknown;
           };
+
+          const rawQ = att.questions
+            ? (Array.isArray(att.questions) ? att.questions[0] : att.questions) as { stem?: string; theories?: unknown }
+            : null;
+
+          const rawTheory = rawQ && rawQ.theories
+            ? (Array.isArray(rawQ.theories) ? rawQ.theories[0] : rawQ.theories) as { id?: string; title?: string }
+            : null;
+
           return {
             id: att.id,
             user_id: att.user_id,
@@ -80,11 +83,11 @@ export default function ProgressPage() {
             is_correct: att.is_correct,
             response_ms: att.response_ms,
             created_at: att.created_at,
-            question: att.questions ? {
-              stem: att.questions.stem,
-              theories: att.questions.theories ? {
-                id: att.questions.theories.id,
-                title: att.questions.theories.title
+            question: rawQ ? {
+              stem: rawQ.stem ?? '',
+              theories: rawTheory ? {
+                id: rawTheory.id ?? '',
+                title: rawTheory.title ?? ''
               } : null
             } : null
           };
@@ -318,8 +321,8 @@ export default function ProgressPage() {
         {/* ─── Daily Activity Heatmap ─── */}
         <div className="p-6 premium-card space-y-4 hover:translate-y-0">
           <div>
-            <h3 className="text-sm font-bold text-foreground">Daily Activity Heatmap</h3>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Practice attempts logged over the last 6 months</p>
+            <h3 className="text-md font-bold font-inria text-foreground">Daily Activity Heatmap</h3>
+            <p className="text-xs font-serif text-muted-foreground mt-0.5">Practice attempts logged over the last 6 months</p>
           </div>
 
           <div className="overflow-x-auto pb-2 scrollbar-thin">
@@ -337,17 +340,17 @@ export default function ProgressPage() {
                 </div>
 
                 {/* Heatmap Grid */}
-                <div className="flex gap-[3.5px]">
+                <div className="flex gap-[4px]">
                   {heatmapData.map((week, wIdx) => (
-                    <div key={wIdx} className="flex flex-col gap-[3.5px]">
+                    <div key={wIdx} className="flex flex-col gap-[4px]">
                       {week.map((day) => {
                         let colorClass = 'bg-secondary/40 dark:bg-neutral-800/30';
                         if (day.count > 0 && day.count <= 2) {
-                          colorClass = 'bg-emerald-500/20 dark:bg-emerald-500/10 text-emerald-600';
+                          colorClass = 'bg-primary/20 dark:bg-primary/10 text-primary/60';
                         } else if (day.count > 2 && day.count <= 5) {
-                          colorClass = 'bg-emerald-500/50 dark:bg-emerald-500/30 text-emerald-400';
+                          colorClass = 'bg-primary/50 dark:bg-primary/30 text-primary/40';
                         } else if (day.count > 5) {
-                          colorClass = 'bg-emerald-500 dark:bg-emerald-400 text-emerald-100';
+                          colorClass = 'bg-primary dark:bg-primary/40 text-primary/10';
                         }
 
                         // Format date for tooltip
@@ -406,9 +409,9 @@ export default function ProgressPage() {
           <div className="flex items-center justify-end gap-1.5 text-[9px] font-bold text-muted-foreground pr-1 select-none">
             <span>Less</span>
             <div className="w-[9px] h-[9px] rounded-[1.5px] bg-secondary/40 dark:bg-neutral-800/30" />
-            <div className="w-[9px] h-[9px] rounded-[1.5px] bg-emerald-500/20 dark:bg-emerald-500/10" />
-            <div className="w-[9px] h-[9px] rounded-[1.5px] bg-emerald-500/50 dark:bg-emerald-500/30" />
-            <div className="w-[9px] h-[9px] rounded-[1.5px] bg-emerald-500 dark:bg-emerald-400" />
+            <div className="w-[9px] h-[9px] rounded-[1.5px] bg-primary/20 dark:bg-primary/10" />
+            <div className="w-[9px] h-[9px] rounded-[1.5px] bg-primary/50 dark:bg-primary/30" />
+            <div className="w-[9px] h-[9px] rounded-[1.5px] bg-primary dark:bg-primary/40" />
             <span>More</span>
           </div>
         </div>
@@ -420,8 +423,8 @@ export default function ProgressPage() {
             <div className="p-6 premium-card space-y-4">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-sm font-bold text-foreground">Mastery Progression</h3>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Rolling accuracy over the last 15 MCQ practice attempts</p>
+                  <h3 className="text-md font-bold font-inria text-foreground">Mastery Progression</h3>
+                  <p className="text-xs font-serif text-muted-foreground mt-0.5">Rolling accuracy over the last 15 MCQ practice attempts</p>
                 </div>
               </div>
 
@@ -477,8 +480,8 @@ export default function ProgressPage() {
             <div className="p-6 premium-card space-y-4">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-sm font-bold text-foreground">Response Speed Curve</h3>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Average time elapsed per question for the last 15 MCQ practice attempts</p>
+                  <h3 className="text-md font-inria font-bold text-foreground">Response Speed Curve</h3>
+                  <p className="text-xs font-serif text-muted-foreground mt-0.5">Average time elapsed per question for the last 15 MCQ practice attempts</p>
                 </div>
               </div>
 
@@ -486,8 +489,8 @@ export default function ProgressPage() {
                 <svg className="w-full h-auto overflow-visible select-none" viewBox="0 0 500 180">
                   <defs>
                     <linearGradient id="speedGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.18" />
-                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.01" />
+                      <stop offset="0%" stopColor="#264D8E" stopOpacity="0.18" />
+                      <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.01" />
                     </linearGradient>
                   </defs>
 
@@ -538,16 +541,16 @@ export default function ProgressPage() {
           {/* Weekly Activity columns */}
           <div className="p-6 premium-card flex flex-col justify-between">
             <div>
-              <h3 className="text-sm font-bold text-foreground">Weekly Practice Activity</h3>
-              <p className="text-[10px] text-muted-foreground mt-0.5">MCQ attempts in the last 7 days</p>
+              <h3 className="text-sm font-inria font-bold text-foreground">Weekly Practice Activity</h3>
+              <p className="text-xs font-serif text-muted-foreground mt-0.5">MCQ attempts in the last 7 days</p>
             </div>
             <div className="flex justify-between items-end h-28 pt-6 px-1">
               {weeklyAttempts.map((count, index) => {
                 const percent = Math.max(8, Math.min(100, (count / maxWeekly) * 100));
                 return (
-                  <div key={index} className="flex flex-col items-center flex-1 gap-1">
+                  <div key={index} className="flex flex-col items-center justify-end h-full flex-1 gap-1">
                     <div
-                      className="w-4 bg-emerald-500 hover:opacity-90 rounded-t transition-all relative group cursor-pointer"
+                      className="w-4 bg-primary hover:opacity-90 rounded-t transition-all relative group cursor-pointer"
                       style={{ height: `${percent}%` }}
                       title={`${count} attempts`}
                     >
@@ -564,9 +567,9 @@ export default function ProgressPage() {
 
           {/* Theory Mastery Progress */}
           <div className="p-6 premium-card">
-            <h3 className="text-sm font-bold text-foreground mb-4">Domain Mastery</h3>
+            <h3 className="text-sm font-inria font-bold text-foreground mb-4">Domain Mastery</h3>
             {theoryMastery.length === 0 ? (
-              <div className="text-center py-8 text-xs text-muted-foreground italic">
+              <div className="text-center text-xs font-serif py-8 text-xs text-muted-foreground italic">
                 Complete MCQ attempts to populate domain estimates.
               </div>
             ) : (
@@ -575,12 +578,12 @@ export default function ProgressPage() {
                   <div key={tm.id} className="flex items-center gap-3 hover:bg-secondary/40 p-1.5 rounded-xl transition-all cursor-pointer">
                     <div className="flex-1 space-y-1">
                       <div className="flex justify-between items-center text-xs">
-                        <span className="font-semibold text-foreground truncate max-w-[200px]" title={tm.title}>{tm.title}</span>
-                        <span className="text-[10px] text-muted-foreground font-medium font-mono">{tm.correct}/{tm.total} Correct ({tm.accuracy}%)</span>
+                        <span className="font-semibold font-inria text-foreground truncate max-w-[200px]" title={tm.title}>{tm.title}</span>
+                        <span className="text-[10px] font-serif text-muted-foreground font-medium font-mono">{tm.correct}/{tm.total} Correct ({tm.accuracy}%)</span>
                       </div>
                       <div className="w-full h-2 bg-secondary rounded-full overflow-hidden border border-border">
                         <div
-                          className="h-full bg-emerald-500 transition-all duration-500"
+                          className="h-full bg-primary/90 transition-all duration-500"
                           style={{ width: `${tm.accuracy}%` }}/>
                       </div>
                     </div>
