@@ -26,11 +26,19 @@ export default function ManageJourneys({
   const [journeySubmitLoading, setJourneySubmitLoading] = useState(false);
   const [journeyMessage, setJourneyMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  // Local state for filtering available questions list
+  const [qSearchQuery, setQSearchQuery] = useState('');
+  const [qSelectedTheory, setQSelectedTheory] = useState('');
+  const [qSelectedDifficulty, setQSelectedDifficulty] = useState<string>('');
+
   const handleEditJourney = async (journey: Journey) => {
     setEditingJourney(journey);
     setJourneyTitle(journey.title);
     setJourneyPublished(journey.published);
     setJourneyMessage(null);
+    setQSearchQuery('');
+    setQSelectedTheory('');
+    setQSelectedDifficulty('');
     try {
       const { data, error } = await supabase
         .from('journey_questions')
@@ -111,6 +119,9 @@ export default function ManageJourneys({
         setJourneyTitle('');
         setJourneyPublished(false);
         setJourneySelectedQuestionIds([]);
+        setQSearchQuery('');
+        setQSelectedTheory('');
+        setQSelectedDifficulty('');
       }
 
       await loadDbData();
@@ -261,6 +272,9 @@ export default function ManageJourneys({
                   setJourneyPublished(false);
                   setJourneySelectedQuestionIds([]);
                   setJourneyMessage(null);
+                  setQSearchQuery('');
+                  setQSelectedTheory('');
+                  setQSelectedDifficulty('');
                 }}
                 className="flex-1 py-2.5 px-4 bg-secondary text-secondary-foreground font-semibold rounded-xl hover:bg-secondary/80 transition-all cursor-pointer">Cancel</button>
             )}
@@ -283,48 +297,99 @@ export default function ManageJourneys({
 
         {/* Available Questions List */}
         <div className="pt-4 border-t border-border space-y-3">
-          <label className="block text-sm font-inria text-muted-foreground">Available Questions to Add</label>
+          <div className="flex flex-col gap-2">
+            <label className="block text-sm font-inria font-bold text-primary">
+              Available Questions to Add
+            </label>
+            
+            {/* Filter controls */}
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="text"
+                placeholder="Search questions..."
+                value={qSearchQuery}
+                onChange={(e) => setQSearchQuery(e.target.value)}
+                className="col-span-2 px-2.5 py-1.5 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary w-full"
+              />
+              <select
+                value={qSelectedTheory}
+                onChange={(e) => setQSelectedTheory(e.target.value)}
+                className="px-2 py-1.5 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary w-full cursor-pointer font-semibold text-muted-foreground"
+              >
+                <option value="">All Topics</option>
+                {Array.from(new Set(approvedQuestions.map(q => q.theories?.title).filter(Boolean))).map((title, idx) => (
+                  <option key={idx} value={title ?? ''}>{title}</option>
+                ))}
+              </select>
+              <select
+                value={qSelectedDifficulty}
+                onChange={(e) => setQSelectedDifficulty(e.target.value)}
+                className="px-2 py-1.5 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary w-full cursor-pointer font-semibold text-muted-foreground"
+              >
+                <option value="">All Difficulties</option>
+                <option value="1">L1 (Easy)</option>
+                <option value="2">L2 (Medium)</option>
+                <option value="3">L3 (Hard)</option>
+              </select>
+            </div>
+          </div>
+
           {approvedQuestions.length === 0 ? (
             <p className="text-xs text-muted-foreground">No approved MCQs to add to journey.</p>
-          ) : (
-            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-              {approvedQuestions.map((q) => {
-                const isChecked = journeySelectedQuestionIds.includes(q.id);
-                return (
-                  <div
-                    key={q.id}
-                    className={`flex items-start gap-2.5 p-2 rounded-xl border transition-all text-xs cursor-pointer ${isChecked
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:bg-secondary/30'
-                      }`}
-                    onClick={() => {
-                      if (isChecked) {
-                        setJourneySelectedQuestionIds(
-                          journeySelectedQuestionIds.filter((id) => id !== q.id)
-                        );
-                      } else {
-                        setJourneySelectedQuestionIds([...journeySelectedQuestionIds, q.id]);
-                      }
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      readOnly
-                      className="mt-0.5 h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer shrink-0"/>
-                    <div className="space-y-0.5 min-w-0">
-                      <p className="font-semibold text-foreground truncate" title={q.stem}>{q.stem}</p>
-                      <div className="flex gap-1.5 text-[9px] font-medium text-muted-foreground">
-                        <span className="bg-secondary px-1 py-0.2 rounded truncate max-w-[120px]">{q.theories?.title ?? 'Unknown'}</span>
-                        <span>Difficulty: L{q.difficulty}</span>
-                        <span className="uppercase">{q.bloom_level}</span>
+          ) : (() => {
+            const filteredApprovedQuestions = approvedQuestions.filter((q) => {
+              const matchesSearch = q.stem.toLowerCase().includes(qSearchQuery.toLowerCase());
+              const matchesTheory = qSelectedTheory === '' || q.theories?.title === qSelectedTheory;
+              const matchesDifficulty = qSelectedDifficulty === '' || String(q.difficulty) === qSelectedDifficulty;
+              return matchesSearch && matchesTheory && matchesDifficulty;
+            });
+
+            if (filteredApprovedQuestions.length === 0) {
+              return (
+                <p className="text-xs text-muted-foreground text-center py-4">No matching questions found.</p>
+              );
+            }
+
+            return (
+              <div className="space-y-2 max-h-[250px] overflow-y-auto pr-1">
+                {filteredApprovedQuestions.map((q) => {
+                  const isChecked = journeySelectedQuestionIds.includes(q.id);
+                  return (
+                    <div
+                      key={q.id}
+                      className={`flex items-start gap-2.5 p-2 rounded-xl border transition-all text-xs cursor-pointer ${isChecked
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:bg-secondary/30'
+                        }`}
+                      onClick={() => {
+                        if (isChecked) {
+                          setJourneySelectedQuestionIds(
+                            journeySelectedQuestionIds.filter((id) => id !== q.id)
+                          );
+                        } else {
+                          setJourneySelectedQuestionIds([...journeySelectedQuestionIds, q.id]);
+                        }
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        readOnly
+                        className="mt-0.5 h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer shrink-0"/>
+                      <div className="space-y-0.5 min-w-0">
+                        <p className="font-semibold text-foreground truncate" title={q.stem}>{q.stem}</p>
+                        <div className="flex gap-1.5 text-[9px] font-medium text-muted-foreground">
+                          <span className="bg-secondary px-1 py-0.2 rounded truncate max-w-[120px]">{q.theories?.title ?? 'Unknown'}</span>
+                          <span>Difficulty: L{q.difficulty}</span>
+                          <span className="uppercase">{q.bloom_level}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            );
+          })()}
         </div>
       </div>
 

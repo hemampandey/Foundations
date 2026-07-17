@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nova Horizon Group - Premium Business Card</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inria+Serif:ital,wght@0,300;0,400;0,700;1,300&family=Montserrat:wght@300;400;500;700;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #07070a;
+      --card-bg: #0d0d12;
+      --primary-cyan: #00f2fe;
+      --primary-purple: #9d4edd;
+      --accent-gold: #dfba73;
+      --text-light: #f3f4f6;
+      --text-muted: #9ca3af;
+      --border-gradient: linear-gradient(135deg, var(--primary-cyan) 0%, #4facfe 35%, var(--primary-purple) 70%, var(--accent-gold) 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      perspective: 1200px;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(157, 78, 221, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(0, 242, 254, 0.08) 0%, transparent 40%);
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+      padding: 40px 20px;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: 24px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      background: linear-gradient(to right, #ffffff, var(--text-muted));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      font-family: 'Inria Serif', serif;
+      font-style: italic;
+      color: var(--accent-gold);
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    /* 3D Card Container */
+    .card-wrapper {
+      width: 450px;
+      height: 260px;
+      position: relative;
+      cursor: pointer;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .card-wrapper.flipped {
+      transform: rotateY(180deg);
+    }
+
+    /* Card Sides */
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Card background with carbon-like micro-grid and border gradient */
+    .card-face::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      padding: 1.5px; /* Border thickness */
+      background: var(--border-gradient);
+      -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+              mask-composite: exclude;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .card-face::after {
+      content: '';
+      position: absolute;
+      inset: 1.5px;
+      border-radius: 14.5px;
+      background-color: var(--card-bg);
+      background-image: 
+        radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 8px 8px;
+      background-position: 0 0, 4px 4px;
+      z-index: 1;
+    }
+
+    /* Card Front */
+    .card-front {
+      z-index: 2;
+    }
+
+    /* Card Back */
+    .card-back {
+      transform: rotateY(180deg);
+      z-index: 1;
+    }
+
+    /* Glow Elements */
+    .glow-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(0, 242, 254, 0.12) 0%, transparent 60%);
+      border-radius: 14.5px;
+      z-index: 2;
+      pointer-events: none;
+      transition: background 0.1s ease;
+    }
+
+    .card-back .glow-overlay {
+      background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(157, 78, 221, 0.12) 0%, transparent 60%);
+    }
+
+    /* Inner Layout Elements */
+    .card-content {
+      position: relative;
+      z-index: 3;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Logo Styling */
+    .logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .logo-svg {
+      width: 120px;
+      height: auto;
+      filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.4));
+      animation: logoGlow 4s infinite ease-in-out;
+    }
+
+    .logo-text {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 2px;
+      color: var(--text-light);
+      margin-top: 6px;
+      text-transform: uppercase;
+    }
+
+    .logo-subtext {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      font-size: 8px;
+      letter-spacing: 4.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      text-transform: uppercase;
+      padding-left: 4.5px; /* Offset for centering due to letter-spacing */
+    }
+
+    /* Representative Info */
+    .rep-container {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+
+    .rep-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      font-size: 18px;
+      letter-spacing: 0.5px;
+      color: var(--text-light);
+    }
+
+    .rep-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    .divider {
+      width: 30px;
+      height: 1.5px;
+      background: var(--accent-gold);
+      margin: 8px auto;
+      opacity: 0.8;
+    }
+
+    /* Pillars / Sectors Row */
+    .sectors-container {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 5px;
+    }
+
+    .sector-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .sector-icon {
+      width: 24px;
+      height: 24px;
+      stroke: var(--primary-cyan);
+      filter: drop-shadow(0 0 4px rgba(0, 242, 254, 0.3));
+      transition: transform 0.3s ease;
+    }
+
+    .sector-item:hover .sector-icon {
+      transform: scale(1.15);
+      stroke: var(--primary-purple);
+      filter: drop-shadow(0 0 6px rgba(157, 78, 221, 0.5));
+    }
+
+    .sector-label {
+      font-size: 7px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* --- Back Side Layout --- */
+    .card-back-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 12px;
+    }
+
+    .card-back-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-back-logo svg {
+      width: 36px;
+      height: auto;
+      filter: drop-shadow(0 0 4px rgba(0, 242, 254, 0.2));
+    }
+
+    .card-back-logo-text {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .card-back-rep {
+      text-align: right;
+    }
+
+    .card-back-rep-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-light);
+    }
+
+    .card-back-rep-title {
+      font-size: 8px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Contact Details Grid */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin: 15px 0;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      transition: color 0.2s ease;
+    }
+
+    .contact-item:hover {
+      color: var(--primary-cyan);
+    }
+
+    .contact-icon {
+      width: 14px;
+      height: 14px;
+      stroke: var(--primary-purple);
+    }
+
+    /* Quantum Key Illustration */
+    .quantum-key-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: auto;
+    }
+
+    .quantum-key-svg {
+      width: 32px;
+      height: 32px;
+      stroke: url(#cyanPurpleGrad);
+      filter: drop-shadow(0 0 6px rgba(157, 78, 221, 0.4));
+      animation: pulseQuantum 3s infinite ease-in-out;
+    }
+
+    /* Instructions & Buttons */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .btn {
+      padding: 10px 24px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.03);
+      color: var(--text-light);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:hover {
+      background-color: var(--text-light);
+      color: var(--bg-dark);
+      border-color: var(--text-light);
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2);
+    }
+
+    /* Animations */
+    @keyframes logoGlow {
+      0%, 100% {
+        filter: drop-shadow(0 0 6px rgba(0, 242, 254, 0.3));
+        transform: translateY(0);
+      }
+      50% {
+        filter: drop-shadow(0 0 14px rgba(0, 242, 254, 0.6));
+        transform: translateY(-2px);
+      }
+    }
+
+    @keyframes pulseQuantum {
+      0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 4px rgba(157, 78, 221, 0.3));
+      }
+      50% {
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.6));
+      }
+    }
+
+    /* Mobile Responsive adjustments */
+    @media (max-width: 500px) {
+      .card-wrapper {
+        width: 320px;
+        height: 185px;
+      }
+      .card-face {
+        padding: 16px;
+      }
+      .logo-svg {
+        width: 90px;
+      }
+      .logo-text {
+        font-size: 13px;
+      }
+      .logo-subtext {
+        font-size: 6.5px;
+        letter-spacing: 3.5px;
+      }
+      .rep-name {
+        font-size: 14px;
+      }
+      .rep-title {
+        font-size: 8px;
+      }
+      .divider {
+        margin: 6px auto;
+      }
+      .sectors-container {
+        gap: 15px;
+      }
+      .sector-icon {
+        width: 18px;
+        height: 18px;
+      }
+      .sector-label {
+        font-size: 6px;
+      }
+      .card-back-logo svg {
+        width: 28px;
+      }
+      .card-back-logo-text {
+        font-size: 9px;
+      }
+      .card-back-rep-name {
+        font-size: 12px;
+      }
+      .card-back-rep-title {
+        font-size: 7px;
+      }
+      .contact-grid {
+        gap: 8px;
+        margin: 10px 0;
+      }
+      .contact-item {
+        font-size: 9px;
+      }
+      .contact-icon {
+        width: 12px;
+        height: 12px;
+      }
+      .quantum-key-svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div>
+      <h1>Nova Horizon Group</h1>
+      <div class="subtitle">Ventures in Spacetech, Clean Energy & Quantum Computing</div>
+    </div>
+
+    <!-- 3D Business Card -->
+    <div class="card-wrapper" id="businessCard">
+      <!-- FRONT SIDE -->
+      <div class="card-face card-front">
+        <div class="glow-overlay" id="frontGlow"></div>
+        <div class="card-content">
+          <!-- Logo -->
+          <div class="logo-container">
+            <svg class="logo-svg" viewBox="0 0 100 40" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="cyanPurpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#00f2fe" />
+                  <stop offset="100%" stop-color="#9d4edd" />
+                </linearGradient>
+              </defs>
+              <!-- Horizon Line -->
+              <path d="M10,32 Q50,22 90,32" stroke="url(#cyanPurpleGrad)" stroke-width="2.5" fill="none" stroke-linecap="round" />
+              <!-- Rising Quantum Star -->
+              <path d="M50,10 Q50,23 50,23 Q50,23 50,10 Z M50,23 Q37,23 37,23 Q50,23 50,23 Z M50,23 Q63,23 63,23 Q50,23 50,23 Z" stroke="url(#cyanPurpleGrad)" stroke-width="2" fill="none" />
+              <path d="M50,12 L50,30 M41,21 L59,21" stroke="url(#cyanPurpleGrad)" stroke-width="1.5" stroke-linecap="round" />
+              <!-- Glow diamond in center -->
+              <polygon points="50,17 54,21 50,25 46,21" fill="url(#cyanPurpleGrad)" />
+            </svg>
+            <div class="logo-text">Nova Horizon</div>
+            <div class="logo-subtext">Group</div>
+          </div>
+
+          <!-- Representative Information -->
+          <div class="rep-container">
+            <div class="rep-name">Dr. Aria Vance</div>
+            <div class="rep-title">Managing Partner</div>
+            <div class="divider"></div>
+          </div>
+
+          <!-- Sectors Icons Row -->
+          <div class="sectors-container">
+            <div class="sector-item" title="Space Technology">
+              <svg class="sector-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 16.5c-1.5 1.25-2.5 3.5-2.5 3.5s2.25-1 3.5-2.5" />
+                <path d="M12 12l9-9-3 12-6 3-9-9 3-6 6 3z" />
+                <path d="M9 15l3-3" />
+              </svg>
+              <div class="sector-label">Space Tech</div>
+            </div>
+            <div class="sector-item" title="Clean Energy">
+              <svg class="sector-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="12" rx="3" ry="9" transform="rotate(45 12 12)" />
+                <ellipse cx="12" cy="12" rx="3" ry="9" transform="rotate(-45 12 12)" />
+                <circle cx="12" cy="12" r="2.5" fill="currentColor" />
+              </svg>
+              <div class="sector-label">Clean Energy</div>
+            </div>
+            <div class="sector-item" title="Quantum Computing">
+              <svg class="sector-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="5" width="14" height="14" rx="2" />
+                <path d="M9 1v4M15 1v4M9 19v4M15 19v4M1 9h4M1 15h4M19 9h4M19 15h4" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <div class="sector-label">Quantum</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BACK SIDE -->
+      <div class="card-face card-back">
+        <div class="glow-overlay" id="backGlow"></div>
+        <div class="card-content">
+          <!-- Back Header -->
+          <div class="card-back-header">
+            <div class="card-back-logo">
+              <svg viewBox="0 0 100 40" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,32 Q50,22 90,32" stroke="url(#cyanPurpleGrad)" stroke-width="2.5" fill="none" stroke-linecap="round" />
+                <polygon points="50,17 54,21 50,25 46,21" fill="url(#cyanPurpleGrad)" />
+              </svg>
+              <div class="card-back-logo-text">Nova Horizon</div>
+            </div>
+            <div class="card-back-rep">
+              <div class="card-back-rep-name">Dr. Aria Vance</div>
+              <div class="card-back-rep-title">Managing Partner</div>
+            </div>
+          </div>
+
+          <!-- Contact Grid -->
+          <div class="contact-grid">
+            <a href="tel:+18885550199" class="contact-item">
+              <svg class="contact-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+              </svg>
+              <span>+1 888 555 0199</span>
+            </a>
+            <a href="mailto:aria.vance@novahorizon.com" class="contact-item">
+              <svg class="contact-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              <span>aria.vance@novahorizon.com</span>
+            </a>
+            <a href="https://novahorizon.com" target="_blank" class="contact-item">
+              <svg class="contact-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9-3-9m-9 9a9 9 0 019-9"/>
+              </svg>
+              <span>www.novahorizon.com</span>
+            </a>
+          </div>
+
+          <!-- Bottom Quantum Key SVG -->
+          <div class="quantum-key-container">
+            <svg class="quantum-key-svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="btn" id="flipBtn">Flip Card</button>
+      <div class="hint">Hover over the card to see the 3D tilt effect. Click to flip.</div>
+    </div>
+  </div>
+
+  <script>
+    const card = document.getElementById('businessCard');
+    const flipBtn = document.getElementById('flipBtn');
+    const frontGlow = document.getElementById('frontGlow');
+    const backGlow = document.getElementById('backGlow');
+
+    // Flip Card Toggle
+    const toggleFlip = () => {
+      card.classList.toggle('flipped');
+    };
+
+    card.addEventListener('click', toggleFlip);
+    flipBtn.addEventListener('click', toggleFlip);
+
+    // 3D Tilt Hover Effect & Dynamic Lighting Glow
+    const handleMove = (e, glowEl) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      // Calculate rotation based on cursor position relative to card center
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = ((centerY - y) / centerY) * 12; // max 12 deg
+      const rotateY = ((x - centerX) / centerX) * 12; // max 12 deg
+
+      // Apply tilt to card wrapper (preserving flip state)
+      const isFlipped = card.classList.contains('flipped');
+      const baseRotation = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+      
+      if (isFlipped) {
+        // If flipped, invert rotateY so mouse movement feels natural
+        card.style.transform = `rotateY(180deg) rotateX(${rotateX}deg) rotateY(${-rotateY}deg)`;
+      } else {
+        card.style.transform = `rotateY(0deg) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      }
+
+      // Update glow overlay position
+      glowEl.style.setProperty('--x', `${(x / rect.width) * 100}%`);
+      glowEl.style.setProperty('--y', `${(y / rect.height) * 100}%`);
+    };
+
+    const handleLeave = () => {
+      const isFlipped = card.classList.contains('flipped');
+      card.style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+    };
+
+    // Card Front Mouse listeners
+    card.addEventListener('mousemove', (e) => {
+      const isFlipped = card.classList.contains('flipped');
+      handleMove(e, isFlipped ? backGlow : frontGlow);
+    });
+
+    card.addEventListener('mouseleave', handleLeave);
+  </script>
+</body>
+</html>

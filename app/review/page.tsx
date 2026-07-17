@@ -39,16 +39,6 @@ interface HistoryAttemptItem {
   response_ms: number;
   created_at: string;
   questions: {
-    stem: string;
-    theories: {
-      title: string;
-    } | null;
-  } | null;
-}
-
-interface ForecastScheduleItem {
-  due_at: string | null;
-  questions: {
     id: string;
     stem: string;
     difficulty: number;
@@ -58,6 +48,7 @@ interface ForecastScheduleItem {
     } | null;
   } | null;
 }
+
 
 interface RawQuestion {
   id: string;
@@ -202,25 +193,6 @@ function ReviewContent() {
         `)
         .eq('user_id', profile.id);
 
-      // Format query results
-      const formattedForecast = (forecastSchedules ?? []).map((rawItem: unknown) => {
-        const s = rawItem as { due_at: string | null; questions: unknown };
-        const rawQ = s.questions ? (Array.isArray(s.questions) ? (s.questions[0] as RawQuestion) : (s.questions as RawQuestion)) : null;
-        const rawTheory = rawQ && rawQ.theories ? (Array.isArray(rawQ.theories) ? (rawQ.theories[0] as RawTheory) : (rawQ.theories as RawTheory)) : null;
-
-        return {
-          due_at: s.due_at,
-          questions: rawQ ? {
-            id: rawQ.id,
-            stem: rawQ.stem,
-            difficulty: Number(rawQ.difficulty),
-            bloom_level: rawQ.bloom_level,
-            theories: rawTheory ? {
-              title: rawTheory.title
-            } : null
-          } : null
-        };
-      });
 
 
       // Fetch user attempts to compute weak theories diagnostics
@@ -276,24 +248,6 @@ function ReviewContent() {
 
       setWeakTheories(computedWeak);
 
-      // Compute overdue/missed reviews (scheduled before today)
-      const todayStart = new Date();
-      todayStart.setHours(0, 0, 0, 0);
-
-      let overdueCount = 0;
-      const overdueTheories = new Set<string>();
-      
-      (forecastSchedules ?? []).forEach(s => {
-        if (!s.due_at) return;
-        const due = new Date(s.due_at);
-        if (due < todayStart) {
-          overdueCount++;
-          const q = s.questions ? (Array.isArray(s.questions) ? (s.questions[0] as RawQuestion) : (s.questions as RawQuestion)) : null;
-          const rawTheory = q && q.theories ? (Array.isArray(q.theories) ? (q.theories[0] as RawTheory) : (q.theories as RawTheory)) : null;
-          const tTitle = rawTheory?.title;
-          if (tTitle) overdueTheories.add(tTitle);
-        }
-      });
 
 
       // Compute local 7-day forecast
@@ -415,6 +369,9 @@ function ReviewContent() {
       setRecentDays(formattedHistory);
 
       // 4. Calculate upcoming review counts for Today, Tomorrow, This Week, and Next Week
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+
       const endOfWeek = new Date(todayStart);
       endOfWeek.setDate(endOfWeek.getDate() + 7);
       const endOfNextWeek = new Date(todayStart);
@@ -503,7 +460,10 @@ function ReviewContent() {
           response_ms,
           created_at,
           questions (
+            id,
             stem,
+            difficulty,
+            bloom_level,
             theories (
               title
             )
@@ -511,7 +471,7 @@ function ReviewContent() {
         `)
         .eq('user_id', profile.id)
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(100);
 
       if (error) throw error;
       setHistoryAttempts(data as unknown as HistoryAttemptItem[] ?? []);

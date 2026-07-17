@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Save, Layers, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { QuestionWithTheory, BloomLevel } from '@/lib/types';
+import { useToast } from '@/app/components/ToastProvider';
 
 interface ReviewQueueProps {
   questions: QuestionWithTheory[];
@@ -20,6 +21,7 @@ export default function ReviewQueue({
   loadDbData,
   setActiveTab,
 }: ReviewQueueProps) {
+  const { showToast } = useToast();
   const [expandedExplanations, setExpandedExplanations] = useState<Record<string, boolean>>({});
   const [rejectingId, setRejectingId] = useState<string | null>(null);
 
@@ -79,9 +81,11 @@ export default function ReviewQueue({
         .eq('id', id);
 
       if (error) throw error;
+      showToast('✓ Changes saved', 'success');
       loadDbData();
     } catch (err: unknown) {
       console.error('Failed to save inline edit:', err);
+      showToast('Failed to save changes.', 'error');
       loadDbData();
     }
   };
@@ -98,9 +102,11 @@ export default function ReviewQueue({
         .eq('id', id);
 
       if (error) throw error;
+      showToast('✓ MCQ approved', 'success');
       loadDbData();
     } catch (err: unknown) {
       console.error('[Foundations] Error approving question:', err);
+      showToast('Failed to approve question.', 'error');
       loadDbData();
     }
   };
@@ -116,9 +122,11 @@ export default function ReviewQueue({
         .eq('id', id);
 
       if (error) throw error;
+      showToast('✗ Question deleted', 'info');
       loadDbData();
     } catch (err: unknown) {
       console.error('[Foundations] Error rejecting question:', err);
+      showToast('Failed to reject question.', 'error');
       loadDbData();
     }
   };
@@ -128,8 +136,8 @@ export default function ReviewQueue({
   return (
     <div className="lg:col-span-12 bg-card border border-border rounded-2xl p-6 min-h-[400px]">
       <div className="border-b border-border pb-4 mb-6">
-        <h3 className="text-xl font-bold font-display text-foreground">MCQ Review Queue ({draftQuestions.length})</h3>
-        <p className="text-xs text-muted-foreground mt-1">Approve or edit generated question drafts before they go live on learner dashboards.</p>
+        <h3 className="text-lg font-bold font-inria text-primary">MCQ Review Queue ({draftQuestions.length})</h3>
+        <p className="text-xs font-inria text-muted-foreground mt-1">Approve or edit generated question drafts before they go live on learner dashboards.</p>
       </div>
 
       {loadingLists ? (
@@ -138,9 +146,9 @@ export default function ReviewQueue({
         </div>
       ) : draftQuestions.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground border border-dashed border-border rounded-2xl">
-          <Layers className="w-12 h-12 mx-auto mb-2 text-muted-foreground/30" />
+          <Layers className="w-12 h-12 mx-auto mb-2 text-primary/30" />
           <p className="font-semibold text-sm">Review Queue is Empty</p>
-          <p className="text-xs text-muted-foreground/80 mt-1">
+          <p className="text-sm font-serif text-muted-foreground/80 mt-1">
             Go to the <strong className="text-primary cursor-pointer hover:underline" onClick={() => setActiveTab('theories')}>Theories Tab</strong> and click &ldquo;Generate MCQs&rdquo; to draft questions automatically.
           </p>
         </div>
@@ -149,11 +157,10 @@ export default function ReviewQueue({
           {draftQuestions.map((q) => (
             <div
               key={q.id}
-              className="p-5 rounded-2xl border border-border bg-card hover:border-primary/20 transition-all flex flex-col justify-between gap-5 relative shadow-sm"
-            >
+              className="p-5 rounded-2xl border border-border bg-card hover:border-primary/20 transition-all flex flex-col justify-between gap-5 relative shadow-sm">
               {inlineEditingId === q.id ? (
                 <div className="space-y-4 text-xs">
-                  <div className="flex justify-between items-center border-b border-border/40 pb-2">
+                  <div className="flex justify-between items-center border-b border-border/40 pb-0.5">
                     <span className="text-[10px] font-bold text-primary uppercase">Edit</span>
                     <span className="text-[10px] text-muted-foreground">ID: {q.id.substring(0, 8)}…</span>
                   </div>

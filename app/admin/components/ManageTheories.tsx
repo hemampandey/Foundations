@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Save, Edit, Layers, Settings } from 'lucide-react';
+import { Plus, Save, Edit, Layers, Settings, FileText } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { Theory, Question } from '@/lib/types';
+import { useToast } from '@/app/components/ToastProvider';
 
 interface ManageTheoriesProps {
   theories: Theory[];
@@ -20,18 +21,90 @@ const GENERATION_TIPS = [
   "Consulting the AI counselling methodology guidelines..."
 ];
 
+interface PdfJsItem {
+  str: string;
+}
+
+interface PdfJsTextContent {
+  items: PdfJsItem[];
+}
+
+interface PdfJsPage {
+  getTextContent: () => Promise<PdfJsTextContent>;
+}
+
+interface PdfJsDocument {
+  numPages: number;
+  getPage: (pageNo: number) => Promise<PdfJsPage>;
+}
+
+interface PdfJsLib {
+  GlobalWorkerOptions: {
+    workerSrc: string;
+  };
+  getDocument: (options: { data: ArrayBuffer }) => {
+    promise: Promise<PdfJsDocument>;
+  };
+}
+
+interface WindowWithPdfJs extends Window {
+  pdfjsLib?: PdfJsLib;
+}
+
+// Dynamic Loader for PDF.js to avoid bundle weight & configuration issues
+const loadPdfJs = async (): Promise<PdfJsLib | null> => {
+  if (typeof window === 'undefined') return null;
+  const win = window as unknown as WindowWithPdfJs;
+  if (win.pdfjsLib) return win.pdfjsLib;
+
+  return new Promise<PdfJsLib>((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    script.onload = () => {
+      const loadedWin = window as unknown as WindowWithPdfJs;
+      if (loadedWin.pdfjsLib) {
+        loadedWin.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        resolve(loadedWin.pdfjsLib);
+      } else {
+        reject(new Error('PDF.js loaded but pdfjsLib object is missing.'));
+      }
+    };
+    script.onerror = () => reject(new Error('Failed to load PDF.js engine from CDN.'));
+    document.head.appendChild(script);
+  });
+};
+
+const extractTextFromPdf = async (file: File): Promise<string> => {
+  const pdfjs = await loadPdfJs();
+  if (!pdfjs) throw new Error('PDF engine is not available on server-side.');
+
+  const arrayBuffer = await file.arrayBuffer();
+  const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+  const pdf = await loadingTask.promise;
+
+  let fullText = '';
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const textContent = await page.getTextContent();
+    const pageText = textContent.items.map((item) => item.str).join(' ');
+    fullText += pageText + '\n';
+  }
+  return fullText;
+};
+
 export default function ManageTheories({
   theories,
   loadingLists,
   loadDbData,
 }: ManageTheoriesProps) {
   // Theory form state
+  const { showToast } = useToast();
   const [theoryTitle, setTheoryTitle] = useState('');
   const [theoryBody, setTheoryBody] = useState('');
   const [theoryDomain, setTheoryDomain] = useState('');
   const [theoryStatus, setTheoryStatus] = useState<'draft' | 'published'>('published');
   const [theorySubmitLoading, setTheorySubmitLoading] = useState(false);
-  const [theoryMessage, setTheoryMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Inline Theory editing state
   const [inlineEditingTheoryId, setInlineEditingTheoryId] = useState<string | null>(null);
@@ -48,6 +121,40 @@ export default function ManageTheories({
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  const [pdfExtracting, setPdfExtracting] = useState(false);
+
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>, isInline: boolean = false) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setPdfExtracting(true);
+    try {
+      const extractedText = await extractTextFromPdf(file);
+      if (!extractedText.trim()) {
+        throw new Error('PDF file appears to be empty or does not contain readable text.');
+      }
+
+      if (isInline) {
+        setInlineTheoryBody(extractedText);
+      } else {
+        setTheoryBody(extractedText);
+        if (!theoryTitle) {
+          const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
+          setTheoryTitle(cleanName.replace(/\b\w/g, c => c.toUpperCase()));
+        }
+      }
+
+      showToast(`✓ Extracted ${extractedText.length} characters from ${file.name}!`, 'success');
+    } catch (err: unknown) {
+      console.error('[Foundations] PDF extraction failed:', err);
+      const msg = err instanceof Error ? err.message : 'Failed to extract text from PDF.';
+      showToast(msg, 'error');
+    } finally {
+      setPdfExtracting(false);
+      e.target.value = '';
+    }
+  };
+
   useEffect(() => {
     if (generatingForTheoryId === null) return;
 
@@ -58,15 +165,8 @@ export default function ManageTheories({
     return () => clearInterval(interval);
   }, [generatingForTheoryId]);
 
-  useEffect(() => {
-    if (!theoryMessage) return;
-    const t = setTimeout(() => setTheoryMessage(null), 5000);
-    return () => clearTimeout(t);
-  }, [theoryMessage]);
-
   const handleCreateTheory = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setTheoryMessage(null);
     setTheorySubmitLoading(true);
 
     try {
@@ -82,7 +182,7 @@ export default function ManageTheories({
 
       if (error) throw error;
 
-      setTheoryMessage({ type: 'success', text: 'Theory created successfully!' });
+      showToast('Theory created successfully!', 'success');
       setTheoryTitle('');
       setTheoryBody('');
       setTheoryDomain('');
@@ -91,7 +191,7 @@ export default function ManageTheories({
       await loadDbData();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to create theory.';
-      setTheoryMessage({ type: 'error', text: message });
+      showToast(message, 'error');
     } finally {
       setTheorySubmitLoading(false);
     }
@@ -172,10 +272,7 @@ export default function ManageTheories({
 
       setGeneratingForTheoryId(null);
 
-      setTheoryMessage({
-        type: 'success',
-        text: `Successfully generated ${generatedQuestions.length} draft questions! Review them in the Review Queue.`,
-      });
+      showToast(`Successfully generated ${generatedQuestions.length} draft questions! Review them in the Review Queue.`, 'success');
 
       setTheoryConfig((prev) => ({
         ...prev,
@@ -187,11 +284,11 @@ export default function ManageTheories({
       loadDbData();
     } catch (err: unknown) {
       if (err instanceof Error && err.name === 'AbortError') {
-        setTheoryMessage({ type: 'success', text: 'MCQ generation was cancelled.' });
+        showToast('MCQ generation was cancelled.', 'info');
         return;
       }
       const message = err instanceof Error ? err.message : 'Error generating MCQs.';
-      setTheoryMessage({ type: 'error', text: message });
+      showToast(message, 'error');
     } finally {
       abortControllerRef.current = null;
       setGeneratingForTheoryId(null);
@@ -213,14 +310,6 @@ export default function ManageTheories({
           <Plus className="w-5 h-5 text-primary" />
           Add New Theory
         </h3>
-
-        {theoryMessage && (
-          <div
-            className={`p-4 mb-4 rounded-xl text-xs border transition-opacity ${theoryMessage.type === 'success'
-              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
-              : 'bg-destructive/10 border-destructive/20 text-destructive'
-              }`}>{theoryMessage.text}</div>
-        )}
 
         <form onSubmit={handleCreateTheory} className="space-y-4">
           <div>
@@ -259,7 +348,10 @@ export default function ManageTheories({
           </div>
 
           <div>
-            <label htmlFor="theory-body" className="block text-xs font-inria text-primary uppercase tracking-wider mb-1.5">Theory Text/Notes</label>
+            <label htmlFor="theory-body" className="block text-xs font-inria text-primary uppercase tracking-wider mb-1.5 flex items-center justify-between">
+              <span>Theory Text/Notes</span>
+              <span className="text-[10px] text-muted-foreground font-sans normal-case">Or upload a PDF to extract text</span>
+            </label>
             <textarea
               id="theory-body"
               required
@@ -267,6 +359,32 @@ export default function ManageTheories({
               value={theoryBody}
               onChange={(e) => setTheoryBody(e.target.value)}
               className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm font-sans resize-y"/>
+          </div>
+
+          {/* PDF Drag/Drop Upload Zone */}
+          <div className="border border-dashed border-border/80 bg-secondary/10 rounded-xl p-4 flex flex-col items-center justify-center text-center gap-2 relative transition-all hover:bg-secondary/30">
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={(e) => handlePdfUpload(e, false)}
+              disabled={pdfExtracting}
+              className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
+              title="Upload PDF"
+            />
+            {pdfExtracting ? (
+              <div className="flex flex-col items-center gap-1.5 py-1">
+                <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                <span className="text-[10px] font-bold text-primary animate-pulse">Parsing PDF content...</span>
+              </div>
+            ) : (
+              <>
+                <FileText className="w-5 h-5 text-muted-foreground" />
+                <div className="space-y-0.5">
+                  <p className="text-[10px] font-bold text-foreground">Click to upload or drag & drop PDF</p>
+                  <p className="text-[9px] text-muted-foreground font-medium">Text will populate the notes block above</p>
+                </div>
+              </>
+            )}
           </div>
 
           <button
@@ -354,12 +472,40 @@ export default function ManageTheories({
                     </div>
 
                     <div>
-                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Theory Body Text (Material)</label>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Theory Body Text (Material)</label>
+                        <span className="text-[8px] text-muted-foreground font-sans">Or upload a PDF to extract text</span>
+                      </div>
                       <textarea
                         value={inlineTheoryBody}
                         onChange={(e) => setInlineTheoryBody(e.target.value)}
                         rows={5}
                         className="w-full px-2.5 py-2 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"/>
+                    </div>
+
+                    {/* Inline PDF Upload Zone */}
+                    <div className="border border-dashed border-border/70 bg-secondary/10 rounded-xl p-3 flex flex-col items-center justify-center text-center gap-1.5 relative transition-all hover:bg-secondary/25">
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        onChange={(e) => handlePdfUpload(e, true)}
+                        disabled={pdfExtracting}
+                        className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
+                        title="Upload PDF"
+                      />
+                      {pdfExtracting ? (
+                        <div className="flex flex-col items-center gap-1 py-0.5">
+                          <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                          <span className="text-[9px] font-bold text-primary animate-pulse">Extracting PDF text...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <FileText className="w-4 h-4 text-muted-foreground" />
+                          <div className="space-y-0.5">
+                            <p className="text-[9px] font-bold text-foreground">Click or drag PDF to replace body text</p>
+                          </div>
+                        </>
+                      )}
                     </div>
 
                     <div className="flex gap-2 pt-3 border-t border-border/40">
@@ -393,15 +539,13 @@ export default function ManageTheories({
 
                     {activeSettingsTheoryId === theory.id && (
                       <div className="mt-3 p-3 bg-secondary/40 rounded-xl border border-border/60 space-y-2.5 animate-fade-in text-[10px]">
-                        <div className="flex items-center gap-1.5 font-bold text-foreground">
+                        <div className="flex items-center gap-1.5 font-bold font-serif text-foreground">
                           <Settings className="w-3 h-3 text-primary" />
                           <span>Generation Settings</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                           <div className="sm:col-span-1">
-                            <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
-                              Count
-                            </label>
+                            <label className="block text-[8px] font-bold font-serif text-muted-foreground uppercase tracking-wider mb-1">Count</label>
                             <input
                               type="number"
                               min={1}
@@ -420,12 +564,10 @@ export default function ManageTheories({
                             />
                           </div>
                           <div className="sm:col-span-2">
-                            <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
-                              Custom Instructions
-                            </label>
+                            <label className="block text-[8px] font-bold font-serif text-muted-foreground uppercase tracking-wider mb-1">Instructions</label>
                             <input
                               type="text"
-                              placeholder="e.g. Focus on CBT techniques"
+                              placeholder="e.g., Focus on the core principles of relativity."
                               value={theoryConfig[theory.id]?.instructions ?? ''}
                               onChange={(e) => {
                                 setTheoryConfig({
@@ -447,7 +589,7 @@ export default function ManageTheories({
                   <div className="border-t border-border/40 pt-3 flex justify-between items-center text-[10px] text-muted-foreground/75">
                     <span>ID: {theory.id.substring(0, 8)}…</span>
                     <div className="flex items-center gap-2.5">
-                      <span className={`font-semibold ${theory.status === 'published' ? 'text-emerald-500' : 'text-amber-500'}`}>{theory.status.toUpperCase()}</span>
+                      <span className={`font-bold font-serif ${theory.status === 'published' ? 'text-emerald-500' : 'text-amber-500'}`}>{theory.status.toUpperCase()}</span>
                       <button
                         onClick={() => {
                           setInlineEditingTheoryId(theory.id);
@@ -456,7 +598,7 @@ export default function ManageTheories({
                           setInlineTheoryDomain(theory.domain);
                           setInlineTheoryStatus(theory.status);
                         }}
-                        className="px-2 py-1 rounded bg-primary/10 text-primary border border-primary/10 font-bold hover:bg-primary/20 transition-all cursor-pointer flex items-center gap-1"
+                        className="px-2 py-1 rounded bg-primary/10 text-primary font-serif border border-primary/10 font-bold hover:bg-primary/20 transition-all cursor-pointer flex items-center gap-1"
                       >
                         <Edit className="w-3.5 h-3.5" />
                         <span>Edit</span>
@@ -475,7 +617,7 @@ export default function ManageTheories({
                       <button
                         onClick={() => handleGenerateMcqs(theory)}
                         disabled={generatingForTheoryId !== null}
-                        className={`px-3 py-1.5 rounded-xl text-[10px] font-bold text-white transition-all cursor-pointer flex items-center gap-1 ${generatingForTheoryId === theory.id
+                        className={`px-3 py-1.5 rounded-xl text-[10px] font-bold font-serif text-white transition-all cursor-pointer flex items-center gap-1 ${generatingForTheoryId === theory.id
                           ? 'bg-primary/50 cursor-not-allowed'
                           : 'bg-primary hover:bg-primary/95 shadow-sm'
                           }`}>

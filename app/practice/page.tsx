@@ -86,6 +86,42 @@ function PracticeContent() {
     return () => clearInterval(interval);
   }, [currentIdx, isSubmitted, sessionFinished, loading]);
 
+  // Intercept browser back button (popstate)
+  useEffect(() => {
+    if (loading || sessionFinished) return;
+
+    // Push state so there's an entry in the history stack to pop
+    window.history.pushState(null, '', window.location.href);
+
+    const handlePopState = () => {
+      // Re-push to prevent the back action from closing the app/leaving the page
+      window.history.pushState(null, '', window.location.href);
+      // Show confirmation dialog
+      setShowExitConfirm(true);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [loading, sessionFinished]);
+
+  // Intercept refresh or page exit (beforeunload)
+  useEffect(() => {
+    if (loading || sessionFinished) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [loading, sessionFinished]);
+
   // Initial data load — inline IIFE to satisfy set-state-in-effect lint rule.
   useEffect(() => {
     (async () => {
@@ -250,10 +286,10 @@ function PracticeContent() {
 
           const currentState = existingSchedule
             ? {
-                easeFactor: existingSchedule.ease_factor,
-                intervalDays: existingSchedule.interval_days,
-                repetitions: existingSchedule.repetitions,
-              } : DEFAULT_SM2_STATE;
+              easeFactor: existingSchedule.ease_factor,
+              intervalDays: existingSchedule.interval_days,
+              repetitions: existingSchedule.repetitions,
+            } : DEFAULT_SM2_STATE;
 
           const quality = gradeFromAttempt(isCorrect, responseMs);
           const result = sm2(currentState, quality);
@@ -507,10 +543,10 @@ function PracticeContent() {
   const currentQ = questions[currentIdx];
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-6 animate-fade-in">
+    <>
       {/* Level Up Celebration Dialog */}
       {leveledUpTo !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-card border border-border rounded-3xl p-8 max-w-sm w-full mx-4 text-center space-y-6 shadow-2xl animate-scale-in">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 text-primary animate-bounce">
               <Award className="w-10 h-10" />
@@ -539,6 +575,9 @@ function PracticeContent() {
         onCancel={() => setShowExitConfirm(false)}
       />
 
+      <div className={`w-full max-w-2xl mx-auto space-y-6 animate-fade-in transition-all duration-300 ${
+        showExitConfirm || leveledUpTo !== null ? 'blur-[4px] pointer-events-none select-none' : ''
+      }`}>
       {/* Header bar */}
       <div className="flex items-center justify-between border-b border-border pb-4">
         <button
@@ -674,19 +713,20 @@ function PracticeContent() {
         </div>
       </div>
     </div>
+  </>
   );
 }
 
 export default function PracticePage() {
   return (
     <Suspense fallback={
-        <div className="flex flex-1 items-center justify-center min-h-[50vh]">
-          <div className="space-y-3 text-center">
-            <div className="w-10 h-10 mx-auto border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-            <p className="text-sm text-muted-foreground font-medium">Preparing practice session…</p>
-          </div>
+      <div className="flex flex-1 items-center justify-center min-h-[50vh]">
+        <div className="space-y-3 text-center">
+          <div className="w-10 h-10 mx-auto border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+          <p className="text-sm text-muted-foreground font-medium">Preparing practice session…</p>
         </div>
-      }>
+      </div>
+    }>
       <PracticeContent />
     </Suspense>
   );

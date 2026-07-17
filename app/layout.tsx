@@ -4,6 +4,7 @@ import './globals.css';
 import ProfileProvider from '@/app/components/ProfileProvider';
 import ResponsiveLayout from '@/app/components/ResponsiveLayout';
 import MainContentWrapper from '@/app/components/MainContentWrapper';
+import ToastProvider from '@/app/components/ToastProvider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -68,9 +69,11 @@ export default function RootLayout({
       <body className="min-h-full text-foreground bg-background font-sans">
         <div className="app-viewport-frame">
           <ProfileProvider>
-            <ResponsiveLayout>
-              <MainContentWrapper>{children}</MainContentWrapper>
-            </ResponsiveLayout>
+            <ToastProvider>
+              <ResponsiveLayout>
+                <MainContentWrapper>{children}</MainContentWrapper>
+              </ResponsiveLayout>
+            </ToastProvider>
           </ProfileProvider>
         </div>
       </body>
