@@ -276,12 +276,12 @@ export default function ManageJourneys({
                   setQSelectedTheory('');
                   setQSelectedDifficulty('');
                 }}
-                className="flex-1 py-2.5 px-4 bg-secondary text-secondary-foreground font-semibold rounded-xl hover:bg-secondary/80 transition-all cursor-pointer">Cancel</button>
+                className="flex-1 py-2.5 px-4 bg-secondary text-secondary-foreground font-serif font-semibold rounded-xl hover:bg-secondary/80 transition-all cursor-pointer tracking-tighter">Cancel</button>
             )}
             <button
               type="submit"
               disabled={journeySubmitLoading}
-              className="flex-1 py-2.5 px-4 bg-primary text-primary-foreground font-semibold rounded-xl hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-primary/10 disabled:opacity-50"
+              className="flex-1 py-2.5 px-4 bg-primary text-primary-foreground font-serif font-semibold rounded-xl hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-primary/10 tracking-tighter disabled:opacity-50"
             >
               {journeySubmitLoading ? (
                 <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />

@@ -8,7 +8,6 @@ import StatsHeader from '@/app/components/StatsHeader';
 import type { Theory, AttemptWithQuestion, UserProgress, Journey } from '@/lib/types';
 import {
   BookOpen,
-  Brain,
   ArrowRight,
   ChevronUp
 } from 'lucide-react';
@@ -419,6 +418,7 @@ export default function DashboardPage() {
                   </button>
                 </div>
 
+                {/* Donut progress */}
                 <div className="col-span-3 flex justify-center items-center">
                   <svg className="w-14 h-14 transform -rotate-90">
                     <circle cx="28" cy="28" r="23" stroke="#e0e7ff" strokeWidth="4.5" fill="transparent" />
@@ -426,6 +426,7 @@ export default function DashboardPage() {
                   </svg>
                 </div>
 
+                {/* Vertical Divider */}
                 <div className="col-span-1 flex justify-center">
                   <div className="border-l border-slate-200 h-12" />
                 </div>
@@ -442,9 +443,6 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
-
-              {/* Footer Action */}
-
             </div>
           )}
 

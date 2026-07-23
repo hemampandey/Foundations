@@ -9,7 +9,7 @@ import { useProfile } from '@/app/components/ProfileProvider';
 import { isDevMode, formatDate } from '@/lib/utils';
 import type { Profile } from '@/lib/types';
 import {
-  BookOpen, BarChart3, User, LogOut,
+  User, LogOut,
   ShieldAlert, Search, PanelLeft, PanelLeftClose, ChevronDown, ChevronUp, Sun, Moon,
   Globe, HelpCircle, ArrowUpCircle, Info, ChevronsUpDown, ChevronRight, Settings,
   Brain
@@ -428,19 +428,27 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
           </div>
 
           {/* Practice Button */}
-          <div className="px-1 shrink-0">
+          <div className="shrink-0">
             <Link
               href="/review?action=start"
-              className={`flex items-center gap-2.5 border border-transparent bg-ally hover:bg-slate-900 text-white rounded-sm text-xs font-bold transition-all duration-1000 cursor-pointer shadow-md w-full ${collapsed ? 'justify-center p-2 h-9 w-9' : 'px-3.5 py-2.5'
-                } ${reviewDueCount > 0 ? 'shadow-[0_0_8px_rgba(51,152,218,1)] animate-pulse-glow' : ''}`}
+              className={`flex items-center justify-center gap-2.5 bg-gradient-to-r from-[#264D8E] to-[#3b82f6] text-white rounded-2xl text-xs font-bold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-md ${collapsed ? 'w-10 h-10 mx-auto p-0' : 'w-full px-4 py-3'
+                } ${reviewDueCount > 0 ? 'animate-practice-btn-glow' : ''}`}
             >
               {collapsed ? (
-                <Brain className="w-4 h-4 text-white shrink-0" />
+                <Image 
+                  src="/icons/deck.svg"
+                  alt="Brain Icon"
+                  width={20}
+                  height={20}
+                  className="w-5 h-5"
+                />
               ) : (
                 <span className="flex items-center justify-between w-full font-serif font-bold">
-                  <span>Daily Practice Deck</span>
+                  <span className="flex items-center gap-2">
+                    <span>Daily Practice Deck</span>
+                  </span>
                   {reviewDueCount > 0 && (
-                    <span className="ml-1.5 px-1.5 py-1 rounded-xs bg-white text-ally text-[9px] font-extrabold shadow-sm">{reviewDueCount}</span>
+                    <span className="ml-1.5 px-2 py-0.5 rounded-full bg-white text-primary text-[10px] font-extrabold shadow-sm select-none">{reviewDueCount}</span>
                   )}
                 </span>
               )}
@@ -448,28 +456,42 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
           </div>
 
           {/* Main Navigation Links */}
-          <nav className="space-y-0.5 px-1 shrink-0 animate-fade-in" aria-label="Primary">
+          <nav className="space-y-0.5 shrink-0 animate-fade-in" aria-label="Primary">
             <Link
               href="/dashboard"
-              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-200 border hover-glow-sweep ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
+              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-200 border hover-glow-sweep ${collapsed ? 'w-10 h-10 mx-auto justify-center p-0' : 'gap-3 px-3 py-2'
                 } ${pathname === '/dashboard' || pathname.startsWith('/practice')
                   ? 'bg-primary/5 text-primary font-serif border-primary/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
                   : 'text-muted-foreground hover:text-foreground font-serif hover:bg-secondary/45 border-transparent'
                 }`}
             >
-              <BookOpen className="w-4 h-4 shrink-0 transition-transform duration-250 group-hover:scale-110" />
+              <Image
+                src="/icons/learn.svg"
+                alt="Learn Icon"
+                width={30}
+                height={30}
+                className="w-5 h-5 shrink-0"
+                unoptimized
+              />
               {!collapsed && <span>Learn</span>}
             </Link>
-
+ 
             <Link
               href="/progress"
-              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-200 border hover-glow-sweep ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2'
+              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-200 border hover-glow-sweep ${collapsed ? 'w-10 h-10 mx-auto justify-center p-0' : 'gap-3 px-3 py-2'
                 } ${pathname === '/progress'
                   ? 'bg-primary/5 text-primary font-serif border-primary/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
                   : 'text-muted-foreground font-serif hover:text-foreground hover:bg-secondary/45 border-transparent'
                 }`}
             >
-              <BarChart3 className="w-4 h-4 shrink-0 transition-transform duration-250 group-hover:scale-110" />
+              <Image
+                src="/icons/progress.svg"
+                alt="Progress Icon"
+                width={30}
+                height={30}
+                className="w-5 h-5 shrink-0"
+                unoptimized
+              />
               {!collapsed && <span>Progress</span>}
             </Link>
 
@@ -485,14 +507,21 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                         setAdminExpanded(false);
                       }
                     }}
-                    className={`flex items-center justify-between w-full rounded-xl text-xs font-semibold transition-all duration-150 border cursor-pointer ${collapsed ? 'justify-center p-2.5' : 'px-3 py-2'
+                    className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-150 border cursor-pointer ${collapsed ? 'w-10 h-10 mx-auto justify-center p-0' : 'justify-between w-full px-3 py-2'
                       } ${pathname.startsWith('/review') && !reviewExpanded
                         ? 'bg-primary/5 font-serif text-primary border-primary/10'
                         : 'text-muted-foreground hover:text-foreground font-serif hover:bg-secondary/45 border-transparent'
                       }`}
                   >
                     <div className="flex items-center gap-3">
-                      <Brain className="w-4 h-4 shrink-0" />
+                      <Image
+                        src="/icons/review.svg"
+                        alt="Review Icon"
+                        width={30}
+                        height={30}
+                        className="w-5 h-5 shrink-0"
+                        unoptimized
+                      />
                       {!collapsed && (
                         <span className="flex items-center gap-2">
                           Review
@@ -509,11 +538,10 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
 
                   {/* Desktop Expanded sub-menu */}
                   <div
-                    className={`grid transition-all duration-300 ease-in-out ${
-                      reviewExpanded && !collapsed
-                        ? 'grid-rows-[1fr] opacity-100 mt-1'
-                        : 'grid-rows-[0fr] opacity-0 pointer-events-none'
-                    }`}
+                    className={`grid transition-all duration-300 ease-in-out ${reviewExpanded && !collapsed
+                      ? 'grid-rows-[1fr] opacity-100 mt-1'
+                      : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+                      }`}
                   >
                     <div className="overflow-hidden pl-4 space-y-0.5 border-l border-border/40 ml-5">
                       {/* Forecast & Stats */}
@@ -554,14 +582,13 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                   {/* Collapsed flyout popover menu */}
                   {collapsed && (
                     <div
-                      className={`absolute left-[54px] top-0 z-50 bg-card border border-border rounded-2xl p-2.5 shadow-xl w-[150px] space-y-0.5 transition-all duration-300 ease-out transform origin-left ${
-                        reviewExpanded
-                          ? 'translate-x-2 opacity-100 scale-100 pointer-events-auto'
-                          : 'translate-x-0 opacity-0 scale-95 pointer-events-none'
-                      }`}
+                      className={`absolute left-[54px] top-0 z-50 bg-card border border-border rounded-2xl p-2.5 shadow-xl w-[150px] space-y-0.5 transition-all duration-300 ease-out transform origin-left ${reviewExpanded
+                        ? 'translate-x-2 opacity-100 scale-100 pointer-events-auto'
+                        : 'translate-x-0 opacity-0 scale-95 pointer-events-none'
+                        }`}
                     >
                       <div className="text-[10px] font-bold font-serif text-primary/80 uppercase tracking-wider px-2.5 pb-1 border-b border-border/40 mb-1">Review Menu</div>
-                      
+
                       {/* Forecast & Stats */}
                       <Link
                         href="/review?tab=forecast"
@@ -616,14 +643,21 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                         setReviewExpanded(false);
                       }
                     }}
-                    className={`flex items-center justify-between w-full rounded-xl text-xs font-semibold transition-all duration-150 border cursor-pointer ${collapsed ? 'justify-center p-2.5' : 'px-3 py-2'
+                    className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-150 border cursor-pointer ${collapsed ? 'w-10 h-10 mx-auto justify-center p-0' : 'justify-between w-full px-3 py-2'
                       } ${pathname.startsWith('/admin') && !adminExpanded
                         ? 'bg-primary/5 font-serif text-primary border-primary/10'
                         : 'text-muted-foreground font-serif hover:text-foreground hover:bg-secondary/45 border-transparent'
                       }`}
                   >
                     <div className="flex items-center gap-3">
-                      <ShieldAlert className="w-4 h-4 shrink-0" />
+                      <Image
+                        src="/icons/admin.svg"
+                        alt="Admin Icon"
+                        width={30}
+                        height={30}
+                        className="w-5 h-5 shrink-0"
+                        unoptimized
+                      />
                       {!collapsed && <span>Admin Panel</span>}
                     </div>
                     {!collapsed && (
@@ -633,11 +667,10 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
 
                   {/* Desktop Expanded sub-menu */}
                   <div
-                    className={`grid transition-all duration-300 ease-in-out ${
-                      adminExpanded && !collapsed
-                        ? 'grid-rows-[1fr] opacity-100 mt-1'
-                        : 'grid-rows-[0fr] opacity-0 pointer-events-none'
-                    }`}
+                    className={`grid transition-all duration-300 ease-in-out ${adminExpanded && !collapsed
+                      ? 'grid-rows-[1fr] opacity-100 mt-1'
+                      : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+                      }`}
                   >
                     <div className="overflow-hidden pl-4 space-y-0.5 border-l border-border/40 ml-5">
                       {/* Manage Theories */}
@@ -673,9 +706,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                         <div className="flex items-center gap-1.5">
                           <span>Review Queue</span>
                           {draftCount > 0 && (
-                            <span className="px-1.5 py-0.5 rounded-xs text-[10px] font-bold bg-primary/90 text-white">
-                              {draftCount}
-                            </span>
+                            <span className="px-1.5 py-0.5 rounded-xs text-[10px] font-bold bg-primary/90 text-white">{draftCount}</span>
                           )}
                         </div>
                       </Link>
@@ -696,14 +727,13 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                   {/* Collapsed flyout popover menu */}
                   {collapsed && (
                     <div
-                      className={`absolute left-[54px] top-0 z-50 bg-card border border-border rounded-2xl p-2.5 shadow-xl w-[150px] space-y-0.5 transition-all duration-300 ease-in-out transform origin-left ${
-                        adminExpanded
-                          ? 'translate-x-2 opacity-100 scale-100 pointer-events-auto'
-                          : 'translate-x-0 opacity-0 scale-95 pointer-events-none'
-                      }`}
+                      className={`absolute left-[54px] top-0 z-50 bg-card border border-border rounded-2xl p-2.5 shadow-xl w-[150px] space-y-0.5 transition-all duration-300 ease-in-out transform origin-left ${adminExpanded
+                        ? 'translate-x-2 opacity-100 scale-100 pointer-events-auto'
+                        : 'translate-x-0 opacity-0 scale-95 pointer-events-none'
+                        }`}
                     >
                       <div className="text-[10px] font-serif font-bold text-primary/80 uppercase tracking-wider px-2.5 pb-1 border-b border-border/40 mb-1">Admin Menu</div>
-                      
+
                       {/* Manage Theories */}
                       <Link
                         href="/admin?tab=theories"
@@ -963,7 +993,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                 alt="Ally Logo"
                 width={50}
                 height={24}
-                className="shrink-0"/>
+                className="shrink-0" />
             </div>
           )}
         </div>
@@ -986,7 +1016,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1 bg-transparent border-none text-sm outline-none text-foreground placeholder-muted-foreground"
-                autoFocus/>
+                autoFocus />
             </div>
 
             {/* Results Body */}

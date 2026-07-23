@@ -3,6 +3,7 @@
 import React from 'react';
 import { xpToLevel } from '@/lib/utils';
 import { useCountUp } from '@/lib/useCountUp';
+import Image from 'next/image';
 
 interface StatsHeaderProps {
   role?: 'admin' | 'learner';
@@ -47,8 +48,16 @@ export default function StatsHeader({
       <div className="hidden md:flex flex-wrap items-center gap-4 sm:gap-6 bg-card border border-border/85 rounded-2xl p-3 px-5 shadow-[0_8px_30px_rgb(0,0,0,0.02)] shrink-0 relative overflow-hidden backdrop-blur-sm glass-card">
         {/* Streak */}
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500 font-bold select-none text-base relative">
-            <span className={streak > 0 ? "animate-pulse" : ""}>🔥</span>
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl  text-orange-500 font-bold select-none text-base relative">
+            <span className={streak > 0 ? "animate-gentle-shake" : ""}>
+              <Image
+                src="/icons/bonfire.svg"
+                alt="Bonfire Icon"
+                width={30}
+                height={30}
+                className="w-7 h-7 "
+              />
+            </span>
           </div>
           <div>
             <div className="text-sm font-bold text-foreground leading-tight">{animatedStreak}</div>
@@ -60,7 +69,15 @@ export default function StatsHeader({
 
         {/* Accuracy */}
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 font-bold select-none text-base">🎯</div>
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl  text-emerald-500 font-bold select-none text-base relative">
+            <Image
+              src="/icons/accuracy.svg"
+              alt="Accuracy Icon"
+              width={30}
+              height={30}
+              className="w-7 h-7"
+            />
+          </div>
           <div>
             <div className={`text-sm font-bold leading-tight ${accuracy >= 60 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-500"}`}>{animatedAccuracy}%</div>
             <p className="text-xs text-muted-foreground/80 font-bold font-inria uppercase tracking-wider">Accuracy</p>
@@ -79,7 +96,7 @@ export default function StatsHeader({
             <div className="w-32 sm:w-40 h-2 bg-secondary rounded-full overflow-hidden border border-border/70 mt-1 relative">
               <div
                 className="h-full bg-gradient-to-r from-slate-400/50 via-slate-500/50 to-primary transition-all duration-300 ease-out"
-                style={{ width: `${Math.min(100, (levelInfo.currentXp / levelInfo.requiredXp) * 100)}%` }}/>
+                style={{ width: `${Math.min(100, (levelInfo.currentXp / levelInfo.requiredXp) * 100)}%` }} />
             </div>
           </div>
 

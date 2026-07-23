@@ -2,7 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Zap, Clock, Flame, Calendar, ChevronRight, ArrowRight, Target, History, BarChart3 } from 'lucide-react';
+import Image from 'next/image';
+import { Clock, Flame, Calendar, ChevronRight, ArrowRight, Target, History, BarChart3 } from 'lucide-react';
 import type { ReviewScheduleWithQuestion } from '@/lib/types';
 
 interface ForecastTabProps {
@@ -60,14 +61,20 @@ export default function ForecastTab({
   return (
     <div className="space-y-6 w-full relative">
       {/* ─── ROW 1: Hero spaced review banner ─── */}
-      <div className="p-6 md:p-8 rounded-3xl border border-indigo-500/10 bg-gradient-to-br from-indigo-50/50 via-blue-50/20 to-transparent dark:from-indigo-950/20 dark:via-neutral-900/10 dark:to-transparent flex flex-col md:flex-row justify-between items-center gap-6 shadow-[0_8px_30px_rgb(0,0,0,0.01)]">
+      <div className="p-4 rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/10 via-primary/20 to-transparent dark:from-indigo-950/20 dark:via-neutral-900/10 dark:to-transparent flex flex-col md:flex-row justify-between items-center gap-6 shadow-[0_8px_30px_rgb(0,0,0,0.01)]">
         {/* Left Side Info */}
         <div className="space-y-5 flex-1 text-left w-full">
           <div className="flex items-start gap-4">
             {/* Circular icon container */}
             <div className="relative flex items-center justify-center shrink-0 w-12 h-12 rounded-2xl bg-primary/10 text-primary">
               <div className="absolute inset-0 rounded-2xl border border-primary/20 pulse-glow-ring" />
-              <Zap className="w-5 h-5 z-10" />
+              <Image
+                src="/icons/clock1.svg"
+                alt="Clock Icon"
+                width={40}
+                height={40}
+                className="w-8 h-8"
+              />
             </div>
             <div className="space-y-1">
               <h2 className="text-xl md:text-2xl font-bold font-inria text-primary leading-tight">
@@ -234,31 +241,31 @@ export default function ForecastTab({
           {/* Grid row timeline */}
           <div className="grid grid-cols-4 gap-2 py-2">
             {/* Today */}
-            <div className="p-2.5 rounded-xl bg-blue-50/50 border border-blue-100/70 dark:bg-blue-950/10 dark:border-blue-900/20 text-center flex flex-col justify-between h-20 shadow-sm">
-              <p className="text-[9px] font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Today</p>
-              <p className="text-lg font-extrabold font-mono text-blue-700 dark:text-blue-300 leading-none">{dueItems.length}</p>
-              <p className="text-[9px] text-blue-500/80 font-bold uppercase tracking-wider">due</p>
+            <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/70 dark:bg-blue-950/10 dark:border-blue-900/20 text-center flex flex-col justify-between h-20 shadow-sm">
+              <p className="text-[10px] font-extrabold font-inria text-primary dark:text-blue-400 uppercase tracking-wider">Today</p>
+              <p className="text-lg font-extrabold font-sans text-primary dark:text-blue-300 leading-none">{dueItems.length}</p>
+              <p className="text-[10px] text-primary/80 font-bold uppercase tracking-wider">due</p>
             </div>
 
             {/* Tomorrow */}
-            <div className="p-2.5 rounded-xl bg-purple-50/50 border border-purple-100/70 dark:bg-purple-950/10 dark:border-purple-900/20 text-center flex flex-col justify-between h-20 shadow-sm">
-              <p className="text-[9px] font-extrabold text-purple-600 dark:text-purple-400 uppercase tracking-wider">Tomorrow</p>
-              <p className="text-lg font-extrabold font-mono text-purple-700 dark:text-purple-300 leading-none">{tomorrowCount}</p>
-              <p className="text-[9px] text-purple-500/80 font-bold uppercase tracking-wider">due</p>
+            <div className="p-2.5 rounded-xl bg-primary/5 border border-primary/40 dark:bg-purple-950/10 dark:border-purple-900/20 text-center flex flex-col justify-between h-20 shadow-sm">
+              <p className="text-[10px] font-extrabold font-inria text-primary dark:text-purple-400 uppercase tracking-wider">Tomorrow</p>
+              <p className="text-lg font-extrabold font-sans text-primary dark:text-purple-300 leading-none">{tomorrowCount}</p>
+              <p className="text-[10px] text-primary/80 font-bold uppercase tracking-wider">due</p>
             </div>
 
             {/* This Week */}
-            <div className="p-2.5 rounded-xl bg-indigo-50/50 border border-indigo-100/70 dark:bg-indigo-950/10 dark:border-indigo-900/20 text-center flex flex-col justify-between h-20 shadow-sm">
-              <p className="text-[9px] font-extrabold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">This Week</p>
-              <p className="text-lg font-extrabold font-mono text-indigo-700 dark:text-indigo-300 leading-none">{thisWeekCount}</p>
-              <p className="text-[9px] text-indigo-500/80 font-bold uppercase tracking-wider">due</p>
+            <div className="p-2.5 rounded-xl bg-primary/5 border border-primary/10 dark:bg-indigo-950/10 dark:border-indigo-900/20 text-center flex flex-col justify-between h-20 shadow-sm">
+              <p className="text-[10px] font-extrabold font-inria text-primary dark:text-indigo-400 uppercase tracking-wider">This Week</p>
+              <p className="text-lg font-extrabold font-sans text-primary dark:text-indigo-300 leading-none">{thisWeekCount}</p>
+              <p className="text-[10px] text-primary/80 font-bold uppercase tracking-wider">due</p>
             </div>
 
             {/* Next Week */}
             <div className="p-2.5 rounded-xl bg-slate-50/60 border border-slate-100 dark:bg-neutral-800/30 dark:border-border/60 text-center flex flex-col justify-between h-20 shadow-sm">
-              <p className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Next Week</p>
-              <p className="text-lg font-extrabold font-mono text-slate-600 dark:text-slate-300 leading-none">{nextWeekCount}</p>
-              <p className="text-[9px] text-slate-500/80 font-bold uppercase tracking-wider">due</p>
+              <p className="text-[10px] font-extrabold font-inria text-primary dark:text-slate-400 uppercase tracking-wider">Next Week</p>
+              <p className="text-lg font-extrabold font-sans text-primary dark:text-slate-300 leading-none">{nextWeekCount}</p>
+              <p className="text-[10px] text-primary/80 font-bold uppercase tracking-wider">due</p>
             </div>
           </div>
 

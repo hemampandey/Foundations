@@ -24,17 +24,17 @@
 }
 
 .dark {
-  --background: #090d16; /* Midnight depth */
+  --background: #000000; /* Midnight depth */
   --foreground: #f8fafc;
   --card: #0f172a; /* Slate-900 */
   --card-foreground: #f8fafc;
   --primary: #3b74c4; /* Brighter Ally tint for dark mode contrast */
   --primary-foreground: #ffffff;
-  --secondary: #1e293b; /* Slate-800 */
+  --secondary: #000000; /* Slate-800 */
   --secondary-foreground: #fafafa;
   --muted: #1e293b;
   --muted-foreground: #94a3b8;
-  --border: #1e293b;
+  --border: #242424;
   --ring: #3b74c4;
   --destructive: #f87171;
   --popover: #0f172a;
@@ -249,6 +249,28 @@ html, body {
 @keyframes slideInLeft {
   from { transform: translateX(-100%); }
   to   { transform: translateX(0); }
+}
+
+@keyframes gentle-shake {
+  0%,100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-5deg);
+  }
+  40% {
+    transform: rotate(4deg);
+  }
+  60% {
+    transform: rotate(-3deg);
+  }
+  80% {
+    transform: rotate(2deg);
+  }
+}
+
+.animate-gentle-shake {
+  animation: gentle-shake 0.5s ease-in-out;
 }
 
 .animate-slide-in {
@@ -527,6 +549,19 @@ html, body {
   display: inline-block;
   opacity: 0;
   animation: text-reveal 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes practice-btn-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(38, 77, 142, 0.25), 0 0 2px rgba(38, 77, 142, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(38, 77, 142, 0.65), 0 0 6px rgba(38, 77, 142, 0.25);
+  }
+}
+
+.animate-practice-btn-glow {
+  animation: practice-btn-glow 2.5s infinite ease-in-out;
 }
 
 

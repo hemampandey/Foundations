@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, ChevronDown, ChevronLeft, ChevronRight, Clock, BarChart3, Fingerprint, Calendar, FileText, CheckCircle2, ListFilter, HelpCircle, History } from 'lucide-react';
+import { Search, ChevronDown, ChevronLeft, ChevronRight, Clock, Calendar, ListFilter, CheckCircle2, History } from 'lucide-react';
 
 interface HistoryAttemptItem {
   id: string;
@@ -141,7 +141,7 @@ export default function HistoryTab({
   };
 
   return (
-    <div className="space-y-6 w-full text-left">
+    <div className="space-y-4 w-full text-left">
       {/* ─── Top Filter Row ─── */}
       <div className="flex flex-col md:flex-row gap-3 items-center">
         {/* Search */}
@@ -226,16 +226,14 @@ export default function HistoryTab({
       ) : totalItems === 0 ? (
         <div className="bg-card border border-border rounded-2xl py-12 text-center text-muted-foreground font-serif">
           <History className="w-8 h-8 mx-auto mb-2 opacity-35" />
-          <p className="text-xs font-semibold">No recent review attempts found matching filters</p>
+          <p className="text-xs font-serif font-semibold">No recent review attempts found matching filters</p>
         </div>
       ) : (
         <div className="space-y-6">
           {Object.entries(groupedAttempts).map(([dateHeader, attempts]) => (
             <div key={dateHeader} className="space-y-3">
               {/* Date Group Header */}
-              <h4 className="text-[10px] font-extrabold text-muted-foreground/80 uppercase tracking-wider pl-1 font-serif">
-                {dateHeader}
-              </h4>
+              <h4 className="text-[10px] font-extrabold text-muted-foreground/80 uppercase tracking-wider pl-1 font-serif">{dateHeader}</h4>
 
               {/* Stacked Cards for this date */}
               <div className="space-y-3">
@@ -248,64 +246,43 @@ export default function HistoryTab({
                     hour12: false
                   });
 
-                  // Left Icon configurations
-                  let iconBg = 'bg-rose-500/10 text-rose-600 dark:text-rose-400';
-                  let IconComponent = FileText;
-
-                  if (isCorrect) {
-                    if (q.difficulty >= 3) {
-                      iconBg = 'bg-amber-500/10 text-amber-600 dark:text-amber-400';
-                      IconComponent = BarChart3;
-                    } else {
-                      iconBg = 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400';
-                      IconComponent = HelpCircle;
-                    }
-                  }
-
                   // Short code ID generator
                   const shortId = `Q-${q.id.slice(0, 5).toUpperCase()}`;
 
                   return (
                     <div
                       key={attempt.id}
-                      className="bg-card border border-border/80 rounded-xl p-4 hover:shadow-md transition-all flex flex-col md:flex-row items-stretch gap-4 relative overflow-hidden"
+                      className="bg-card border border-border/80 rounded-2xl p-4 hover:shadow-md transition-all flex flex-col md:flex-row md:items-center gap-5 relative overflow-hidden"
                     >
-                      {/* Left icon wrapper */}
-                      <div className="flex md:items-center justify-start shrink-0">
-                        <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center shadow-sm`}>
-                          <IconComponent className="w-5 h-5" />
+                      {/* Left/Middle textual metadata details */}
+                      <div className="flex-1 space-y-2 min-w-0 pr-2">
+                        {/* Top Theory Category Tag */}
+                        <div className="flex items-center">
+                          <span className="px-1.5 py-0.5 rounded-sm bg-primary/20 text-primary text-[10px] font-extrabold font-sans tracking-wide uppercase">{q.theories?.title ?? 'N/A'}</span>
                         </div>
-                      </div>
+                        {/* Question Stem */}
+                        <p className="text-sm font-bold text-foreground leading-snug line-clamp-2 mt-1 font-sans">{q.stem}</p>
 
-                      {/* Middle main textual metadata details */}
-                      <div className="flex-1 space-y-1.5 min-w-0 pr-2">
-                        <div className="flex items-center gap-2.5 text-[9px] font-extrabold uppercase">
-                          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-[8px] font-bold tracking-wider">
-                            {q.theories?.title ?? 'CARS'}
-                          </span>
-                          <span className="text-muted-foreground/75 font-semibold font-mono">
-                            {timeStr}
-                          </span>
-                        </div>
-
-                        <p className="text-xs sm:text-sm font-bold text-foreground leading-snug line-clamp-2">
-                          {q.stem}
-                        </p>
-
-                        {/* Speed, Difficulty, ID line */}
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-[9px] font-bold text-muted-foreground/80 font-serif select-none">
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-muted-foreground/50" />
-                            <span>Speed: {(attempt.response_ms / 1000).toFixed(1)}s</span>
+                        {/* Bottom Metadata Line */}
+                        <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-semibold text-slate-500 select-none font-sans">
+                          {/* Level Tag */}
+                          <span className="px-1.5 py-0.5 bg-primary text-secondary rounded-lg text-[9px] font-extrabold">L{q.difficulty}</span>
+                          <span className="text-slate-300 font-bold">•</span>
+                          {/* Speed */}
+                          <div className="flex items-center gap-1 text-slate-600">
+                            <Clock className="w-3.5 h-3.5 text-slate-400 stroke-[2.2px]" />
+                            <span>{(attempt.response_ms / 1000).toFixed(1)}s</span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <BarChart3 className="w-3.5 h-3.5 text-muted-foreground/50" />
-                            <span>Level: L{q.difficulty}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Fingerprint className="w-3.5 h-3.5 text-muted-foreground/50" />
-                            <span>ID: {shortId}</span>
-                          </div>
+                          
+                          <span className="text-slate-300 font-bold">•</span>
+                          
+                          {/* Relative Time */}
+                          <span className="text-slate-600 font-medium">{timeStr}</span>
+                          
+                          <span className="text-slate-300 font-bold">•</span>
+                          
+                          {/* Short ID */}
+                          <span className="text-slate-500 font-medium tracking-tight">{shortId}</span>
                         </div>
                       </div>
 
@@ -321,9 +298,6 @@ export default function HistoryTab({
                             <span>{isCorrect ? 'Correct (+10 XP)' : 'Incorrect (+2 XP)'}</span>
                           </div>
                         </div>
-
-                        {/* Next Navigation Chevron */}
-                        <ChevronRight className="w-4 h-4 text-muted-foreground/75" />
                       </div>
                     </div>
                   );

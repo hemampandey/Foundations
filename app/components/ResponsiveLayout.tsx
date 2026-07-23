@@ -6,6 +6,7 @@ import Sidebar from '@/app/components/Sidebar';
 import { Menu, WifiOff } from 'lucide-react';
 import { useProfile } from '@/app/components/ProfileProvider';
 import { xpToLevel } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
 
 export default function ResponsiveLayout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -46,6 +47,49 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
   const xp = progress?.xp ?? 0;
   const levelInfo = xpToLevel(xp);
 
+  const isAdmin = profile?.role === 'admin';
+  const [adminStats, setAdminStats] = useState<{
+    theories: number;
+    approved: number;
+    draft: number;
+    journeys: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!isAdmin || pathname !== '/admin') return;
+
+    const fetchAdminStats = async () => {
+      try {
+        const [
+          { count: tCount },
+          { count: approvedCount },
+          { count: draftCount },
+          { count: jCount }
+        ] = await Promise.all([
+          supabase.from('theories').select('*', { count: 'exact', head: true }),
+          supabase.from('questions').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
+          supabase.from('questions').select('*', { count: 'exact', head: true }).eq('status', 'draft'),
+          supabase.from('journeys').select('*', { count: 'exact', head: true })
+        ]);
+
+        setAdminStats({
+          theories: tCount ?? 0,
+          approved: approvedCount ?? 0,
+          draft: draftCount ?? 0,
+          journeys: jCount ?? 0
+        });
+      } catch (err) {
+        console.error('Error loading mobile admin stats:', err);
+      }
+    };
+
+    fetchAdminStats();
+
+    // Poll counts every 10 seconds while on the admin screen
+    const interval = setInterval(fetchAdminStats, 10000);
+    return () => clearInterval(interval);
+  }, [isAdmin, pathname]);
+
   return (
     <div className="app-inner-canvas flex flex-col md:flex-row">
       {/* Sidebar (receives mobileOpen state for mobile overlay mode) */}
@@ -75,36 +119,60 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
             </button>
 
             {profile ? (
-              <div className="flex items-center gap-3 bg-secondary/60 border border-border/80 rounded-full px-3 py-1 text-[11px] font-bold">
-                {/* Streak */}
-                <div className="flex items-center gap-1">
-                  <span>🔥</span>
-                  <span>{streak}</span>
-                </div>
-
-                {/* Divider */}
-                <div className="w-[1px] h-3 bg-border/80" />
-
-                {/* Accuracy */}
-                <div className="flex items-center gap-1">
-                  <span>🎯</span>
-                  <span>{accuracy}%</span>
-                </div>
-
-                {/* Divider */}
-                <div className="w-[1px] h-3 bg-border/80" />
-
-                {/* Level */}
-                <div className="flex items-center gap-1.5 text-violet-600 dark:text-violet-400">
-                  <span>Lvl {levelInfo.level}</span>
-                  <div className="w-10 h-1.5 bg-secondary/80 rounded-full overflow-hidden border border-border/70">
-                    <div
-                      className="h-full bg-gradient-to-r from-indigo-500 to-pink-500"
-                      style={{ width: `${Math.min(100, (levelInfo.currentXp / levelInfo.requiredXp) * 100)}%` }}
-                    />
+              pathname === '/admin' ? (
+                <div className="flex items-center gap-2.5 bg-secondary/80 border border-border/80 rounded-full px-3 py-1 text-[10px] font-extrabold font-serif select-none">
+                  <div className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
+                    <span>{adminStats?.theories ?? 0}</span>
+                    <span>Theories</span>
+                  </div>
+                  <div className="w-[1px] h-2.5 bg-border/80" />
+                  <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                    <span>{adminStats?.approved ?? 0}</span>
+                    <span>Approved</span>
+                  </div>
+                  <div className="w-[1px] h-2.5 bg-border/80" />
+                  <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                    <span>{adminStats?.draft ?? 0}</span>
+                    <span>Drafts</span>
+                  </div>
+                  <div className="w-[1px] h-2.5 bg-border/80" />
+                  <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
+                    <span>{adminStats?.journeys ?? 0}</span>
+                    <span>Journeys</span>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex items-center gap-3 bg-secondary/60 border border-border/80 rounded-full px-3 py-1 text-[11px] font-bold">
+                  {/* Streak */}
+                  <div className="flex items-center gap-1">
+                    <span>🔥</span>
+                    <span>{streak}</span>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="w-[1px] h-3 bg-border/80" />
+
+                  {/* Accuracy */}
+                  <div className="flex items-center gap-1">
+                    <span>🎯</span>
+                    <span>{accuracy}%</span>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="w-[1px] h-3 bg-border/80" />
+
+                  {/* Level */}
+                  <div className="flex items-center gap-1.5 text-violet-600 dark:text-violet-400">
+                    <span>Lvl {levelInfo.level}</span>
+                    <div className="w-10 h-1.5 bg-secondary/80 rounded-full overflow-hidden border border-border/70">
+                      <div
+                        className="h-full bg-gradient-to-r from-indigo-500 to-pink-500"
+                        style={{ width: `${Math.min(100, (levelInfo.currentXp / levelInfo.requiredXp) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )
             ) : (
               <div className="skeleton h-6 w-32 rounded-full" />
             )}
