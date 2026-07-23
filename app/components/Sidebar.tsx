@@ -431,18 +431,16 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
           <div className="px-1 shrink-0">
             <Link
               href="/review?action=start"
-              className={`flex items-center gap-2.5 border border-transparent bg-ally hover:bg-slate-900 text-white rounded-full text-xs font-bold transition-all duration-500 cursor-pointer shadow-md w-full ${collapsed ? 'justify-center p-2 h-9 w-9' : 'px-3.5 py-2.5'
-                } ${reviewDueCount > 0 ? 'shadow-[0_0_12px_rgba(38,77,142,0.35)] animate-pulse-glow' : ''}`}
+              className={`flex items-center gap-2.5 border border-transparent bg-ally hover:bg-slate-900 text-white rounded-sm text-xs font-bold transition-all duration-1000 cursor-pointer shadow-md w-full ${collapsed ? 'justify-center p-2 h-9 w-9' : 'px-3.5 py-2.5'
+                } ${reviewDueCount > 0 ? 'shadow-[0_0_8px_rgba(51,152,218,1)] animate-pulse-glow' : ''}`}
             >
               {collapsed ? (
                 <Brain className="w-4 h-4 text-white shrink-0" />
               ) : (
-                <span className="flex items-center justify-between w-full font-bold">
+                <span className="flex items-center justify-between w-full font-serif font-bold">
                   <span>Daily Practice Deck</span>
                   {reviewDueCount > 0 && (
-                    <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-white text-ally text-[9px] font-extrabold shadow-sm shrink-0">
-                      {reviewDueCount}
-                    </span>
+                    <span className="ml-1.5 px-1.5 py-1 rounded-xs bg-white text-ally text-[9px] font-extrabold shadow-sm">{reviewDueCount}</span>
                   )}
                 </span>
               )}
@@ -499,9 +497,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                         <span className="flex items-center gap-2">
                           Review
                           {reviewDueCount > 0 && (
-                            <span className="text-[9px] font-bold text-secondary bg-primary px-2 py-1 rounded-full leading-none animate-scale-in">
-                              {reviewDueCount}
-                            </span>
+                            <span className="text-[10px] font-bold font-serif text-white bg-primary/90 px-2 py-1 rounded-xs animate-scale-in">{reviewDueCount}</span>
                           )}
                         </span>
                       )}
@@ -677,7 +673,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                         <div className="flex items-center gap-1.5">
                           <span>Review Queue</span>
                           {draftCount > 0 && (
-                            <span className="px-2 py-1 rounded-full text-[8px] font-bold bg-amber-500 text-white">
+                            <span className="px-1.5 py-0.5 rounded-xs text-[10px] font-bold bg-primary/90 text-white">
                               {draftCount}
                             </span>
                           )}
@@ -741,10 +737,10 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                           : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
                           }`}
                       >
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-2.5">
                           <span>Review Queue</span>
                           {draftCount > 0 && (
-                            <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-amber-500 text-white">{draftCount}</span>
+                            <span className="px-1.5 py-0.5 rounded-xs text-[10px] font-bold bg-primary/90 text-white">{draftCount}</span>
                           )}
                         </div>
                       </Link>

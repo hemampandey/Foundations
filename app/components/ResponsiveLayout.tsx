@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { usePathname } from 'next/navigation';
 import Sidebar from '@/app/components/Sidebar';
-import { Menu } from 'lucide-react';
+import { Menu, WifiOff } from 'lucide-react';
 import { useProfile } from '@/app/components/ProfileProvider';
 import { xpToLevel } from '@/lib/utils';
 
@@ -16,6 +16,25 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
   const is404 = pathname ? !validPaths.some(p => pathname === p || pathname.startsWith(p + '/')) : false;
   const hideSidebar = isPublicPage || is404 || isPracticePage;
   const { profile, progress, accuracy } = useProfile();
+
+  const [isOffline, setIsOffline] = useState(
+    typeof window !== 'undefined' ? !navigator.onLine : false
+  );
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const [prevPathname, setPrevPathname] = useState(pathname);
   if (pathname !== prevPathname) {
@@ -38,6 +57,12 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 h-full relative">
+        {isOffline && (
+          <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2.5 text-center text-xs font-semibold text-amber-600 dark:text-amber-400 flex items-center justify-center gap-2 select-none animate-fade-in shrink-0">
+            <WifiOff className="w-4 h-4 shrink-0 animate-pulse" />
+            <span>You are currently offline. Spaced repetition learning sync is paused.</span>
+          </div>
+        )}
         {/* Mobile Header (only visible on mobile screens) */}
         {!hideSidebar && (
           <header className="flex md:hidden items-center justify-between px-4 h-14 border-b border-border bg-card shrink-0 z-30 select-none">
@@ -81,7 +106,7 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
                 </div>
               </div>
             ) : (
-              <span className="text-xs font-bold text-muted-foreground">Loading Profile...</span>
+              <div className="skeleton h-6 w-32 rounded-full" />
             )}
 
             <div className="w-8 h-8 shrink-0" /> {/* Balance spacer */}

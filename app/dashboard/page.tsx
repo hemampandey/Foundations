@@ -8,6 +8,9 @@ import StatsHeader from '@/app/components/StatsHeader';
 import type { Theory, AttemptWithQuestion, UserProgress, Journey } from '@/lib/types';
 import {
   BookOpen,
+  Brain,
+  ArrowRight,
+  ChevronUp
 } from 'lucide-react';
 
 function CardSkeleton() {
@@ -196,8 +199,52 @@ export default function DashboardPage() {
   // Auth loading or redirecting
   if (authLoading || !profile) {
     return (
-      <div className="flex flex-1 items-center justify-center min-h-[50vh]">
-        <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+      <div className="w-full space-y-6 animate-fade-in">
+        {/* Header Skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-border/80 pb-6 gap-4">
+          <div className="space-y-2">
+            <div className="skeleton h-8 w-48" />
+            <div className="skeleton h-3 w-64" />
+          </div>
+          <div className="flex gap-2">
+            <div className="skeleton h-9 w-28 rounded-full" />
+            <div className="skeleton h-9 w-28 rounded-full" />
+          </div>
+        </div>
+
+        {/* Hero banner skeleton */}
+        <div className="rounded-3xl border border-border/40 p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex-1 space-y-3 w-full">
+            <div className="skeleton h-5 w-56" />
+            <div className="skeleton h-3 w-80" />
+            <div className="skeleton h-10 w-36 mt-4" />
+          </div>
+          <div className="skeleton h-24 w-24 rounded-2xl shrink-0" />
+        </div>
+
+        {/* Content grid skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-4">
+            <div className="skeleton h-6 w-36" />
+            <div className="rounded-2xl border border-border/40 p-5 space-y-3">
+              <div className="skeleton h-5 w-40" />
+              <div className="skeleton h-3 w-full" />
+              <div className="skeleton h-3 w-2/3" />
+            </div>
+            <div className="rounded-2xl border border-border/40 p-5 space-y-3">
+              <div className="skeleton h-5 w-40" />
+              <div className="skeleton h-3 w-full" />
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div className="skeleton h-6 w-32" />
+            <div className="rounded-2xl border border-border/40 p-5 space-y-4">
+              <div className="skeleton h-4 w-full" />
+              <div className="skeleton h-4 w-full" />
+              <div className="skeleton h-4 w-3/4" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -209,6 +256,9 @@ export default function DashboardPage() {
 
   const xp = progress?.xp ?? 0;
   const streak = progress?.streak_days ?? 0;
+
+  const estMinutes = Math.max(1, Math.round(reviewDueCount * 1.2));
+  const xpReward = reviewDueCount * 10;
 
   return (
     <div className="w-full space-y-5 animate-fade-in">
@@ -344,34 +394,65 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-3">
           {/* Due for Review Card */}
           {reviewDueCount > 0 && (
-            <div
-              onClick={() => router.push('/review')}
-              className="p-6 border border-violet-500/10 bg-gradient-to-br from-violet-500/5 to-indigo-500/5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-3 relative overflow-hidden backdrop-blur-sm cursor-pointer group hover:border-violet-500/20 transition-all">
-              <div className="flex items-center gap-2">
-                <span className="text-base">📖</span>
-                <h3 className="text-[10px] font-inria font-bold text-secondary dark:text-secondary uppercase tracking-wider bg-primary/70 dark:bg-primary/25 px-2 py-0.5 rounded-full select-none">Due for Review</h3>
+            <div className="p-4 border border-[#e0e7ff] bg-[#f5f8ff] rounded-[1rem] shadow-[0_8px_30px_rgb(0,0,0,0.01)] relative overflow-hidden group hover:border-[#cbd5e1] hover:shadow-md transition-all space-y-5 animate-scale-in">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 flex items-center justify-center rounded-sm bg-primary/10 text-primary">
+                    <span className="text-2xl font-extrabold text-primary">{reviewDueCount}</span>
+                  </div>
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-primary font-serif">Questions Due for Review</span>
+                </div>
+                <ChevronUp className="w-4 h-4 text-primary font-bold" />
               </div>
 
-              <div className="space-y-1">
-                <h4 className="text-2xl font-bold text-foreground">{reviewDueCount}</h4>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">{reviewDueCount === 1 ? 'question is' : 'questions are'} due for spaced review. Review now to strengthen long-term retention.</p>
+              {/* Grid Content */}
+              <div className="grid grid-cols-12 gap-4 items-center">
+                <div className="col-span-5 space-y-3">
+                  <p className="text-xs font-serif text-slate-500">Strengthen your due concepts</p>
+                  <button onClick={() => router.push('/review')} className="w-fit py-3 px-8 rounded-sm bg-[#264D8E] font-serif dark:bg-primary/70 text-white font-extrabold hover:bg-[#1f3e73] active:scale-[0.98] transition-all text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-blue-900/10">
+                    <span>Start Review</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="col-span-3 flex justify-center items-center">
+                  <svg className="w-14 h-14 transform -rotate-90">
+                    <circle cx="28" cy="28" r="23" stroke="#e0e7ff" strokeWidth="4.5" fill="transparent" />
+                    <circle cx="28" cy="28" r="23" stroke="#264D8E" strokeWidth="4.5" fill="transparent" strokeDasharray="144.5" strokeDashoffset="43.3" strokeLinecap="round" />
+                  </svg>
+                </div>
+
+                <div className="col-span-1 flex justify-center">
+                  <div className="border-l border-slate-200 h-12" />
+                </div>
+
+                {/* Right metrics */}
+                <div className="col-span-3 space-y-3 pl-1">
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-extrabold text-slate-800 whitespace-nowrap">≈ {estMinutes} min</p>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Est. time</p>
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-extrabold text-primary font-serif">+{xpReward} XP</p>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Reward</p>
+                  </div>
+                </div>
               </div>
 
-              <span className="text-xs font-inria font-bold text-primary dark:text-primary group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                Start Review →
-              </span>
+              {/* Footer Action */}
+
             </div>
           )}
 
           {/* Dynamic Suggestion Card */}
           {dailySuggestion && (
-            <div className="p-6 border border-indigo-500/10 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-4 relative overflow-hidden backdrop-blur-sm">
+            <div className="p-4 border border-primary/10 bg-[#f5f8ff] rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.01)] space-y-4 relative overflow-hidden hover:border-primary/10 hover:shadow-md transition-all animate-fade-in">
               <div className="flex items-center gap-2">
-                <span className="text-base">🎯</span>
-                <h3 className="text-[10px] font-bold text-secondary dark:text-secondary uppercase tracking-wider bg-primary/70 px-2 py-0.5 rounded-full select-none">Today&apos;s Challenge</h3>
+                <h3 className="text-sm font-serif italic font-bold text-primary uppercase tracking-wider select-none">Today&apos;s Challenge</h3>
               </div>
 
               <div className="space-y-2">

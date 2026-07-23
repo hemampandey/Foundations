@@ -117,8 +117,42 @@ export default function ProgressPage() {
 
   if (authLoading || loadingData) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+      <div className="w-full space-y-6 animate-fade-in">
+        {/* Header Skeleton */}
+        <div className="border-b border-border/80 pb-6">
+          <div className="skeleton h-8 w-40 mb-2" />
+          <div className="skeleton h-3 w-72" />
+        </div>
+
+        {/* Stats Row Skeleton */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="rounded-2xl border border-border/40 p-5 space-y-2">
+              <div className="skeleton h-3 w-20" />
+              <div className="skeleton h-8 w-16" />
+              <div className="skeleton h-2 w-28 mt-2" />
+            </div>
+          ))}
+        </div>
+
+        {/* Heatmap & Charts Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="rounded-2xl border border-border/40 p-6 space-y-4">
+            <div className="skeleton h-5 w-36" />
+            <div className="skeleton h-32 w-full rounded-xl" />
+          </div>
+          <div className="rounded-2xl border border-border/40 p-6 space-y-4">
+            <div className="skeleton h-5 w-44" />
+            <div className="flex items-end justify-between gap-3 h-32">
+              {[40, 70, 55, 85, 45, 75, 60].map((h, i) => (
+                <div key={i} className="flex-1 flex flex-col items-center gap-2">
+                  <div className="skeleton w-full rounded-lg" style={{ height: `${h}%` }} />
+                  <div className="skeleton h-2 w-6" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -307,29 +341,51 @@ export default function ProgressPage() {
   const speedPath = speedPoints.length > 0 ? 'M ' + speedPoints.map(p => `${p.x} ${p.y}`).join(' L ') : '';
   const speedAreaPath = speedPoints.length > 0 ? `${speedPath} L ${speedPoints[speedPoints.length - 1].x} ${paddingTop + chartH} L ${speedPoints[0].x} ${paddingTop + chartH} Z` : '';
 
+  // Summary metrics for heatmap panel
+  const activeDaysCount = attempts.reduce((acc, att) => {
+    const dStr = new Date(att.created_at).toISOString().split('T')[0];
+    acc.add(dStr);
+    return acc;
+  }, new Set<string>()).size;
+
   return (
-    <div className="w-full space-y-5 animate-fade-in">
+    <div className="w-full space-y-6 animate-fade-in">
       <StatsHeader
         role={profile?.role}
         streak={streak}
         accuracy={accuracy}
         xp={xp}
-        description="Track your accomplishments and domain mastery statistics."
+        description="Track your learning activity, domain mastery, and performance trends."
       />
 
-      <div className="space-y-8 w-full">
-        {/* ─── Daily Activity Heatmap ─── */}
-        <div className="p-6 premium-card space-y-4 hover:translate-y-0">
+      {/* ─── Daily Activity Heatmap ─── */}
+      <div className="p-6 premium-card space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/40 pb-4">
           <div>
-            <h3 className="text-md font-bold font-inria text-foreground">Daily Activity Heatmap</h3>
-            <p className="text-xs font-serif text-muted-foreground mt-0.5">Practice attempts logged over the last 6 months</p>
+            <h3 className="text-lg font-bold font-inria text-foreground flex items-center gap-2">
+              Learning Activity
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Practice attempts recorded over the last 6 months</p>
           </div>
+          <div className="flex items-center gap-4 text-xs">
+            <div className="flex items-center gap-1.5 bg-secondary/40 px-3 py-1.5 rounded-xl border border-border/40">
+              <span className="text-muted-foreground font-medium">Active Days:</span>
+              <span className="font-bold text-foreground font-mono">{activeDaysCount}</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-secondary/40 px-3 py-1.5 rounded-xl border border-border/40">
+              <span className="text-muted-foreground font-medium">Total MCQs:</span>
+              <span className="font-bold text-foreground font-mono">{totalAttempts}</span>
+            </div>
+          </div>
+        </div>
 
-          <div className="overflow-x-auto pb-2 scrollbar-thin">
-            <div className="flex gap-2 min-w-[650px] pt-2 flex-col">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 pt-1">
+          {/* Heatmap Area */}
+          <div className="flex-1 overflow-x-auto pb-2 scrollbar-none">
+            <div className="flex flex-col gap-2 min-w-[620px]">
               <div className="flex gap-2">
                 {/* Weekday Labels (Sun to Sat) */}
-                <div className="flex flex-col justify-between text-[9px] font-bold text-muted-foreground pr-2 h-[84px] py-0.5 shrink-0 select-none">
+                <div className="flex flex-col justify-between text-[10px] font-bold text-muted-foreground/70 pr-1.5 h-[98px] py-0.5 shrink-0 select-none">
                   <span>Sun</span>
                   <span>Mon</span>
                   <span>Tue</span>
@@ -344,16 +400,15 @@ export default function ProgressPage() {
                   {heatmapData.map((week, wIdx) => (
                     <div key={wIdx} className="flex flex-col gap-[4px]">
                       {week.map((day) => {
-                        let colorClass = 'bg-secondary/40 dark:bg-neutral-800/30';
+                        let colorClass = 'bg-secondary/60 dark:bg-neutral-800/40 border border-border/30';
                         if (day.count > 0 && day.count <= 2) {
-                          colorClass = 'bg-primary/20 dark:bg-primary/10 text-primary/60';
+                          colorClass = 'bg-primary/25 border border-primary/30 text-primary';
                         } else if (day.count > 2 && day.count <= 5) {
-                          colorClass = 'bg-primary/50 dark:bg-primary/30 text-primary/40';
+                          colorClass = 'bg-primary/60 border border-primary/70 text-primary-foreground';
                         } else if (day.count > 5) {
-                          colorClass = 'bg-primary dark:bg-primary/40 text-primary/10';
+                          colorClass = 'bg-primary border border-primary text-primary-foreground shadow-sm shadow-primary/20';
                         }
 
-                        // Format date for tooltip
                         let formattedDate = day.dateStr;
                         try {
                           const dateObj = new Date(day.dateStr);
@@ -369,12 +424,12 @@ export default function ProgressPage() {
                         return (
                           <div
                             key={day.dateStr}
-                            className={`w-[9px] h-[9px] rounded-[1.5px] transition-all duration-300 relative group cursor-pointer hover:ring-1 hover:ring-primary ${colorClass}`}
+                            className={`w-[11px] h-[11px] rounded-[3px] transition-all duration-200 relative group cursor-pointer hover:scale-125 hover:z-20 ${colorClass}`}
                           >
                             {/* Tooltip */}
-                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-20 pointer-events-none">
-                              <div className="bg-popover border border-border text-popover-foreground text-[8px] font-bold py-1 px-1.5 rounded shadow-md whitespace-nowrap leading-tight">
-                                {day.count === 0 ? 'No' : day.count} practice attempts on {formattedDate}
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-30 pointer-events-none">
+                              <div className="bg-popover border border-border text-popover-foreground text-[10px] font-bold py-1 px-2 rounded-lg shadow-lg whitespace-nowrap leading-tight">
+                                {day.count === 0 ? 'No' : day.count} practice {day.count === 1 ? 'attempt' : 'attempts'} on {formattedDate}
                               </div>
                             </div>
                           </div>
@@ -385,252 +440,229 @@ export default function ProgressPage() {
                 </div>
               </div>
 
-              {/* Month Labels aligned to grid columns */}
-              <div className="flex gap-[3.5px] text-[9px] font-bold text-muted-foreground pt-1.5 select-none ml-[30px] relative h-4">
+              {/* Month Labels */}
+              <div className="flex gap-[4px] text-[10px] font-bold text-muted-foreground/70 pt-1 select-none ml-[32px] relative h-4">
                 {heatmapData.map((week, wIdx) => {
                   const dayObj = new Date(week[0].dateStr);
                   const isFirstWeekOfMonth = dayObj.getDate() <= 7;
                   if (isFirstWeekOfMonth) {
                     return (
-                      <div key={wIdx} className="w-[9px] relative">
+                      <div key={wIdx} className="w-[11px] relative">
                         <span className="absolute left-0 top-0 whitespace-nowrap">
                           {dayObj.toLocaleString('default', { month: 'short' })}
                         </span>
                       </div>
                     );
                   }
-                  return <div key={wIdx} className="w-[9px]" />;
+                  return <div key={wIdx} className="w-[11px]" />;
                 })}
               </div>
             </div>
           </div>
 
           {/* Legend */}
-          <div className="flex items-center justify-end gap-1.5 text-[9px] font-bold text-muted-foreground pr-1 select-none">
+          <div className="flex items-center justify-end lg:justify-center gap-2 text-[10px] font-bold text-muted-foreground/80 shrink-0 select-none pt-2 lg:pt-0 lg:border-l lg:border-border/40 lg:pl-6">
             <span>Less</span>
-            <div className="w-[9px] h-[9px] rounded-[1.5px] bg-secondary/40 dark:bg-neutral-800/30" />
-            <div className="w-[9px] h-[9px] rounded-[1.5px] bg-primary/20 dark:bg-primary/10" />
-            <div className="w-[9px] h-[9px] rounded-[1.5px] bg-primary/50 dark:bg-primary/30" />
-            <div className="w-[9px] h-[9px] rounded-[1.5px] bg-primary dark:bg-primary/40" />
+            <div className="w-3 h-3 rounded-[3px] bg-secondary/60 border border-border/30" />
+            <div className="w-3 h-3 rounded-[3px] bg-primary/25 border border-primary/30" />
+            <div className="w-3 h-3 rounded-[3px] bg-primary/60 border border-primary/70" />
+            <div className="w-3 h-3 rounded-[3px] bg-primary border border-primary" />
             <span>More</span>
           </div>
         </div>
+      </div>
 
-        {/* ─── Performance Trends ─── */}
-        {trendData.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Accuracy Chart */}
-            <div className="p-6 premium-card space-y-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-md font-bold font-inria text-foreground">Mastery Progression</h3>
-                  <p className="text-xs font-serif text-muted-foreground mt-0.5">Rolling accuracy over the last 15 MCQ practice attempts</p>
-                </div>
-              </div>
-
-              <div className="w-full">
-                <svg className="w-full h-auto overflow-visible select-none" viewBox="0 0 500 180">
-                  <defs>
-                    <linearGradient id="accGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.18" />
-                      <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.01" />
-                    </linearGradient>
-                  </defs>
-
-                  {/* Horizontal Grid lines & labels */}
-                  {[0, 25, 50, 75, 100].map((val) => {
-                    const y = paddingTop + chartH - (val / 100) * chartH;
-                    return (
-                      <g key={val}>
-                        <line x1={paddingLeft} y1={y} x2={width - paddingRight} y2={y} className="stroke-border/40" strokeWidth="1" strokeDasharray="3 3" />
-                        <text x={paddingLeft - 8} y={y + 3} className="text-[9px] fill-muted-foreground font-bold text-right" textAnchor="end">{val}%</text>
-                      </g>
-                    );
-                  })}
-
-                  {/* Area fill */}
-                  {accAreaPath && (
-                    <path d={accAreaPath} fill="url(#accGrad)" />
-                  )}
-
-                  {/* Line path */}
-                  {accPath && (
-                    <path d={accPath} fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-[0_2px_4px_rgba(2,86,214,0.15)]" />
-                  )}
-
-                  {/* Vertices & tooltips */}
-                  {accPoints.map((p, idx) => (
-                    <g key={idx} className="group cursor-pointer">
-                      <circle cx={p.x} cy={p.y} r="3.5" className="fill-card stroke-primary" strokeWidth="2" />
-                      <circle cx={p.x} cy={p.y} r="7" className="fill-primary/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      {/* Tooltip */}
-                      <foreignObject x={p.x - 55} y={p.y - 36} width="110" height="30" className="overflow-visible pointer-events-none hidden group-hover:block z-30">
-                        <div className="bg-popover border border-border text-popover-foreground text-[8px] font-bold py-1 px-1.5 rounded shadow-md text-center leading-tight">
-                          <p>{trendData[idx].rollingAccuracy}% Accuracy</p>
-                          <p className="text-[7px] text-muted-foreground truncate">{trendData[idx].theoryTitle}</p>
-                        </div>
-                      </foreignObject>
-                    </g>
-                  ))}
-                </svg>
-              </div>
-            </div>
-
-            {/* Speed Chart */}
-            <div className="p-6 premium-card space-y-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-md font-inria font-bold text-foreground">Response Speed Curve</h3>
-                  <p className="text-xs font-serif text-muted-foreground mt-0.5">Average time elapsed per question for the last 15 MCQ practice attempts</p>
-                </div>
-              </div>
-
-              <div className="w-full">
-                <svg className="w-full h-auto overflow-visible select-none" viewBox="0 0 500 180">
-                  <defs>
-                    <linearGradient id="speedGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#264D8E" stopOpacity="0.18" />
-                      <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.01" />
-                    </linearGradient>
-                  </defs>
-
-                  {/* Horizontal Grid lines & labels */}
-                  {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
-                    const val = Math.round(ratio * maxSpeedVal);
-                    const y = paddingTop + chartH - ratio * chartH;
-                    return (
-                      <g key={ratio}>
-                        <line x1={paddingLeft} y1={y} x2={width - paddingRight} y2={y} className="stroke-border/40" strokeWidth="1" strokeDasharray="3 3" />
-                        <text x={paddingLeft - 8} y={y + 3} className="text-[9px] fill-muted-foreground font-bold text-right" textAnchor="end">{val}s</text>
-                      </g>
-                    );
-                  })}
-
-                  {/* Area fill */}
-                  {speedAreaPath && (
-                    <path d={speedAreaPath} fill="url(#speedGrad)" />
-                  )}
-
-                  {/* Line path */}
-                  {speedPath && (
-                    <path d={speedPath} fill="none" stroke="#8b5cf6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-[0_2px_4px_rgba(139,92,246,0.15)]" />
-                  )}
-
-                  {/* Vertices & tooltips */}
-                  {speedPoints.map((p, idx) => (
-                    <g key={idx} className="group cursor-pointer">
-                      <circle cx={p.x} cy={p.y} r="3.5" className="fill-card stroke-[#8b5cf6]" strokeWidth="2" />
-                      <circle cx={p.x} cy={p.y} r="7" className="fill-[#8b5cf6]/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      {/* Tooltip */}
-                      <foreignObject x={p.x - 55} y={p.y - 36} width="110" height="30" className="overflow-visible pointer-events-none hidden group-hover:block z-30">
-                        <div className="bg-popover border border-border text-popover-foreground text-[8px] font-bold py-1 px-1.5 rounded shadow-md text-center leading-tight">
-                          <p>{trendData[idx].speedSeconds}s Response</p>
-                          <p className="text-[7px] text-muted-foreground truncate">{trendData[idx].theoryTitle}</p>
-                        </div>
-                      </foreignObject>
-                    </g>
-                  ))}
-                </svg>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Performance Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Weekly Activity columns */}
-          <div className="p-6 premium-card flex flex-col justify-between">
+      {/* ─── Performance Trends ─── */}
+      {trendData.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Accuracy Chart */}
+          <div className="p-6 premium-card space-y-4">
             <div>
-              <h3 className="text-sm font-inria font-bold text-foreground">Weekly Practice Activity</h3>
-              <p className="text-xs font-serif text-muted-foreground mt-0.5">MCQ attempts in the last 7 days</p>
+              <h3 className="text-md font-bold font-inria text-foreground">Mastery Progression</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Rolling accuracy over the last 15 practice attempts</p>
             </div>
-            <div className="flex justify-between items-end h-28 pt-6 px-1">
-              {weeklyAttempts.map((count, index) => {
-                const percent = Math.max(8, Math.min(100, (count / maxWeekly) * 100));
-                return (
-                  <div key={index} className="flex flex-col items-center justify-end h-full flex-1 gap-1">
-                    <div
-                      className="w-4 bg-primary hover:opacity-90 rounded-t transition-all relative group cursor-pointer"
-                      style={{ height: `${percent}%` }}
-                      title={`${count} attempts`}
-                    >
-                      <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-[8px] font-bold px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity font-mono shadow-sm">
-                        {count}
-                      </span>
-                    </div>
-                    <span className="text-[9px] font-semibold text-muted-foreground">{dayNames[index]}</span>
-                  </div>
-                );
-              })}
+
+            <div className="w-full pt-2">
+              <svg className="w-full h-auto overflow-visible select-none" viewBox="0 0 500 180">
+                <defs>
+                  <linearGradient id="accGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.0" />
+                  </linearGradient>
+                </defs>
+
+                {[0, 25, 50, 75, 100].map((val) => {
+                  const y = paddingTop + chartH - (val / 100) * chartH;
+                  return (
+                    <g key={val}>
+                      <line x1={paddingLeft} y1={y} x2={width - paddingRight} y2={y} className="stroke-border/40" strokeWidth="1" strokeDasharray="3 3" />
+                      <text x={paddingLeft - 8} y={y + 3} className="text-[10px] fill-muted-foreground font-bold text-right" textAnchor="end">{val}%</text>
+                    </g>
+                  );
+                })}
+
+                {accAreaPath && <path d={accAreaPath} fill="url(#accGrad)" />}
+                {accPath && <path d={accPath} fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />}
+
+                {accPoints.map((p, idx) => (
+                  <g key={idx} className="group cursor-pointer">
+                    <circle cx={p.x} cy={p.y} r="4" className="fill-background stroke-primary" strokeWidth="2.5" />
+                    <circle cx={p.x} cy={p.y} r="8" className="fill-primary/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <foreignObject x={p.x - 55} y={p.y - 36} width="110" height="30" className="overflow-visible pointer-events-none hidden group-hover:block z-30">
+                      <div className="bg-popover border border-border text-popover-foreground text-[9px] font-bold py-1 px-2 rounded-lg shadow-lg text-center leading-tight">
+                        <p>{trendData[idx].rollingAccuracy}% Accuracy</p>
+                        <p className="text-[8px] text-muted-foreground truncate">{trendData[idx].theoryTitle}</p>
+                      </div>
+                    </foreignObject>
+                  </g>
+                ))}
+              </svg>
             </div>
           </div>
 
-          {/* Theory Mastery Progress */}
-          <div className="p-6 premium-card">
-            <h3 className="text-sm font-inria font-bold text-foreground mb-4">Domain Mastery</h3>
-            {theoryMastery.length === 0 ? (
-              <div className="text-center text-xs font-serif py-8 text-xs text-muted-foreground italic">
-                Complete MCQ attempts to populate domain estimates.
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-[140px] overflow-y-auto pr-1">
-                {theoryMastery.map((tm) => (
-                  <div key={tm.id} className="flex items-center gap-3 hover:bg-secondary/40 p-1.5 rounded-xl transition-all cursor-pointer">
-                    <div className="flex-1 space-y-1">
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="font-semibold font-inria text-foreground truncate max-w-[200px]" title={tm.title}>{tm.title}</span>
-                        <span className="text-[10px] font-serif text-muted-foreground font-medium font-mono">{tm.correct}/{tm.total} Correct ({tm.accuracy}%)</span>
+          {/* Speed Chart */}
+          <div className="p-6 premium-card space-y-4">
+            <div>
+              <h3 className="text-md font-bold font-inria text-foreground">Response Speed Curve</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Time elapsed per question over the last 15 practice attempts</p>
+            </div>
+
+            <div className="w-full pt-2">
+              <svg className="w-full h-auto overflow-visible select-none" viewBox="0 0 500 180">
+                <defs>
+                  <linearGradient id="speedGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.0" />
+                  </linearGradient>
+                </defs>
+
+                {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+                  const val = Math.round(ratio * maxSpeedVal);
+                  const y = paddingTop + chartH - ratio * chartH;
+                  return (
+                    <g key={ratio}>
+                      <line x1={paddingLeft} y1={y} x2={width - paddingRight} y2={y} className="stroke-border/40" strokeWidth="1" strokeDasharray="3 3" />
+                      <text x={paddingLeft - 8} y={y + 3} className="text-[10px] fill-muted-foreground font-bold text-right" textAnchor="end">{val}s</text>
+                    </g>
+                  );
+                })}
+
+                {speedAreaPath && <path d={speedAreaPath} fill="url(#speedGrad)" />}
+                {speedPath && <path d={speedPath} fill="none" stroke="#8b5cf6" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />}
+
+                {speedPoints.map((p, idx) => (
+                  <g key={idx} className="group cursor-pointer">
+                    <circle cx={p.x} cy={p.y} r="4" className="fill-background stroke-[#8b5cf6]" strokeWidth="2.5" />
+                    <circle cx={p.x} cy={p.y} r="8" className="fill-[#8b5cf6]/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <foreignObject x={p.x - 55} y={p.y - 36} width="110" height="30" className="overflow-visible pointer-events-none hidden group-hover:block z-30">
+                      <div className="bg-popover border border-border text-popover-foreground text-[9px] font-bold py-1 px-2 rounded-lg shadow-lg text-center leading-tight">
+                        <p>{trendData[idx].speedSeconds}s Response</p>
+                        <p className="text-[8px] text-muted-foreground truncate">{trendData[idx].theoryTitle}</p>
                       </div>
-                      <div className="w-full h-2 bg-secondary rounded-full overflow-hidden border border-border">
-                        <div
-                          className="h-full bg-primary/90 transition-all duration-500"
-                          style={{ width: `${tm.accuracy}%` }}/>
-                      </div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
-                  </div>
+                    </foreignObject>
+                  </g>
                 ))}
-              </div>
-            )}
+              </svg>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Performance Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Weekly Activity columns */}
+        <div className="p-6 premium-card flex flex-col justify-between gap-4">
+          <div>
+            <h3 className="text-md font-bold font-inria text-foreground">Weekly Practice Activity</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">MCQ attempts in the last 7 days</p>
+          </div>
+          <div className="flex justify-between items-end h-32 pt-4 px-2">
+            {weeklyAttempts.map((count, index) => {
+              const percent = Math.max(12, Math.min(100, (count / maxWeekly) * 100));
+              return (
+                <div key={index} className="flex flex-col items-center justify-end h-full flex-1 gap-2">
+                  <div
+                    className="w-6 bg-primary hover:bg-primary/90 rounded-t-lg transition-all relative group cursor-pointer shadow-sm"
+                    style={{ height: `${percent}%` }}
+                    title={`${count} attempts`}
+                  >
+                    <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity font-mono shadow-md border border-border">
+                      {count}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold text-muted-foreground/80">{dayNames[index]}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Gamified Achievements Grid */}
-        <div className="space-y-4">
+        {/* Theory Mastery Progress */}
+        <div className="p-6 premium-card flex flex-col justify-between gap-4">
           <div>
-            <h3 className="text-sm font-bold text-foreground">Accomplishments</h3>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Badges unlocked through active learning</p>
+            <h3 className="text-md font-bold font-inria text-foreground">Domain Mastery</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Topic accuracy across answered theories</p>
           </div>
-          
-          <div className="relative group">
-            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory">
-              {achievements.map((ach) => (
-                <div
-                  key={ach.id}
-                  className={`p-4 border rounded-2xl flex gap-3.5 items-center shrink-0 w-[280px] snap-start relative transition-all duration-300 ${ach.unlocked
-                    ? 'border-indigo-500/20 bg-gradient-to-br from-indigo-500/[0.02] to-purple-500/[0.02] shadow-[0_8px_30px_rgb(0,0,0,0.015)] hover:border-indigo-500/30'
-                    : 'border-border/60 opacity-55 bg-secondary/15'
-                    }`}>
-                  <div className="text-2.5xl shrink-0 select-none">{ach.icon}</div>
-                  <div className="min-w-0">
-                    <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                      <span>{ach.title}</span>
-                      {ach.unlocked ? (
-                        <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-500/20 px-1.5 py-0.5 rounded">Unlocked</span>
-                      ) : (
-                        <span className="text-[9px] font-bold text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">Locked</span>
-                      )}
-                    </h4>
-                    <p className="text-[10px] text-muted-foreground/95 mt-0.5 leading-snug">{ach.desc}</p>
+          {theoryMastery.length === 0 ? (
+            <div className="text-center py-8 text-xs text-muted-foreground italic border border-dashed border-border/60 rounded-xl">
+              Complete practice questions to view domain accuracy breakdowns.
+            </div>
+          ) : (
+            <div className="space-y-3.5">
+              {theoryMastery.slice(0, 5).map((tm) => (
+                <div key={tm.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-secondary/40 transition-all cursor-pointer">
+                  <div className="flex-1 space-y-1.5">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-bold text-foreground truncate max-w-[240px]" title={tm.title}>{tm.title}</span>
+                      <span className="text-[10px] text-muted-foreground font-mono font-bold">{tm.correct}/{tm.total} Correct ({tm.accuracy}%)</span>
+                    </div>
+                    <div className="w-full h-2.5 bg-secondary rounded-full overflow-hidden border border-border/40">
+                      <div
+                        className="h-full bg-primary rounded-full transition-all duration-500"
+                        style={{ width: `${tm.accuracy}%` }}
+                      />
+                    </div>
                   </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
                 </div>
               ))}
             </div>
+          )}
+        </div>
+      </div>
 
-            {/* Scroll Indicator button on hover */}
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white border border-border shadow flex items-center justify-center cursor-pointer z-10 hover:bg-secondary select-none shadow-sm translate-x-3 opacity-0 group-hover:opacity-100 transition-opacity">
-              <ChevronRight className="w-4 h-4 text-foreground" />
-            </div>
+      {/* Gamified Achievements Grid */}
+      <div className="space-y-3">
+        <div>
+          <h3 className="text-md font-bold font-inria text-foreground">Accomplishments</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">Badges unlocked through active learning</p>
+        </div>
+
+        <div className="relative group">
+          <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-none snap-x snap-mandatory">
+            {achievements.map((ach) => (
+              <div
+                key={ach.id}
+                className={`p-4 border rounded-2xl flex gap-3.5 items-center shrink-0 w-[270px] snap-start relative transition-all duration-300 ${
+                  ach.unlocked
+                    ? 'border-primary/30 bg-primary/[0.04] shadow-sm hover:border-primary/50'
+                    : 'border-border/60 opacity-60 bg-secondary/20'
+                }`}
+              >
+                <div className="text-3xl shrink-0 select-none">{ach.icon}</div>
+                <div className="min-w-0">
+                  <h4 className="text-xs font-bold text-foreground flex items-center gap-2">
+                    <span>{ach.title}</span>
+                    {ach.unlocked ? (
+                      <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Unlocked</span>
+                    ) : (
+                      <span className="text-[9px] font-bold text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">Locked</span>
+                    )}
+                  </h4>
+                  <p className="text-[10px] text-muted-foreground mt-1 leading-snug">{ach.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

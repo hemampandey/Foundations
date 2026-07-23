@@ -1,7 +1,5 @@
 # Foundations — Improvement Roadmap
 
----
-
 ## 🟢 Tier 1 — Quick Wins (1–2 days each)
 
 ### 1. Learner Onboarding Flow
@@ -18,9 +16,6 @@ Admin actions (approve, reject, save) currently have no visible feedback beyond 
 
 ### 4. Keyboard Shortcuts for Practice
 During MCQ practice, allow learners to press `1`, `2`, `3`, `4` to select an answer and `Enter` to confirm. Power users will love this.
-
-### 5. Dark Mode Toggle
-The sidebar and layout already have `dark:` Tailwind classes scattered throughout. Expose a visible toggle (sun/moon icon) in the sidebar footer so users can switch themes.
 
 ---
 
@@ -109,20 +104,3 @@ Add at minimum:
 - Unit tests for [sm2.ts](file:///Users/hemam/Projects/Foundations/foundations/lib/sm2.ts) and [adaptive.ts](file:///Users/hemam/Projects/Foundations/foundations/lib/adaptive.ts) (pure functions, easy to test)
 - Integration tests for the `/api/generate-mcqs` route
 - E2E tests for the learner practice flow
-
----
-
-## Recommended Priority Order
-
-| Priority | Item | Impact | Effort |
-|----------|------|--------|--------|
-| 🥇 | Learner Analytics (real data) | High | Medium |
-| 🥇 | Mastery Score Updates | High | Low |
-| 🥇 | Journey Progress Tracking | High | Low |
-| 🥈 | Toast Notifications | Medium | Low |
-| 🥈 | Dark Mode Toggle | Medium | Low |
-| 🥈 | Question Feedback Loop | Medium | Medium |
-| 🥈 | PDF Upload | Medium | Medium |
-| 🥉 | Elo Difficulty | High | High |
-| 🥉 | Cohort Mode | High | High |
-| 🥉 | AI Explanations | Medium | High |

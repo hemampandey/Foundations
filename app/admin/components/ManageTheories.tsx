@@ -93,6 +93,58 @@ const extractTextFromPdf = async (file: File): Promise<string> => {
   return fullText;
 };
 
+interface MammothLib {
+  extractRawText: (options: { arrayBuffer: ArrayBuffer }) => Promise<{ value: string; messages: unknown[] }>;
+}
+
+interface WindowWithMammoth extends Window {
+  mammoth?: MammothLib;
+}
+
+const loadMammoth = async (): Promise<MammothLib | null> => {
+  if (typeof window === 'undefined') return null;
+  const win = window as unknown as WindowWithMammoth;
+  if (win.mammoth) return win.mammoth;
+
+  return new Promise<MammothLib>((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js';
+    script.onload = () => {
+      const loadedWin = window as unknown as WindowWithMammoth;
+      if (loadedWin.mammoth) {
+        resolve(loadedWin.mammoth);
+      } else {
+        reject(new Error('Mammoth loaded but mammoth object is missing.'));
+      }
+    };
+    script.onerror = () => reject(new Error('Failed to load Docx engine from CDN.'));
+    document.head.appendChild(script);
+  });
+};
+
+const extractTextFromDocx = async (file: File): Promise<string> => {
+  const mammoth = await loadMammoth();
+  if (!mammoth) throw new Error('Docx engine is not available on server-side.');
+
+  const arrayBuffer = await file.arrayBuffer();
+  const result = await mammoth.extractRawText({ arrayBuffer });
+  return result.value;
+};
+
+const extractTextFromFile = async (file: File): Promise<string> => {
+  const extension = file.name.split('.').pop()?.toLowerCase();
+
+  if (extension === 'pdf') {
+    return extractTextFromPdf(file);
+  } else if (extension === 'docx') {
+    return extractTextFromDocx(file);
+  } else if (extension === 'txt') {
+    return file.text();
+  } else {
+    throw new Error('Unsupported file format. Please upload a .pdf, .docx, or .txt file.');
+  }
+};
+
 export default function ManageTheories({
   theories,
   loadingLists,
@@ -121,17 +173,17 @@ export default function ManageTheories({
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const [pdfExtracting, setPdfExtracting] = useState(false);
+  const [fileExtracting, setFileExtracting] = useState(false);
 
-  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>, isInline: boolean = false) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isInline: boolean = false) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setPdfExtracting(true);
+    setFileExtracting(true);
     try {
-      const extractedText = await extractTextFromPdf(file);
+      const extractedText = await extractTextFromFile(file);
       if (!extractedText.trim()) {
-        throw new Error('PDF file appears to be empty or does not contain readable text.');
+        throw new Error('File appears to be empty or does not contain readable text.');
       }
 
       if (isInline) {
@@ -146,11 +198,11 @@ export default function ManageTheories({
 
       showToast(`✓ Extracted ${extractedText.length} characters from ${file.name}!`, 'success');
     } catch (err: unknown) {
-      console.error('[Foundations] PDF extraction failed:', err);
-      const msg = err instanceof Error ? err.message : 'Failed to extract text from PDF.';
+      console.error('[Foundations] File text extraction failed:', err);
+      const msg = err instanceof Error ? err.message : 'Failed to extract text from file.';
       showToast(msg, 'error');
     } finally {
-      setPdfExtracting(false);
+      setFileExtracting(false);
       e.target.value = '';
     }
   };
@@ -350,7 +402,7 @@ export default function ManageTheories({
           <div>
             <label htmlFor="theory-body" className="block text-xs font-inria text-primary uppercase tracking-wider mb-1.5 flex items-center justify-between">
               <span>Theory Text/Notes</span>
-              <span className="text-[10px] text-muted-foreground font-sans normal-case">Or upload a PDF to extract text</span>
+              <span className="text-[10px] text-muted-foreground font-sans normal-case">Or upload a PDF, DOCX, or TXT file</span>
             </label>
             <textarea
               id="theory-body"
@@ -361,27 +413,26 @@ export default function ManageTheories({
               className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm font-sans resize-y"/>
           </div>
 
-          {/* PDF Drag/Drop Upload Zone */}
+          {/* Drag/Drop File Upload Zone */}
           <div className="border border-dashed border-border/80 bg-secondary/10 rounded-xl p-4 flex flex-col items-center justify-center text-center gap-2 relative transition-all hover:bg-secondary/30">
             <input
               type="file"
-              accept=".pdf"
-              onChange={(e) => handlePdfUpload(e, false)}
-              disabled={pdfExtracting}
+              accept=".pdf,.docx,.txt"
+              onChange={(e) => handleFileUpload(e, false)}
+              disabled={fileExtracting}
               className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
-              title="Upload PDF"
+              title="Upload PDF, DOCX, or TXT"
             />
-            {pdfExtracting ? (
+            {fileExtracting ? (
               <div className="flex flex-col items-center gap-1.5 py-1">
                 <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                <span className="text-[10px] font-bold text-primary animate-pulse">Parsing PDF content...</span>
+                <span className="text-[10px] font-bold text-primary animate-pulse">Extracting text content...</span>
               </div>
             ) : (
               <>
                 <FileText className="w-5 h-5 text-muted-foreground" />
                 <div className="space-y-0.5">
-                  <p className="text-[10px] font-bold text-foreground">Click to upload or drag & drop PDF</p>
-                  <p className="text-[9px] text-muted-foreground font-medium">Text will populate the notes block above</p>
+                  <p className="text-[10px] font-bold text-foreground">Click to upload or drag & drop PDF, DOCX, or TXT</p>
                 </div>
               </>
             )}
@@ -474,7 +525,7 @@ export default function ManageTheories({
                     <div>
                       <div className="flex justify-between items-center mb-1">
                         <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Theory Body Text (Material)</label>
-                        <span className="text-[8px] text-muted-foreground font-sans">Or upload a PDF to extract text</span>
+                        <span className="text-[8px] text-muted-foreground font-sans">Or upload a PDF, DOCX, or TXT to extract text</span>
                       </div>
                       <textarea
                         value={inlineTheoryBody}
@@ -483,26 +534,26 @@ export default function ManageTheories({
                         className="w-full px-2.5 py-2 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"/>
                     </div>
 
-                    {/* Inline PDF Upload Zone */}
+                    {/* Inline File Upload Zone */}
                     <div className="border border-dashed border-border/70 bg-secondary/10 rounded-xl p-3 flex flex-col items-center justify-center text-center gap-1.5 relative transition-all hover:bg-secondary/25">
                       <input
                         type="file"
-                        accept=".pdf"
-                        onChange={(e) => handlePdfUpload(e, true)}
-                        disabled={pdfExtracting}
+                        accept=".pdf,.docx,.txt"
+                        onChange={(e) => handleFileUpload(e, true)}
+                        disabled={fileExtracting}
                         className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
-                        title="Upload PDF"
+                        title="Upload PDF, DOCX, or TXT"
                       />
-                      {pdfExtracting ? (
+                      {fileExtracting ? (
                         <div className="flex flex-col items-center gap-1 py-0.5">
                           <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                          <span className="text-[9px] font-bold text-primary animate-pulse">Extracting PDF text...</span>
+                          <span className="text-[9px] font-bold text-primary animate-pulse">Extracting text...</span>
                         </div>
                       ) : (
                         <>
                           <FileText className="w-4 h-4 text-muted-foreground" />
                           <div className="space-y-0.5">
-                            <p className="text-[9px] font-bold text-foreground">Click or drag PDF to replace body text</p>
+                            <p className="text-[9px] font-bold text-foreground">Click or drag PDF, DOCX, or TXT to replace body text</p>
                           </div>
                         </>
                       )}
@@ -532,10 +583,10 @@ export default function ManageTheories({
                   className="p-4 rounded-xl border border-border hover:border-primary/20 transition-all bg-background/50 flex flex-col justify-between gap-3 animate-fade-in">
                   <div>
                     <div className="flex justify-between items-start gap-2">
-                      <h4 className="font-bold font-display text-sm">{theory.title}</h4>
-                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase border ${pillClass}`}>{theory.domain}</span>
+                      <h4 className="font-bold font-serif text-sm tracking-tight">{theory.title}</h4>
+                      <span className={`px-2 py-0.5 rounded-[8px] text-[9px] tracking-wider font-bold uppercase border ${pillClass}`}>{theory.domain}</span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-2 line-clamp-3">{theory.body_text}</p>
+                    <p className="text-xs text-muted-foreground font-serif mt-1.5 line-clamp-4">{theory.body_text}</p>
 
                     {activeSettingsTheoryId === theory.id && (
                       <div className="mt-3 p-3 bg-secondary/40 rounded-xl border border-border/60 space-y-2.5 animate-fade-in text-[10px]">

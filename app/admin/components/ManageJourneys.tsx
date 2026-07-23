@@ -395,7 +395,7 @@ export default function ManageJourneys({
 
       {/* Journeys List */}
       <div className="lg:col-span-7 bg-card border border-border rounded-2xl p-6 h-fit min-h-[400px]">
-        <h3 className="text-xl font-bold font-inria mb-4">Existing Journeys ({journeys.length})</h3>
+        <h3 className="text-xl font-bold text-primary font-inria mb-4">Existing Journeys ({journeys.length})</h3>
 
         {loadingLists ? (
           <div className="flex justify-center py-12">
@@ -414,9 +414,9 @@ export default function ManageJourneys({
                 className="p-4 rounded-2xl border border-border bg-background/30 hover:border-primary/20 transition-all flex justify-between items-center text-xs">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-bold font-display text-sm text-foreground">{j.title}</h4>
+                    <h4 className="font-bold font-serif text-sm text-foreground">{j.title}</h4>
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase border ${j.published
+                      className={`px-2 py-0.5 rounded-full text-[9px] font-serif font-bold uppercase border ${j.published
                         ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/10'
                         : 'bg-secondary text-secondary-foreground border-border'
                         }`}
@@ -424,7 +424,7 @@ export default function ManageJourneys({
                       {j.published ? 'Published' : 'Draft'}
                     </span>
                   </div>
-                  <p className="text-[10px] text-muted-foreground">Created: {new Date(j.created_at).toLocaleDateString()}</p>
+                  <p className="text-[10px] font-serif text-muted-foreground">Created: {new Date(j.created_at).toLocaleDateString()}</p>
                 </div>
 
                 <div className="flex items-center gap-2">

@@ -55,7 +55,6 @@ export default function ForecastTab({
   // Day names for the weekly progress chart
   const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const maxWeeklyCount = Math.max(...weeklyHistory, 1);
-  const totalReviewsCompletedThisWeek = weeklyHistory.reduce((a, b) => a + b, 0);
   const totalXpEarnedThisWeek = recentDays.reduce((sum, d) => sum + d.xp, 0);
 
   return (
@@ -289,19 +288,6 @@ export default function ForecastTab({
 
           {/* Progress Columns and Bars */}
           <div className="flex flex-col md:flex-row items-stretch justify-between gap-6 py-2">
-            {/* Stats block left */}
-            <div className="space-y-2 flex flex-col justify-center min-w-[120px]">
-              <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider leading-none">Weekly Progress</p>
-              <div>
-                <p className="text-3xl font-extrabold text-foreground leading-none">{totalReviewsCompletedThisWeek}</p>
-                <p className="text-[11px] text-muted-foreground font-serif mt-1">reviews completed</p>
-              </div>
-              <div className="pt-1">
-                <span className="inline-flex items-center gap-1 py-0.5 px-2 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold animate-scale-in">
-                  ↑ 20% vs last week (Fix Later)
-                </span>
-              </div>
-            </div>
 
             {/* Vertical column bar charts */}
             <div className="flex-1 flex justify-between items-end h-28 px-1 pb-1">

@@ -13,41 +13,13 @@ import {
   ArrowLeft, Zap, Award, AlertCircle, Lightbulb, ChevronRight, RefreshCw, Clock,
 } from 'lucide-react';
 import { playSound } from '@/lib/audio';
-
-function ConfettiShower() {
-  const [particles] = useState(() => {
-    const colors = ['#6366f1', '#a855f7', '#ec4899', '#10b981', '#f59e0b', '#3b82f6'];
-    return Array.from({ length: 65 }).map((_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}%`,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      delay: `${Math.random() * 1.2}s`,
-      duration: `${2.2 + Math.random() * 1.8}s`,
-    }));
-  });
-
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden z-40">
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className="confetti-particle"
-          style={{
-            left: p.left,
-            backgroundColor: p.color,
-            animationDelay: p.delay,
-            animationDuration: p.duration,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
+import { useToast } from '@/app/components/ToastProvider';
 
 // Practice Session Content
 
 function PracticeContent() {
   const router = useRouter();
+  const { showToast } = useToast();
   const searchParams = useSearchParams();
   const theoryId = searchParams.get('theoryId');
   const journeyId = searchParams.get('journeyId');
@@ -59,6 +31,9 @@ function PracticeContent() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [leveledUpTo, setLeveledUpTo] = useState<number | null>(null);
+  const [showPreview, setShowPreview] = useState(true);
+  const [pastAccuracy, setPastAccuracy] = useState<number | null>(null);
+  const [pastAttemptsCount, setPastAttemptsCount] = useState<number>(0);
 
   // Session state
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -77,18 +52,18 @@ function PracticeContent() {
 
   // Live Timer Effect
   useEffect(() => {
-    if (loading || sessionFinished || isSubmitted) return;
+    if (loading || showPreview || sessionFinished || isSubmitted) return;
 
     const interval = setInterval(() => {
       setElapsedSeconds((prev) => prev + 1);
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [currentIdx, isSubmitted, sessionFinished, loading]);
+  }, [currentIdx, isSubmitted, sessionFinished, loading, showPreview]);
 
   // Intercept browser back button (popstate)
   useEffect(() => {
-    if (loading || sessionFinished) return;
+    if (loading || showPreview || sessionFinished) return;
 
     // Push state so there's an entry in the history stack to pop
     window.history.pushState(null, '', window.location.href);
@@ -104,11 +79,11 @@ function PracticeContent() {
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [loading, sessionFinished]);
+  }, [loading, showPreview, sessionFinished]);
 
   // Intercept refresh or page exit (beforeunload)
   useEffect(() => {
-    if (loading || sessionFinished) return;
+    if (loading || showPreview || sessionFinished) return;
 
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
@@ -120,7 +95,7 @@ function PracticeContent() {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [loading, sessionFinished]);
+  }, [loading, showPreview, sessionFinished]);
 
   // Initial data load — inline IIFE to satisfy set-state-in-effect lint rule.
   useEffect(() => {
@@ -133,6 +108,8 @@ function PracticeContent() {
 
       setLoading(true);
       setErrorMsg('');
+      let loadedQuestions: Question[] = [];
+
       try {
         if (journeyId) {
           // Load journey
@@ -164,6 +141,7 @@ function PracticeContent() {
             setErrorMsg('No approved questions were found for this journey.');
           } else {
             setQuestions(qList);
+            loadedQuestions = qList;
             questionStartTime.current = Date.now();
           }
         } else {
@@ -211,7 +189,23 @@ function PracticeContent() {
             }
 
             setQuestions(ordered);
+            loadedQuestions = ordered;
             questionStartTime.current = Date.now();
+          }
+        }
+
+        // Query past attempts accuracy if questions were loaded
+        if (loadedQuestions.length > 0) {
+          const { data: pastAtts } = await supabase
+            .from('attempts')
+            .select('is_correct')
+            .eq('user_id', (await supabase.auth.getUser()).data.user?.id ?? '')
+            .in('question_id', loadedQuestions.map(q => q.id));
+
+          if (pastAtts && pastAtts.length > 0) {
+            const correct = pastAtts.filter(a => a.is_correct).length;
+            setPastAttemptsCount(pastAtts.length);
+            setPastAccuracy(Math.round((correct / pastAtts.length) * 100));
           }
         }
       } catch (err: unknown) {
@@ -315,30 +309,73 @@ function PracticeContent() {
     }
   }, [selectedIdx, isSubmitted, theory, questions, currentIdx, profile]);
 
-  // Keyboard navigation for MCQ options
+  const handleNext = useCallback(() => {
+    if (currentIdx + 1 < questions.length) {
+      setCurrentIdx((prev) => prev + 1);
+      setSelectedIdx(null);
+      setIsSubmitted(false);
+      setElapsedSeconds(0);
+      questionStartTime.current = Date.now();
+    } else {
+      setSessionFinished(true);
+    }
+  }, [currentIdx, questions]);
+
+  // Keyboard navigation for MCQ options and session transitions
   useEffect(() => {
-    if (isSubmitted || sessionFinished || loading) return;
+    if (sessionFinished || loading || showPreview) return;
 
     const handleKey = (e: KeyboardEvent) => {
-      const key = e.key.toUpperCase();
-      const idx = key.charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
-      if (idx >= 0 && idx < (questions[currentIdx]?.options.length ?? 0)) {
-        setSelectedIdx(idx);
+      // Ignore keys when user is typing in inputs or textareas
+      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') {
+        return;
       }
-      if (e.key === 'Enter' && selectedIdx !== null && !isSubmitted) {
-        handleSubmitAnswer();
+
+      if (e.key === 'Enter') {
+        if (isSubmitted) {
+          handleNext();
+        } else if (selectedIdx !== null) {
+          handleSubmitAnswer();
+        }
+        return;
+      }
+
+      if (isSubmitted) return;
+
+      const key = e.key;
+
+      // Support A-D keys
+      const keyUpper = key.toUpperCase();
+      const idxFromLetter = keyUpper.charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
+      if (idxFromLetter >= 0 && idxFromLetter < (questions[currentIdx]?.options.length ?? 0)) {
+        setSelectedIdx(idxFromLetter);
+        return;
+      }
+
+      // Support 1-4 keys
+      if (/^\d$/.test(key)) {
+        const digit = parseInt(key, 10);
+        if (digit >= 1 && digit <= 4) {
+          const idxFromDigit = digit - 1;
+          if (idxFromDigit < (questions[currentIdx]?.options.length ?? 0)) {
+            setSelectedIdx(idxFromDigit);
+          }
+        } else {
+          // Warning toast for other numbers
+          showToast('Invalid option: choose 1-4', 'warning');
+        }
       }
     };
 
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  }, [currentIdx, isSubmitted, sessionFinished, loading, selectedIdx, questions, handleSubmitAnswer]);
+  }, [currentIdx, isSubmitted, sessionFinished, loading, selectedIdx, questions, handleSubmitAnswer, handleNext, showToast, showPreview]);
 
-  // Load review recommendation when session completes
+  // Load review recommendation and update domain mastery scores when session completes
   useEffect(() => {
     if (!sessionFinished || !profile) return;
 
-    const loadRecommendation = async () => {
+    const loadRecommendationAndMastery = async () => {
       const { data } = await supabase
         .from('attempts')
         .select(`
@@ -346,7 +383,8 @@ function PracticeContent() {
           questions (
             theories (
               id,
-              title
+              title,
+              domain
             )
           )
         `)
@@ -354,6 +392,8 @@ function PracticeContent() {
 
       if (data) {
         const theoryStats: Record<string, { title: string; total: number; correct: number }> = {};
+        const domainStats: Record<string, { total: number; correct: number }> = {};
+
         for (const rawAtt of data as unknown[]) {
           const att = rawAtt as {
             is_correct: boolean;
@@ -361,9 +401,11 @@ function PracticeContent() {
               theories: {
                 id: string;
                 title: string;
+                domain: string;
               } | null;
             } | null;
           };
+
           const theory = att.questions?.theories;
           if (theory && theory.id && theory.title) {
             if (!theoryStats[theory.id]) {
@@ -374,8 +416,20 @@ function PracticeContent() {
               theoryStats[theory.id].correct += 1;
             }
           }
+
+          const domain = theory?.domain;
+          if (domain) {
+            if (!domainStats[domain]) {
+              domainStats[domain] = { total: 0, correct: 0 };
+            }
+            domainStats[domain].total += 1;
+            if (att.is_correct) {
+              domainStats[domain].correct += 1;
+            }
+          }
         }
 
+        // Calculate lowest accuracy theory for adaptive review recommendations
         const statsArray = Object.values(theoryStats)
           .map(s => ({ title: s.title, accuracy: Math.round((s.correct / s.total) * 100) }))
           .sort((a, b) => a.accuracy - b.accuracy);
@@ -383,10 +437,26 @@ function PracticeContent() {
         if (statsArray.length > 0 && statsArray[0].accuracy < 85) {
           setRecommendation(statsArray[0]);
         }
+
+        // Build the mastery scores map for domains
+        const masteryScores: Record<string, number> = {};
+        for (const [dom, ds] of Object.entries(domainStats)) {
+          masteryScores[dom] = Math.round((ds.correct / ds.total) * 100);
+        }
+
+        try {
+          // Update user_progress table
+          await supabase
+            .from('user_progress')
+            .update({ mastery_scores: masteryScores })
+            .eq('user_id', profile.id);
+        } catch (updateErr) {
+          console.error('[Foundations] Failed to update domain mastery scores:', updateErr);
+        }
       }
     };
 
-    loadRecommendation();
+    loadRecommendationAndMastery();
   }, [sessionFinished, profile]);
 
   // Redirect if not logged in
@@ -395,18 +465,6 @@ function PracticeContent() {
       router.push('/auth');
     }
   }, [authLoading, profile, router]);
-
-  const handleNext = () => {
-    if (currentIdx + 1 < questions.length) {
-      setCurrentIdx((prev) => prev + 1);
-      setSelectedIdx(null);
-      setIsSubmitted(false);
-      setElapsedSeconds(0);
-      questionStartTime.current = Date.now();
-    } else {
-      setSessionFinished(true);
-    }
-  };
 
   const handleRestart = () => {
     setCurrentIdx(0);
@@ -418,13 +476,37 @@ function PracticeContent() {
     questionStartTime.current = Date.now();
   };
 
-  // ── Loading state ──
+  // ── Loading state — modern skeleton shimmer ──
   if (loading) {
     return (
-      <div className="flex flex-1 items-center justify-center min-h-[50vh]">
-        <div className="space-y-3 text-center">
-          <div className="w-10 h-10 mx-auto border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="text-sm text-muted-foreground font-medium">Loading practice session…</p>
+      <div className="w-full max-w-2xl mx-auto space-y-6 animate-fade-in py-4">
+        {/* Header bar skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="skeleton h-8 w-24 rounded-full" />
+          <div className="skeleton h-4 w-32" />
+          <div className="skeleton h-8 w-20 rounded-full" />
+        </div>
+
+        {/* Progress bar skeleton */}
+        <div className="skeleton h-2 w-full rounded-full" />
+
+        {/* Question card skeleton */}
+        <div className="rounded-3xl border border-border/40 p-6 md:p-8 space-y-6">
+          <div className="skeleton h-4 w-28" />
+          <div className="space-y-2">
+            <div className="skeleton h-6 w-full" />
+            <div className="skeleton h-6 w-4/5" />
+          </div>
+
+          {/* Options skeleton */}
+          <div className="space-y-3 pt-2">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="rounded-2xl border border-border/40 p-4 flex items-center gap-3">
+                <div className="skeleton h-6 w-6 rounded-full shrink-0" />
+                <div className="skeleton h-4 flex-1" style={{ width: `${60 + (i * 10)}%` }} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -447,6 +529,97 @@ function PracticeContent() {
     );
   }
 
+  // ── Session Preview Screen ──
+  if (showPreview) {
+    const totalQ = questions.length;
+    const maxXp = totalQ * 10;
+    const hasTheoryNote = !!theory.body_text;
+    const domainText = theory.domain || 'General Review';
+
+    return (
+      <div className="w-full max-w-2xl mx-auto space-y-6 animate-scale-in py-4">
+        {/* Back navigation */}
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back</span>
+        </button>
+
+        {/* Hero Preview Card */}
+        <div className="p-6 md:p-8 border border-border bg-card rounded-3xl space-y-6 shadow-md relative overflow-hidden">
+          {/* Decorative subtle ambient background */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="space-y-2">
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary border border-primary/20">
+              {domainText}
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold font-inria text-foreground tracking-tight leading-tight pt-1">
+              {theory.title}
+            </h2>
+          </div>
+
+          {/* Quick Metrics Row */}
+          <div className="grid grid-cols-3 gap-4 border-y border-border/40 py-5">
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Questions</span>
+              <p className="text-lg font-extrabold text-foreground font-mono">{totalQ}</p>
+            </div>
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Reward Potential</span>
+              <p className="text-lg font-extrabold text-primary font-mono">+{maxXp} XP</p>
+            </div>
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Past Accuracy</span>
+              <p className="text-lg font-extrabold text-foreground font-mono font-serif">
+                {pastAccuracy !== null ? `${pastAccuracy}%` : '—'}
+              </p>
+            </div>
+          </div>
+
+          {/* Theory notes study section */}
+          {hasTheoryNote && (
+            <div className="space-y-3 pt-1">
+              <h4 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <Lightbulb className="w-4 h-4 text-amber-500 shrink-0" />
+                <span>Theory Notes (Review Before Practice)</span>
+              </h4>
+              <div className="p-5 rounded-2xl bg-secondary/35 border border-border/55 text-xs sm:text-sm text-muted-foreground leading-relaxed max-h-[220px] overflow-y-auto pr-2 scrollbar-thin">
+                {theory.body_text.split('\n').map((para, pIdx) => (
+                  <p key={pIdx} className={pIdx > 0 ? "mt-2.5" : ""}>{para}</p>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Interactive Start Action */}
+          <div className="pt-2 flex flex-col sm:flex-row items-center gap-4 justify-between">
+            <div className="text-left">
+              <p className="text-xs font-bold text-foreground font-serif">Adaptive Session Ready</p>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                {pastAttemptsCount > 0
+                  ? `You have practiced this topic ${pastAttemptsCount} times before.`
+                  : 'This is your first practice attempt for this theory.'}
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setShowPreview(false);
+                questionStartTime.current = Date.now();
+              }}
+              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-primary text-primary-foreground font-extrabold hover:opacity-95 transition-all text-xs cursor-pointer shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+            >
+              <span>Start Practice</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // ── Session Finished Screen ──
   if (sessionFinished) {
     const totalQ = questions.length;
@@ -461,7 +634,6 @@ function PracticeContent() {
 
     return (
       <div className="w-full max-w-md mx-auto py-8 text-center space-y-6 animate-fade-in relative">
-        <ConfettiShower />
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-emerald-500/10 text-emerald-500 mb-2"><Award className="w-8 h-8" /></div>
 
         <div>
@@ -720,10 +892,15 @@ function PracticeContent() {
 export default function PracticePage() {
   return (
     <Suspense fallback={
-      <div className="flex flex-1 items-center justify-center min-h-[50vh]">
-        <div className="space-y-3 text-center">
-          <div className="w-10 h-10 mx-auto border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="text-sm text-muted-foreground font-medium">Preparing practice session…</p>
+      <div className="w-full max-w-2xl mx-auto space-y-6 animate-fade-in py-4">
+        <div className="flex items-center justify-between">
+          <div className="skeleton h-8 w-24 rounded-full" />
+          <div className="skeleton h-4 w-32" />
+        </div>
+        <div className="skeleton h-2 w-full rounded-full" />
+        <div className="rounded-3xl border border-border/40 p-6 md:p-8 space-y-6">
+          <div className="skeleton h-6 w-full" />
+          <div className="skeleton h-6 w-4/5" />
         </div>
       </div>
     }>

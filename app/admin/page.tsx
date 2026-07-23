@@ -17,8 +17,16 @@ import ManageJourneys from './components/ManageJourneys';
 export default function AdminPage() {
   return (
     <Suspense fallback={
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+      <div className="w-full space-y-6 animate-fade-in">
+        <div className="border-b border-border/80 pb-6">
+          <div className="skeleton h-8 w-44 mb-2" />
+          <div className="skeleton h-3 w-72" />
+        </div>
+        <div className="skeleton h-12 w-full rounded-2xl" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-5 skeleton h-80 rounded-2xl" />
+          <div className="lg:col-span-7 skeleton h-80 rounded-2xl" />
+        </div>
       </div>
     }>
       <AdminPageContent />
@@ -96,8 +104,16 @@ function AdminPageContent() {
 
   if (authLoading) {
     return (
-      <div className="flex flex-1 items-center justify-center min-h-[50vh]">
-        <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+      <div className="w-full space-y-6 animate-fade-in">
+        <div className="border-b border-border/80 pb-6">
+          <div className="skeleton h-8 w-44 mb-2" />
+          <div className="skeleton h-3 w-72" />
+        </div>
+        <div className="skeleton h-12 w-full rounded-2xl" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-5 skeleton h-80 rounded-2xl" />
+          <div className="lg:col-span-7 skeleton h-80 rounded-2xl" />
+        </div>
       </div>
     );
   }
@@ -146,8 +162,8 @@ function AdminPageContent() {
               <BookOpen className="w-3.5 h-3.5" />
             </div>
             <div>
-              <div className="text-xs font-bold text-foreground leading-tight font-mono">{theories.length}</div>
-              <p className="text-[8px] text-muted-foreground/80 font-bold uppercase tracking-wider">Total Theories</p>
+              <div className="text-sm font-serif font-bold text-foreground leading-tight">{theories.length}</div>
+              <p className="text-[9px] text-muted-foreground/80 font-serif font-bold uppercase ">Total Theories</p>
             </div>
           </div>
 
@@ -157,8 +173,8 @@ function AdminPageContent() {
           <div className="flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-500/10 text-violet-500 select-none"><HelpCircle className="w-3.5 h-3.5" /></div>
             <div>
-              <div className="text-xs font-bold text-foreground leading-tight font-mono">{approvedQuestions.length}</div>
-              <p className="text-[8px] text-muted-foreground/80 font-bold uppercase tracking-wider">Approved MCQs</p>
+              <div className="text-sm font-serif font-bold text-foreground leading-tight">{approvedQuestions.length}</div>
+              <p className="text-[9px] text-muted-foreground/80 font-serif font-bold uppercase">Approved MCQs</p>
             </div>
           </div>
 
@@ -168,8 +184,8 @@ function AdminPageContent() {
           <div className="flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500 select-none"><Layers className="w-3.5 h-3.5" /></div>
             <div>
-              <div className="text-xs font-bold text-foreground leading-tight font-mono">{draftQuestions.length} draft</div>
-              <p className="text-[8px] text-muted-foreground/80 font-bold uppercase tracking-wider">Review Queue</p>
+              <div className="text-sm font-serif font-bold text-foreground leading-tight">{draftQuestions.length} draft</div>
+              <p className="text-[9px] font-serif text-muted-foreground/80 font-bold uppercase">Review Queue</p>
             </div>
           </div>
 
@@ -179,8 +195,8 @@ function AdminPageContent() {
           <div className="flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500 select-none"><Compass className="w-3.5 h-3.5" /></div>
             <div>
-              <div className="text-xs font-bold text-foreground leading-tight font-mono">{journeys.length} active</div>
-              <p className="text-[8px] text-muted-foreground/80 font-bold uppercase tracking-wider">Active Journeys</p>
+              <div className="text-sm font-serif font-bold text-foreground leading-tight">{journeys.length}</div>
+              <p className="text-[9px] font-serif text-muted-foreground/80 font-bold uppercase tracking-wider">Active Journeys</p>
             </div>
           </div>
         </div>

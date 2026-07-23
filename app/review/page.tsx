@@ -63,36 +63,6 @@ interface RawTheory {
   title: string;
 }
 
-function ConfettiShower() {
-  const [particles] = useState(() => {
-    const colors = ['#6366f1', '#a855f7', '#ec4899', '#10b981', '#f59e0b', '#3b82f6'];
-    return Array.from({ length: 65 }).map((_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}%`,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      delay: `${Math.random() * 1.2}s`,
-      duration: `${2.2 + Math.random() * 1.8}s`,
-    }));
-  });
-
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden z-40">
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className="confetti-particle"
-          style={{
-            left: p.left,
-            backgroundColor: p.color,
-            animationDelay: p.delay,
-            animationDuration: p.duration,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
 function ReviewContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -513,13 +483,51 @@ function ReviewContent() {
     }
   }, [authLoading, profile, router]);
 
-  // ── Loading state ──
+  // ── Loading state — modern skeleton shimmer ──
   if (loading && !started) {
     return (
-      <div className="flex flex-1 items-center justify-center min-h-[50vh]">
-        <div className="space-y-3 text-center">
-          <div className="w-10 h-10 mx-auto border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="text-sm text-muted-foreground font-medium">Loading review deck…</p>
+      <div className="w-full space-y-6 animate-fade-in">
+        {/* Header skeleton */}
+        <div className="border-b border-border/80 pb-6">
+          <div className="skeleton h-8 w-36 mb-2" />
+          <div className="skeleton h-3 w-64 mt-2" />
+        </div>
+
+        {/* Hero banner skeleton */}
+        <div className="rounded-3xl border border-border/40 p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex-1 space-y-3 w-full">
+            <div className="skeleton h-5 w-48" />
+            <div className="skeleton h-3 w-72" />
+            <div className="skeleton h-10 w-40 mt-4" />
+          </div>
+          <div className="flex gap-4 shrink-0">
+            <div className="skeleton h-20 w-20 rounded-2xl" />
+            <div className="skeleton h-20 w-20 rounded-2xl" />
+            <div className="skeleton h-20 w-20 rounded-2xl" />
+          </div>
+        </div>
+
+        {/* Stats row skeleton */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="rounded-2xl border border-border/40 p-4 space-y-2">
+              <div className="skeleton h-3 w-20" />
+              <div className="skeleton h-7 w-16" />
+            </div>
+          ))}
+        </div>
+
+        {/* Chart skeleton */}
+        <div className="rounded-2xl border border-border/40 p-6 space-y-4">
+          <div className="skeleton h-4 w-40" />
+          <div className="flex items-end justify-between gap-3 h-28">
+            {[45, 75, 60, 90, 50, 80, 65].map((h, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center gap-2">
+                <div className="skeleton w-full rounded-lg" style={{ height: `${h}%` }} />
+                <div className="skeleton h-2 w-6" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -534,7 +542,6 @@ function ReviewContent() {
 
     return (
       <div className="w-full max-w-md mx-auto py-8 text-center space-y-6 animate-fade-in relative">
-        <ConfettiShower />
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-emerald-500/10 text-emerald-500 mb-2"><Award className="w-8 h-8" /></div>
         <div>
           <h2 className="text-2xl font-bold font-display text-foreground">Review Complete</h2>
@@ -628,8 +635,17 @@ function ReviewContent() {
 export default function ReviewPage() {
   return (
     <Suspense fallback={
-      <div className="flex flex-1 items-center justify-center min-h-[50vh]">
-        <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+      <div className="w-full space-y-6 animate-fade-in">
+        <div className="border-b border-border/80 pb-6">
+          <div className="skeleton h-8 w-36 mb-2" />
+          <div className="skeleton h-3 w-64 mt-2" />
+        </div>
+        <div className="rounded-3xl border border-border/40 p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex-1 space-y-3 w-full">
+            <div className="skeleton h-5 w-48" />
+            <div className="skeleton h-3 w-72" />
+          </div>
+        </div>
       </div>
     }>
       <ReviewContent />

@@ -300,7 +300,7 @@ export default function ManageMCQs({
 
       {/* Questions List */}
       <div className="lg:col-span-6 bg-card border border-border rounded-2xl p-6 h-fit min-h-[400px]">
-        <h3 className="text-lg font-bold font-display mb-4">Existing Questions ({approvedQuestions.length})</h3>
+        <h3 className="text-lg font-bold text-primary tracking-tight font-inria mb-4">Existing Questions ({approvedQuestions.length})</h3>
 
         {loadingLists ? (
           <div className="flex justify-center py-12">
@@ -326,7 +326,7 @@ export default function ManageMCQs({
                     </div>
 
                     <div>
-                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Question Stem</label>
+                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Question</label>
                       <textarea
                         value={inlineStem}
                         onChange={(e) => setInlineStem(e.target.value)}
@@ -336,9 +336,7 @@ export default function ManageMCQs({
                     </div>
 
                     <div className="space-y-2">
-                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                        Choices &amp; Correct Index
-                      </label>
+                      <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Choices &amp; Correct Index</label>
                       {inlineOptions.map((opt, oIdx) => (
                         <div key={oIdx} className="flex items-center gap-2">
                           <input
@@ -423,51 +421,44 @@ export default function ManageMCQs({
                 ) : (
                   <>
                     <div className="flex justify-between items-start gap-2">
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-primary/10 text-primary border border-primary/10 truncate max-w-[200px]" title={q.theories?.title}>
+                      <span className="px-2 py-0.5 rounded-[6px] text-[9px] font-bold font-serif uppercase bg-primary/10 text-primary border border-primary/10 truncate max-w-[300px]" title={q.theories?.title}>
                         {q.theories?.title ?? 'Unknown Theory'}
                       </span>
                       <div className="flex items-center gap-1.5 shrink-0">
                         <button
                           onClick={() => handleStartInlineEdit(q)}
-                          className="px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/10 font-bold hover:bg-primary/20 transition-colors cursor-pointer"
-                        >
-                          Edit
-                        </button>
-                        <span className="px-1.5 py-0.5 rounded text-[9px] bg-amber-500/10 text-amber-600 font-bold uppercase tracking-wide border border-amber-500/10">
-                          L{q.difficulty}
-                        </span>
-                        <span className="px-1.5 py-0.5 rounded text-[9px] bg-blue-500/10 text-blue-600 uppercase font-bold tracking-wide border border-blue-500/10">
-                          {q.bloom_level}
-                        </span>
+                          className="px-2 py-0.5 rounded text-[9px] bg-primary/10 font-serif text-primary border border-primary/10 font-bold hover:bg-primary/20 transition-colors cursor-pointer">Edit</button>
+                        <span className="px-2 py-0.5 rounded text-[9px] bg-amber-500/10 text-amber-600 font-bold uppercase tracking-wide border border-amber-500/10">L{q.difficulty}</span>
+                        <span className="px-2 py-0.5 rounded text-[9px] font-serif bg-blue-500/10 text-blue-600 uppercase font-bold tracking-wide border border-blue-500/10">{q.bloom_level}</span>
                       </div>
                     </div>
 
-                    <p className="font-bold text-foreground mt-2 font-display text-sm leading-snug">{q.stem}</p>
+                    <p className="font-bold text-foreground mt-2 font-serif text-sm leading-snug">{q.stem}</p>
 
-                    <ul className="mt-2.5 space-y-1.5 text-xs text-muted-foreground">
+                    <ul className=" space-y-1.5 text-xs text-muted-foreground">
                       {q.options.map((opt: string, oIdx: number) => {
                         const isCorrect = oIdx === q.correct_index;
                         return (
                           <li
                             key={oIdx}
                             className={`flex items-start gap-2 p-1.5 rounded-xl border ${isCorrect
-                              ? 'bg-emerald-500/5 text-emerald-600 border-emerald-500/10 dark:text-emerald-400 font-semibold'
+                              ? 'bg-emerald-500/5 text-emerald-600 border-emerald-500/20 dark:text-emerald-400 font-semibold'
                               : 'border-transparent'
                               }`}
                           >
-                            <span className="font-bold shrink-0">{String.fromCharCode(65 + oIdx)}.</span>
-                            <span>{opt}</span>
+                            <span className="font-bold font-serif tracking-wider">{String.fromCharCode(65 + oIdx)}.</span>
+                            <span className="font-serif">{opt}</span>
                           </li>
                         );
                       })}
                     </ul>
 
-                    <p className="mt-3 text-muted-foreground bg-secondary/35 p-3 rounded-xl border border-border/40 leading-relaxed">
-                      <strong className="text-foreground">Explanation:</strong> {q.explanation}
+                    <p className="text-muted-foreground font-serif bg-primary/10 p-2 rounded-xl border border-primary/10">
+                      <strong className="text-foreground font-bold">Explanation:</strong> {q.explanation}
                     </p>
 
                     {q.source_excerpt && (
-                      <p className="mt-2 text-muted-foreground/70 italic text-[11px]">
+                      <p className="text-muted-foreground font-serif italic text-[11px]">
                         <strong>Quote:</strong> &ldquo;{q.source_excerpt}&rdquo;
                       </p>
                     )}

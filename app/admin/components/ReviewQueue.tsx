@@ -25,6 +25,79 @@ export default function ReviewQueue({
   const [expandedExplanations, setExpandedExplanations] = useState<Record<string, boolean>>({});
   const [rejectingId, setRejectingId] = useState<string | null>(null);
 
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showBulkRejectConfirm, setShowBulkRejectConfirm] = useState(false);
+
+  const toggleSelectQuestion = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    const draftIds = questions.filter((q) => q.status === 'draft').map((q) => q.id);
+    if (selectedIds.size === draftIds.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(draftIds));
+    }
+  };
+
+  const handleBulkApprove = async () => {
+    const idsToApprove = Array.from(selectedIds);
+    if (idsToApprove.length === 0) return;
+
+    setQuestions((prev) =>
+      prev.map((q) => (selectedIds.has(q.id) ? { ...q, status: 'approved' } : q))
+    );
+    setSelectedIds(new Set());
+
+    try {
+      const { error } = await supabase
+        .from('questions')
+        .update({ status: 'approved' })
+        .in('id', idsToApprove);
+
+      if (error) throw error;
+      showToast(`✓ Approved ${idsToApprove.length} MCQs`, 'success');
+      loadDbData();
+    } catch (err) {
+      console.error('Failed to bulk approve questions:', err);
+      showToast('Failed to bulk approve questions.', 'error');
+      loadDbData();
+    }
+  };
+
+  const handleBulkReject = async () => {
+    const idsToReject = Array.from(selectedIds);
+    if (idsToReject.length === 0) return;
+
+    setQuestions((prev) => prev.filter((q) => !selectedIds.has(q.id)));
+    setSelectedIds(new Set());
+    setShowBulkRejectConfirm(false);
+
+    try {
+      const { error } = await supabase
+        .from('questions')
+        .delete()
+        .in('id', idsToReject);
+
+      if (error) throw error;
+      showToast(`✗ Deleted ${idsToReject.length} questions`, 'info');
+      loadDbData();
+    } catch (err) {
+      console.error('Failed to bulk delete questions:', err);
+      showToast('Failed to bulk delete questions.', 'error');
+      loadDbData();
+    }
+  };
+
   const toggleExplanation = (id: string) => {
     setExpandedExplanations((prev) => ({
       ...prev,
@@ -153,11 +226,77 @@ export default function ReviewQueue({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {draftQuestions.map((q) => (
-            <div
-              key={q.id}
-              className="p-5 rounded-2xl border border-border bg-card hover:border-primary/20 transition-all flex flex-col justify-between gap-5 relative shadow-sm">
+        <>
+          {/* Bulk Actions Control Toolbar */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-secondary/35 border border-border/60 rounded-2xl p-4 mb-6 text-xs select-none">
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-2.5 cursor-pointer font-bold font-serif text-primary">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.size === draftQuestions.length && draftQuestions.length > 0}
+                  ref={(el) => {
+                    if (el) {
+                      el.indeterminate = selectedIds.size > 0 && selectedIds.size < draftQuestions.length;
+                    }
+                  }}
+                  onChange={toggleSelectAll}
+                  className="h-4 w-4 rounded text-primary border-border focus:ring-primary cursor-pointer shrink-0"
+                />
+                <span>Select All</span>
+              </label>
+              {selectedIds.size > 0 && (
+                <span className="text-[10px] text-muted-foreground font-bold">
+                  ({selectedIds.size} selected)
+                </span>
+              )}
+            </div>
+
+            {selectedIds.size > 0 && (
+              <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                <button
+                  onClick={handleBulkApprove}
+                  className="flex-1 sm:flex-none py-2 px-4 rounded-xl text-[10px] font-bold text-white bg-emerald-500 hover:bg-emerald-600 shadow-sm transition-all cursor-pointer text-center animate-scale-in"
+                >
+                  Approve Selected ({selectedIds.size})
+                </button>
+                
+                {showBulkRejectConfirm ? (
+                  <div className="flex items-center gap-2 flex-1 sm:flex-none bg-destructive/5 border border-destructive/20 rounded-xl p-1 px-2.5 animate-scale-in">
+                    <span className="text-[10px] font-bold text-destructive font-serif">Delete selected?</span>
+                    <button
+                      onClick={() => setShowBulkRejectConfirm(false)}
+                      className="py-1 px-2 rounded-lg text-[9px] font-bold bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80 cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleBulkReject}
+                      className="py-1 px-2 rounded-lg text-[9px] font-bold text-white bg-destructive hover:opacity-90 cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowBulkRejectConfirm(true)}
+                    className="flex-1 sm:flex-none py-2 px-4 rounded-xl text-[10px] font-bold text-white bg-destructive hover:opacity-95 transition-all cursor-pointer text-center"
+                  >
+                    Reject Selected ({selectedIds.size})
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {draftQuestions.map((q) => (
+              <div
+                key={q.id}
+                className={`p-5 rounded-2xl border transition-all flex flex-col justify-between gap-5 relative shadow-sm ${
+                  selectedIds.has(q.id)
+                    ? 'border-primary bg-primary/5 ring-1 ring-primary/20 shadow-md'
+                    : 'border-border bg-card hover:border-primary/20'
+                }`}>
               {inlineEditingId === q.id ? (
                 <div className="space-y-4 text-xs">
                   <div className="flex justify-between items-center border-b border-border/40 pb-0.5">
@@ -166,12 +305,12 @@ export default function ReviewQueue({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold font-inria text-primary mb-1">Question Stem</label>
+                    <label className="block text-sm font-bold font-inria text-primary mb-1">Question</label>
                     <textarea
                       value={inlineStem}
                       onChange={(e) => setInlineStem(e.target.value)}
                       rows={3}
-                      className="w-full px-2.5 py-2 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"/>
+                      className="w-full px-2 py-2 border border-border bg-background rounded-[8px] text-xs focus:outline-none focus:ring-2 focus:ring-primary"/>
                   </div>
 
                   <div className="space-y-2">
@@ -251,25 +390,29 @@ export default function ReviewQueue({
                 </div>
               ) : (<>
                   <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-primary/10 text-primary border border-primary/10 max-w-[200px] truncate" title={q.theories?.title}>
-                        {q.theories?.title ?? 'Theory Link'}
-                      </span>
-                      <div className="flex gap-1.5 text-[9px] font-bold">
-                        <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600">
-                          Difficulty: L{q.difficulty}
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(q.id)}
+                          onChange={() => toggleSelectQuestion(q.id)}
+                          className="h-4 w-4 mt-0.5 rounded text-primary border-border focus:ring-primary cursor-pointer shrink-0"
+                        />
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-serif uppercase bg-primary/10 text-primary border border-primary/10 max-w-[300px] truncate" title={q.theories?.title}>
+                          {q.theories?.title ?? 'Theory Link'}
                         </span>
+                      </div>
+                      <div className="flex gap-1.5 text-[9px] font-bold shrink-0 mt-0.5">
+                        <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600">Difficulty: L{q.difficulty}</span>
                         <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 uppercase">
                           {q.bloom_level}
                         </span>
                       </div>
                     </div>
 
-                    <h4 className="text-sm font-bold text-foreground font-display leading-snug">
-                      {q.stem}
-                    </h4>
+                    <h4 className="text-sm font-bold font-serif text-foreground">{q.stem}</h4>
 
-                    <ul className="space-y-1.5 text-xs text-muted-foreground">
+                    <ul className="space-y-1.0 text-xs font-serif text-muted-foreground">
                       {q.options.map((opt: string, oIdx: number) => {
                         const isCorrect = oIdx === q.correct_index;
                         return (
@@ -287,26 +430,26 @@ export default function ReviewQueue({
                       <button
                         type="button"
                         onClick={() => toggleExplanation(q.id)}
-                        className="w-full flex items-center justify-between p-3 font-bold text-[10px] uppercase text-muted-foreground tracking-wider hover:bg-secondary/60 transition-all cursor-pointer">
-                        <span>Explanation</span>
+                        className="w-full flex items-center justify-between p-2 font-inria font-bold text-[12px] text-muted-foreground hover:bg-secondary/60 transition-all cursor-pointer">
+                        <span>Answer & Explanation</span>
                         {expandedExplanations[q.id] ? (<ChevronUp className="w-3.5 h-3.5 text-muted-foreground" />) : (<ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />)}
                       </button>
 
                       {expandedExplanations[q.id] && (
-                        <div className="p-3 pt-0 border-t border-border/20 text-muted-foreground leading-relaxed animate-fade-in">{q.explanation}</div>
+                        <div className="p-2 pt-0 border-t border-border/20 font-serif text-muted-foreground leading-relaxed animate-fade-in">{q.explanation}</div>
                       )}
                     </div>
 
                     {q.source_excerpt && (
-                      <div className="text-[10px] text-muted-foreground italic pl-1 border-l border-border pt-0.5">
+                      <div className="text-[11px] text-muted-foreground italic pl-1 border-l border-border pt-0.5">
                         <strong>Source Excerpt:</strong> &ldquo;{q.source_excerpt}&rdquo;
                       </div>
                     )}
                   </div>
 
                   {rejectingId === q.id ? (
-                    <div className="flex items-center justify-between gap-3 border-t border-border/40 pt-4 mt-auto animate-fade-in bg-destructive/5 p-2.5 rounded-xl border border-destructive/10">
-                      <span className="text-[10px] font-bold text-destructive">Confirm deletion?</span>
+                    <div className="flex items-center justify-between gap-3 border-t border-border/40 pt-2.5 mt-auto animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-200 bg-destructive/5 p-2.5 rounded-xl border border-destructive/10">
+                      <span className="text-[10px] font-bold font-serif text-destructive">Confirm deletion?</span>
                       <div className="flex gap-2">
                         <button
                           type="button"
@@ -322,13 +465,13 @@ export default function ReviewQueue({
                     <div className="flex items-center justify-end gap-2 border-t border-border/40 pt-3 mt-auto">
                       <button
                         onClick={() => handleStartInlineEdit(q)}
-                        className="py-1.5 px-3.5 rounded-xl text-[10px] font-bold text-secondary-foreground border border-border bg-card hover:bg-secondary transition-all cursor-pointer text-center">Edit</button>
+                        className="py-1.5 px-3.5 rounded-xl text-[10px] font-bold font-serif text-secondary border border-border bg-primary/80 hover:bg-secondary transition-all cursor-pointer text-center">Edit</button>
                       <button
                         onClick={() => setRejectingId(q.id)}
-                        className="py-1.5 px-3.5 rounded-xl text-[10px] font-bold text-white bg-destructive hover:opacity-95 transition-all cursor-pointer text-center">Reject</button>
+                        className="py-1.5 px-3.5 rounded-xl text-[10px] font-bold font-serif text-white bg-red-500 hover:bg-red-600 shadow-sm transition-all cursor-pointer text-center">Reject</button>
                       <button
                         onClick={() => handleApproveQuestion(q.id)}
-                        className="py-1.5 px-3.5 rounded-xl text-[10px] font-bold text-white bg-emerald-500 hover:bg-emerald-600 shadow-sm transition-all cursor-pointer text-center">Approve</button>
+                        className="py-1.5 px-3.5 rounded-xl text-[10px] font-bold font-serif text-white bg-emerald-500 hover:bg-emerald-600 shadow-sm transition-all cursor-pointer text-center">Approve</button>
                     </div>
                   )}
                 </>
@@ -336,6 +479,7 @@ export default function ReviewQueue({
             </div>
           ))}
         </div>
+      </>
       )}
     </div>
   );

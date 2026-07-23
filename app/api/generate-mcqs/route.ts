@@ -95,6 +95,8 @@ ${theoryBody}
 
 Generate exactly ${count} Multiple Choice Questions based on the text above. 
 Each question must test conceptual understanding rather than simple rote memorization.
+
+CRITICAL REQUIREMENT: For each question, you must shuffle the four options randomly. You MUST distribute the correct answers evenly across all possible indices (0, 1, 2, and 3) so there is no bias towards any specific choice (such as option-2/index 1).
 `;
 
     if (customInstructions && typeof customInstructions === 'string' && customInstructions.trim()) {

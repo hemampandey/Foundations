@@ -98,15 +98,13 @@ export default function Home() {
             />
             <div className="w-[1px] h-5 bg-border/85 shrink-0" />
             <div className="flex items-center gap-2">
-              <span className="font-sans font-semibold text-xl text-secondary tracking-tight">
-                Foundations
-              </span>
+              <span className="font-sans font-semibold text-xl text-secondary tracking-tight">Foundations</span>
             </div>
           </Link>
 
           <div className="flex items-center gap-3">
             {profileLoading ? (
-              <div className="w-5 h-5 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+              <div className="skeleton h-8 w-24 rounded-sm" />
             ) : profile ? (
               <Link
                 href="/dashboard"
@@ -143,10 +141,6 @@ export default function Home() {
 
         {/* Left text panel */}
         <div className="lg:col-span-6 space-y-6 text-left">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-primary/15 bg-primary text-secondary text-[10px] font-bold uppercase tracking-wider animate-scale-in">
-            <span>Spaced Learning Engine</span>
-          </div>
-
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-sans leading-[1.08] tracking-tight text-secondary">
             <span className="reveal-stagger-word" style={{ animationDelay: '0.25s' }}>Lock</span>{' '}
             <span className="reveal-stagger-word" style={{ animationDelay: '0.3s' }}>in</span>{' '}
@@ -161,11 +155,11 @@ export default function Home() {
           <div className="flex items-center gap-6 pt-4 text-xs text-muted-foreground font-semibold animate-fade-in stagger-3">
             <div className="flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-              <span>SM-2 Memory Schedule</span>
+              <span>Adaptive Learning</span>
             </div>
             <div className="flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-              <span>AI Question Generation</span>
+              <span>Long-Term Retention</span>
             </div>
           </div>
         </div>
@@ -340,259 +334,259 @@ export default function Home() {
       {/* ─── INTERACTIVE FEATURES SHOWCASE ─── */}
       <section className="w-full py-20 px-6 bg-secondary border-y border-border/10">
         <div className="max-w-7xl mx-auto w-full space-y-12">
-        <div className="text-center pb-5space-y-3">
-          <h2 className="text-2xl sm:text-4xl font-extrabold font-inria tracking-tight text-primary">See the Platform in Action</h2>
-          <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">Choose a feature tab to preview the user experience.</p>
-        </div>
+          <div className="text-center pb-5space-y-3">
+            <h2 className="text-2xl sm:text-4xl font-extrabold font-inria tracking-tight text-primary">See the Platform in Action</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">Choose a feature tab to preview the user experience.</p>
+          </div>
 
-        {/* Dynamic Tab triggers */}
-        <div className="flex p-1 bg-secondary rounded-sm max-w-md mx-auto border border-border/60">
-          <button
-            onClick={() => setActiveFeatureTab('spaced')}
-            className={`flex-1 py-2 text-xs font-bold rounded-sm transition-all cursor-pointer ${activeFeatureTab === 'spaced' ? 'bg-primary text-secondary shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              }`}>Spaced Recall</button>
-          <button
-            onClick={() => setActiveFeatureTab('ai')}
-            className={`flex-1 py-2 text-xs font-bold rounded-sm transition-all cursor-pointer ${activeFeatureTab === 'ai' ? 'bg-primary text-secondary shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              }`}>AI Generator</button>
-          <button
-            onClick={() => setActiveFeatureTab('analytics')}
-            className={`flex-1 py-2 text-xs font-bold rounded-sm transition-all cursor-pointer ${activeFeatureTab === 'analytics' ? 'bg-primary text-secondary shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              }`}>Milestone Metrics</button>
-        </div>
+          {/* Dynamic Tab triggers */}
+          <div className="flex p-1 bg-secondary rounded-sm max-w-md mx-auto border border-border/60">
+            <button
+              onClick={() => setActiveFeatureTab('spaced')}
+              className={`flex-1 py-2 text-xs font-bold rounded-sm transition-all cursor-pointer ${activeFeatureTab === 'spaced' ? 'bg-primary text-secondary shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}>Spaced Recall</button>
+            <button
+              onClick={() => setActiveFeatureTab('ai')}
+              className={`flex-1 py-2 text-xs font-bold rounded-sm transition-all cursor-pointer ${activeFeatureTab === 'ai' ? 'bg-primary text-secondary shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}>AI Generator</button>
+            <button
+              onClick={() => setActiveFeatureTab('analytics')}
+              className={`flex-1 py-2 text-xs font-bold rounded-sm transition-all cursor-pointer ${activeFeatureTab === 'analytics' ? 'bg-primary text-secondary shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}>Milestone Metrics</button>
+          </div>
 
-        {/* Interactive Feature Video/Mock Box */}
-        <div className="border border-border/80 bg-[#FAF6EB] rounded-2xl shadow-xl overflow-hidden min-h-[360px] flex flex-col justify-between p-6 md:p-10 relative z-10">
-          {/* Dynamic background glow shift */}
-          <div className={`absolute inset-0 transition-all duration-700 pointer-events-none opacity-[0.07] blur-[80px] z-0 ${activeFeatureTab === 'spaced' ? 'bg-indigo-500' : activeFeatureTab === 'ai' ? 'bg-violet-500' : 'bg-emerald-500'
-            }`} />
+          {/* Interactive Feature Video/Mock Box */}
+          <div className="border border-border/80 bg-[#FAF6EB] rounded-2xl shadow-xl overflow-hidden min-h-[360px] flex flex-col justify-between p-6 md:p-10 relative z-10">
+            {/* Dynamic background glow shift */}
+            <div className={`absolute inset-0 transition-all duration-700 pointer-events-none opacity-[0.07] blur-[80px] z-0 ${activeFeatureTab === 'spaced' ? 'bg-indigo-500' : activeFeatureTab === 'ai' ? 'bg-violet-500' : 'bg-emerald-500'
+              }`} />
 
-          {activeFeatureTab === 'spaced' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center flex-1 animate-scale-in text-left relative z-10">
-              <div className="lg:col-span-5 space-y-4">
-                <h3 className="text-xl font-bold font-display leading-snug">Learning That Adapts to You</h3>
-                <p className="text-xs text-primary leading-relaxed">
-                  Foundations automatically schedules review sessions based on your performance, helping you spend less time reviewing what you already know and more time strengthening what you don&apos;t.
-                </p>
-                <div className="space-y-2 pt-2 text-xs font-semibold">
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-primary" />
-                    <span>Correct answers are reviewed less frequently.</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-primary" />
-                    <span>Difficult concepts return sooner for extra practice.</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Visual simulation of calendar schedules */}
-              <div className="lg:col-span-7 bg-secondary border border-border/60 rounded-xl p-5 space-y-4">
-                <div className="flex justify-between items-center">
-                  <h4 className="text-[10px] font-extrabold uppercase text-muted-foreground tracking-wider">Simulated Rescheduling Timeline</h4>
-                </div>
-
-                <div className="space-y-3">
-                  <div className={`flex items-center justify-between p-2.5 bg-card border rounded-xl text-xs font-semibold transition-all duration-300 ${spacedActiveStep === 0 ? 'border-rose-500 scale-[1.01] shadow-sm' : 'border-border/80 opacity-55'
-                    }`}>
+            {activeFeatureTab === 'spaced' && (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center flex-1 animate-scale-in text-left relative z-10">
+                <div className="lg:col-span-5 space-y-4">
+                  <h3 className="text-xl font-bold font-display leading-snug">Learning That Adapts to You</h3>
+                  <p className="text-xs text-primary leading-relaxed">
+                    Foundations automatically schedules review sessions based on your performance, helping you spend less time reviewing what you already know and more time strengthening what you don&apos;t.
+                  </p>
+                  <div className="space-y-2 pt-2 text-xs font-semibold">
                     <div className="flex items-center gap-2">
-                      <span className="p-1 rounded bg-rose-500/10 text-rose-500 text-[10px] font-bold">Incorrect</span>
-                      <span className="truncate max-w-[150px] sm:max-w-xs font-medium">Transference and defense mechanisms...</span>
+                      <Zap className="w-4 h-4 text-primary" />
+                      <span>Correct answers are reviewed less frequently.</span>
                     </div>
-                    <span className="text-[10px] font-bold text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-full shrink-0">Due in 1 Day (Reset)</span>
-                  </div>
-
-                  <div className={`flex items-center justify-between p-2.5 bg-card border rounded-xl text-xs font-semibold transition-all duration-300 ${spacedActiveStep === 1 ? 'border-emerald-500 scale-[1.01] shadow-sm' : 'border-border/80 opacity-55'
-                    }`}>
                     <div className="flex items-center gap-2">
-                      <span className="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[10px] font-bold">Correct</span>
-                      <span className="truncate max-w-[150px] sm:max-w-xs font-medium">Gestalt contact boundaries...</span>
-                    </div>
-                    <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">Due in 8 Days (+7d)</span>
-                  </div>
-
-                  <div className={`flex items-center justify-between p-2.5 bg-card border rounded-xl text-xs font-semibold transition-all duration-300 ${spacedActiveStep === 2 ? 'border-violet-500 scale-[1.01] shadow-sm' : 'border-border/80 opacity-55'
-                    }`}>
-                    <div className="flex items-center gap-2">
-                      <span className="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[10px] font-bold">Mastered</span>
-                      <span className="truncate max-w-[150px] sm:max-w-xs font-medium">Cognitive triad and beliefs...</span>
-                    </div>
-                    <span className="text-[10px] font-bold text-violet-500 bg-violet-500/10 px-2 py-0.5 rounded-full shrink-0">Due in 24 Days (+16d)</span>
-                  </div>
-                </div>
-
-                {/* Rescheduling Track Line */}
-                <div className="space-y-1.5 pt-2">
-                  <div className="flex justify-between text-[8px] font-mono text-muted-foreground/75 px-1 font-bold">
-                    <span>DAY 1</span>
-                    <span>DAY 4</span>
-                    <span>DAY 8</span>
-                    <span>DAY 16</span>
-                    <span>DAY 24</span>
-                  </div>
-                  <div className="h-1 w-full bg-border rounded-full relative">
-                    {/* Tick markers */}
-                    <div className="absolute left-[0%] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-border" />
-                    <div className="absolute left-[25%] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-border" />
-                    <div className="absolute left-[50%] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-border" />
-                    <div className="absolute left-[75%] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-border" />
-                    <div className="absolute left-[100%] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-border" />
-
-                    {/* Active target cursor dot */}
-                    <div className={`absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full transition-all duration-700 ease-out shadow-lg flex items-center justify-center -ml-1.5 ${spacedActiveStep === 0 ? 'bg-rose-500 shadow-rose-500/30' : spacedActiveStep === 1 ? 'bg-emerald-500 shadow-emerald-500/30' : 'bg-violet-500 shadow-violet-500/30'
-                        }`} style={{left: spacedActiveStep === 0 ? '0%' : spacedActiveStep === 1 ? '50%' : '100%'}}>
-                      <div className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                      <Clock className="w-4 h-4 text-primary" />
+                      <span>Difficult concepts return sooner for extra practice.</span>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
 
-          {activeFeatureTab === 'ai' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center flex-1 animate-scale-in text-left relative z-10">
-              <div className="lg:col-span-5 space-y-4">
-                <span className="px-2 py-0.5 rounded bg-violet-500/10 text-violet-600 text-[9px] font-extrabold uppercase">Assessment</span>
-                <h3 className="text-xl font-bold font-display leading-snug">Generative AI MCQ Creator</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Generate multiple choice questions from any reading passage, PDF material, or conceptual descriptions.
-                </p>
-                <div className="space-y-2 pt-2 text-xs font-semibold">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-violet-500" />
-                    <span>Configure Bloom taxonomy levels</span>
+                {/* Visual simulation of calendar schedules */}
+                <div className="lg:col-span-7 bg-secondary border border-border/60 rounded-xl p-5 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-[10px] font-extrabold uppercase text-muted-foreground tracking-wider">Simulated Rescheduling Timeline</h4>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-violet-500" />
-                    <span>Generates explanations and citations</span>
+
+                  <div className="space-y-3">
+                    <div className={`flex items-center justify-between p-2.5 bg-card border rounded-xl text-xs font-semibold transition-all duration-300 ${spacedActiveStep === 0 ? 'border-rose-500 scale-[1.01] shadow-sm' : 'border-border/80 opacity-55'
+                      }`}>
+                      <div className="flex items-center gap-2">
+                        <span className="p-1 rounded bg-rose-500/10 text-rose-500 text-[10px] font-bold">Incorrect</span>
+                        <span className="truncate max-w-[150px] sm:max-w-xs font-medium">Transference and defense mechanisms...</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-full shrink-0">Due in 1 Day (Reset)</span>
+                    </div>
+
+                    <div className={`flex items-center justify-between p-2.5 bg-card border rounded-xl text-xs font-semibold transition-all duration-300 ${spacedActiveStep === 1 ? 'border-emerald-500 scale-[1.01] shadow-sm' : 'border-border/80 opacity-55'
+                      }`}>
+                      <div className="flex items-center gap-2">
+                        <span className="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[10px] font-bold">Correct</span>
+                        <span className="truncate max-w-[150px] sm:max-w-xs font-medium">Gestalt contact boundaries...</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">Due in 8 Days (+7d)</span>
+                    </div>
+
+                    <div className={`flex items-center justify-between p-2.5 bg-card border rounded-xl text-xs font-semibold transition-all duration-300 ${spacedActiveStep === 2 ? 'border-violet-500 scale-[1.01] shadow-sm' : 'border-border/80 opacity-55'
+                      }`}>
+                      <div className="flex items-center gap-2">
+                        <span className="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[10px] font-bold">Mastered</span>
+                        <span className="truncate max-w-[150px] sm:max-w-xs font-medium">Cognitive triad and beliefs...</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-violet-500 bg-violet-500/10 px-2 py-0.5 rounded-full shrink-0">Due in 24 Days (+16d)</span>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Live simulator wrapper */}
-              <div className="lg:col-span-7 bg-card border border-border/60 rounded-xl p-5 space-y-4 text-foreground shadow-md">
-                <h4 className="text-[10px] font-extrabold uppercase text-muted-foreground tracking-wider">AI Question Generator Input</h4>
-                <div className="space-y-3">
-                  <textarea
-                    value={simText}
-                    onChange={(e) => setSimText(e.target.value)}
-                    className="w-full bg-secondary/15 border border-border rounded-xl p-3 text-xs outline-none text-foreground placeholder-muted-foreground/60 resize-none h-16"
-                    placeholder="Enter notes or passage..."
-                  />
-                  <button
-                    onClick={handleSimulateAi}
-                    disabled={simGenerating}
-                    className="w-full py-2 px-4 rounded-xl bg-primary text-secondary font-bold text-xs hover:opacity-95 transition-all cursor-pointer flex items-center justify-center gap-1 shadow-md shadow-violet-500/10"
-                  >
-                    {simGenerating ? 'AI Agent Working...' : 'Simulate MCQ Generation'}
-                  </button>
+                  {/* Rescheduling Track Line */}
+                  <div className="space-y-1.5 pt-2">
+                    <div className="flex justify-between text-[8px] font-mono text-muted-foreground/75 px-1 font-bold">
+                      <span>DAY 1</span>
+                      <span>DAY 4</span>
+                      <span>DAY 8</span>
+                      <span>DAY 16</span>
+                      <span>DAY 24</span>
+                    </div>
+                    <div className="h-1 w-full bg-border rounded-full relative">
+                      {/* Tick markers */}
+                      <div className="absolute left-[0%] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-border" />
+                      <div className="absolute left-[25%] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-border" />
+                      <div className="absolute left-[50%] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-border" />
+                      <div className="absolute left-[75%] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-border" />
+                      <div className="absolute left-[100%] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-border" />
 
-                  {/* Render simulated process console or final output */}
-                  {simGenerating && aiStep < 4 && (
-                    <div className="space-y-2.5 font-mono text-[9px] text-violet-600 text-left bg-violet-500/5 p-4 rounded-xl border border-violet-500/20 animate-fade-in font-semibold">
-                      <p className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-ping shrink-0" />
-                        <span className="truncate">
-                          {aiStep === 1 ? '> Analyzing passage context keywords...' :
-                            aiStep === 2 ? '> Extracting taxonomy levels and stems...' :
-                              '> Generating correct and distractor answers...'}
-                        </span>
-                      </p>
-                      <div className="w-full bg-violet-500/10 h-1 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-violet-500 transition-all duration-500 ease-out"
-                          style={{ width: aiStep === 1 ? '33%' : aiStep === 2 ? '66%' : '95%' }}
-                        />
+                      {/* Active target cursor dot */}
+                      <div className={`absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full transition-all duration-700 ease-out shadow-lg flex items-center justify-center -ml-1.5 ${spacedActiveStep === 0 ? 'bg-rose-500 shadow-rose-500/30' : spacedActiveStep === 1 ? 'bg-emerald-500 shadow-emerald-500/30' : 'bg-violet-500 shadow-violet-500/30'
+                        }`} style={{ left: spacedActiveStep === 0 ? '0%' : spacedActiveStep === 1 ? '50%' : '100%' }}>
+                        <div className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
                       </div>
                     </div>
-                  )}
+                  </div>
+                </div>
+              </div>
+            )}
 
-                  {!simGenerating && simQuestion && (
-                    <div className="border border-border bg-secondary/15 rounded-xl p-4 space-y-2.5 animate-scale-in text-xs">
-                      <span className="text-[8px] font-extrabold text-violet-600 uppercase tracking-wider">AI Generated Assessment</span>
-                      <p className="font-bold text-foreground">{simQuestion.stem}</p>
-                      <div className="space-y-1">
-                        {simQuestion.options.map((opt: string, i: number) => (
-                          <div key={i} className={`p-2 rounded text-[10px] border flex items-center gap-2 ${i === simQuestion.correct ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-600 font-semibold' : 'border-border/60 bg-transparent text-muted-foreground'}`}>
-                            <span className="font-mono font-bold">{String.fromCharCode(65 + i)}</span>
-                            <span>{opt}</span>
-                          </div>
-                        ))}
+            {activeFeatureTab === 'ai' && (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center flex-1 animate-scale-in text-left relative z-10">
+                <div className="lg:col-span-5 space-y-4">
+                  <span className="px-2 py-0.5 rounded bg-violet-500/10 text-violet-600 text-[9px] font-extrabold uppercase">Assessment</span>
+                  <h3 className="text-xl font-bold font-display leading-snug">Generative AI MCQ Creator</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Generate multiple choice questions from any reading passage, PDF material, or conceptual descriptions.
+                  </p>
+                  <div className="space-y-2 pt-2 text-xs font-semibold">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-violet-500" />
+                      <span>Configure Bloom taxonomy levels</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-violet-500" />
+                      <span>Generates explanations and citations</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Live simulator wrapper */}
+                <div className="lg:col-span-7 bg-card border border-border/60 rounded-xl p-5 space-y-4 text-foreground shadow-md">
+                  <h4 className="text-[10px] font-extrabold uppercase text-muted-foreground tracking-wider">AI Question Generator Input</h4>
+                  <div className="space-y-3">
+                    <textarea
+                      value={simText}
+                      onChange={(e) => setSimText(e.target.value)}
+                      className="w-full bg-secondary/15 border border-border rounded-xl p-3 text-xs outline-none text-foreground placeholder-muted-foreground/60 resize-none h-16"
+                      placeholder="Enter notes or passage..."
+                    />
+                    <button
+                      onClick={handleSimulateAi}
+                      disabled={simGenerating}
+                      className="w-full py-2 px-4 rounded-xl bg-primary text-secondary font-bold text-xs hover:opacity-95 transition-all cursor-pointer flex items-center justify-center gap-1 shadow-md shadow-violet-500/10"
+                    >
+                      {simGenerating ? 'AI Agent Working...' : 'Simulate MCQ Generation'}
+                    </button>
+
+                    {/* Render simulated process console or final output */}
+                    {simGenerating && aiStep < 4 && (
+                      <div className="space-y-2.5 font-mono text-[9px] text-violet-600 text-left bg-violet-500/5 p-4 rounded-xl border border-violet-500/20 animate-fade-in font-semibold">
+                        <p className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-ping shrink-0" />
+                          <span className="truncate">
+                            {aiStep === 1 ? '> Analyzing passage context keywords...' :
+                              aiStep === 2 ? '> Extracting taxonomy levels and stems...' :
+                                '> Generating correct and distractor answers...'}
+                          </span>
+                        </p>
+                        <div className="w-full bg-violet-500/10 h-1 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-violet-500 transition-all duration-500 ease-out"
+                            style={{ width: aiStep === 1 ? '33%' : aiStep === 2 ? '66%' : '95%' }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {!simGenerating && simQuestion && (
+                      <div className="border border-border bg-secondary/15 rounded-xl p-4 space-y-2.5 animate-scale-in text-xs">
+                        <span className="text-[8px] font-extrabold text-violet-600 uppercase tracking-wider">AI Generated Assessment</span>
+                        <p className="font-bold text-foreground">{simQuestion.stem}</p>
+                        <div className="space-y-1">
+                          {simQuestion.options.map((opt: string, i: number) => (
+                            <div key={i} className={`p-2 rounded text-[10px] border flex items-center gap-2 ${i === simQuestion.correct ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-600 font-semibold' : 'border-border/60 bg-transparent text-muted-foreground'}`}>
+                              <span className="font-mono font-bold">{String.fromCharCode(65 + i)}</span>
+                              <span>{opt}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeFeatureTab === 'analytics' && (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center flex-1 animate-scale-in text-left relative z-10">
+                <div className="lg:col-span-5 space-y-4">
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 text-[9px] font-extrabold uppercase">Habit Loops</span>
+                  <h3 className="text-xl font-bold font-display leading-snug">Streaks & XP Gamification</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Stay consistent with XP leveling systems, daily streak chimes, accuracy records, and comprehensive progress scorecards.
+                  </p>
+                  <div className="space-y-2 pt-2 text-xs font-semibold">
+                    <div className="flex items-center gap-2">
+                      <Star className="w-4 h-4 text-emerald-500 fill-current" />
+                      <span>XP-based level thresholds</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                      <span>Accuracy score distributions</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Progress visual mock */}
+                <div className="lg:col-span-7 bg-card border border-border/60 rounded-xl p-5 space-y-4 text-foreground flex flex-col justify-between min-h-[220px] shadow-md">
+                  <h4 className="text-[10px] font-extrabold uppercase text-muted-foreground tracking-wider">Simulated Progress Deck</h4>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-secondary/15 border border-border/60 p-4 rounded-xl flex items-center gap-3">
+                      <div className="w-10 h-10 bg-orange-500/10 text-orange-500 rounded-lg flex items-center justify-center text-lg select-none">
+                        🔥
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Streak</p>
+                        <p className="text-base font-bold text-foreground">12 Days Active</p>
                       </div>
                     </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
 
-          {activeFeatureTab === 'analytics' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center flex-1 animate-scale-in text-left relative z-10">
-              <div className="lg:col-span-5 space-y-4">
-                <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 text-[9px] font-extrabold uppercase">Habit Loops</span>
-                <h3 className="text-xl font-bold font-display leading-snug">Streaks & XP Gamification</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Stay consistent with XP leveling systems, daily streak chimes, accuracy records, and comprehensive progress scorecards.
-                </p>
-                <div className="space-y-2 pt-2 text-xs font-semibold">
-                  <div className="flex items-center gap-2">
-                    <Star className="w-4 h-4 text-emerald-500 fill-current" />
-                    <span>XP-based level thresholds</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                    <span>Accuracy score distributions</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Progress visual mock */}
-              <div className="lg:col-span-7 bg-card border border-border/60 rounded-xl p-5 space-y-4 text-foreground flex flex-col justify-between min-h-[220px] shadow-md">
-                <h4 className="text-[10px] font-extrabold uppercase text-muted-foreground tracking-wider">Simulated Progress Deck</h4>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-secondary/15 border border-border/60 p-4 rounded-xl flex items-center gap-3">
-                    <div className="w-10 h-10 bg-orange-500/10 text-orange-500 rounded-lg flex items-center justify-center text-lg select-none">
-                      🔥
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Streak</p>
-                      <p className="text-base font-bold text-foreground">12 Days Active</p>
+                    <div className="bg-secondary/15 border border-border/60 p-4 rounded-xl flex items-center gap-3">
+                      <div className="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-lg flex items-center justify-center text-lg select-none">
+                        🎯
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Accuracy</p>
+                        <p className="text-base font-bold text-emerald-500">84% Correct</p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="bg-secondary/15 border border-border/60 p-4 rounded-xl flex items-center gap-3">
-                    <div className="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-lg flex items-center justify-center text-lg select-none">
-                      🎯
+                  {/* Level status progress bar */}
+                  <div className="space-y-1 bg-secondary/15 border border-border/60 p-4 rounded-xl relative overflow-hidden">
+                    {xpFloater && (
+                      <span className="absolute right-4 top-2 text-[10px] font-extrabold text-indigo-500 animate-float-xp select-none">
+                        +15 XP
+                      </span>
+                    )}
+                    <div className="flex justify-between items-center text-xs font-bold">
+                      <span>Level 4 (Learner)</span>
+                      <span className="text-[10px] text-muted-foreground font-mono">420/500 XP</span>
                     </div>
-                    <div>
-                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Accuracy</p>
-                      <p className="text-base font-bold text-emerald-500">84% Correct</p>
+                    <div className="w-full h-2.5 bg-secondary border border-border rounded-full overflow-hidden mt-1">
+                      <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 w-[84%] animate-pulse" />
                     </div>
-                  </div>
-                </div>
-
-                {/* Level status progress bar */}
-                <div className="space-y-1 bg-secondary/15 border border-border/60 p-4 rounded-xl relative overflow-hidden">
-                  {xpFloater && (
-                    <span className="absolute right-4 top-2 text-[10px] font-extrabold text-indigo-500 animate-float-xp select-none">
-                      +15 XP
-                    </span>
-                  )}
-                  <div className="flex justify-between items-center text-xs font-bold">
-                    <span>Level 4 (Learner)</span>
-                    <span className="text-[10px] text-muted-foreground font-mono">420/500 XP</span>
-                  </div>
-                  <div className="w-full h-2.5 bg-secondary border border-border rounded-full overflow-hidden mt-1">
-                    <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 w-[84%] animate-pulse" />
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
       {/* ─── ENTERPRISE FOOTER ─── */}
       <footer className="border-t border-border/40 bg-ally py-20 px-6 md:px-12">
