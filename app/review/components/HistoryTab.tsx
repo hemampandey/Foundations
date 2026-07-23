@@ -1,7 +1,7 @@
-'use client';
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, ChevronDown, ChevronLeft, ChevronRight, Clock, Calendar, ListFilter, CheckCircle2, History } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { useProfile } from '@/app/components/ProfileProvider';
 
 interface HistoryAttemptItem {
   id: string;
@@ -19,15 +19,13 @@ interface HistoryAttemptItem {
   } | null;
 }
 
-interface HistoryTabProps {
-  historyAttempts: HistoryAttemptItem[];
-  loadingHistory: boolean;
-}
+export default function HistoryTab() {
+  const { profile } = useProfile();
+  const [historyAttempts, setHistoryAttempts] = useState<HistoryAttemptItem[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+  const [theoryOptions, setTheoryOptions] = useState<string[]>([]);
 
-export default function HistoryTab({
-  historyAttempts,
-  loadingHistory
-}: HistoryTabProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTheory, setSelectedTheory] = useState('');
   const [selectedResult, setSelectedResult] = useState<'all' | 'correct' | 'incorrect'>('all');
@@ -35,70 +33,114 @@ export default function HistoryTab({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  // Aggregate unique theory options from attempts
-  const theoryOptions = React.useMemo(() => {
-    const options = new Set<string>();
-    historyAttempts.forEach(item => {
-      const title = item.questions?.theories?.title;
-      if (title) options.add(title);
-    });
-    return Array.from(options);
-  }, [historyAttempts]);
-
-  // ── Filters Mapping ──
-  const filteredAttempts = React.useMemo(() => {
-    return historyAttempts.filter(item => {
-      const q = item.questions;
-      if (!q) return false;
-
-      // Text Search
-      const matchesSearch = q.stem.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            (q.theories?.title ?? '').toLowerCase().includes(searchQuery.toLowerCase());
-
-      // Theory Dropdown
-      const matchesTheory = selectedTheory === '' || q.theories?.title === selectedTheory;
-
-      // Result Dropdown
-      const matchesResult = selectedResult === 'all' ||
-                            (selectedResult === 'correct' && item.is_correct) ||
-                            (selectedResult === 'incorrect' && !item.is_correct);
-
-      // Date Range Dropdown
-      let matchesDate = true;
-      if (selectedDateRange !== 'all') {
-        const created = new Date(item.created_at);
-        const limitDate = new Date();
-        if (selectedDateRange === '7days') {
-          limitDate.setDate(limitDate.getDate() - 7);
-        } else if (selectedDateRange === '30days') {
-          limitDate.setDate(limitDate.getDate() - 30);
+  // Load published theory titles for filters dropdown once
+  useEffect(() => {
+    const fetchTheories = async () => {
+      try {
+        const { data } = await supabase
+          .from('theories')
+          .select('title')
+          .eq('status', 'published')
+          .order('title', { ascending: true });
+        if (data) {
+          setTheoryOptions(data.map(t => t.title));
         }
-        matchesDate = created >= limitDate;
+      } catch (err) {
+        console.error('Error fetching theory titles:', err);
       }
+    };
+    fetchTheories();
+  }, []);
 
-      return matchesSearch && matchesTheory && matchesResult && matchesDate;
-    });
-  }, [historyAttempts, searchQuery, selectedTheory, selectedResult, selectedDateRange]);
+  // Fetch paginated, filtered attempts from PostgreSQL
+  useEffect(() => {
+    if (!profile) return;
+
+    const fetchHistoryData = async () => {
+      setLoadingHistory(true);
+      try {
+        let query = supabase
+          .from('attempts')
+          .select(`
+            id,
+            is_correct,
+            response_ms,
+            created_at,
+            questions!inner (
+              id,
+              stem,
+              difficulty,
+              bloom_level,
+              theories!inner (
+                title
+              )
+            )
+          `, { count: 'exact' })
+          .eq('user_id', profile.id);
+
+        // Apply Search
+        if (searchQuery.trim() !== '') {
+          query = query.or(`stem.ilike.%${searchQuery}%,theories.title.ilike.%${searchQuery}%`, { referencedTable: 'questions' });
+        }
+
+        // Apply Theory Filter
+        if (selectedTheory !== '') {
+          query = query.eq('questions.theories.title', selectedTheory);
+        }
+
+        // Apply Result Filter
+        if (selectedResult === 'correct') {
+          query = query.eq('is_correct', true);
+        } else if (selectedResult === 'incorrect') {
+          query = query.eq('is_correct', false);
+        }
+
+        // Apply Date Range Filter
+        if (selectedDateRange !== 'all') {
+          const limitDate = new Date();
+          if (selectedDateRange === '7days') {
+            limitDate.setDate(limitDate.getDate() - 7);
+          } else if (selectedDateRange === '30days') {
+            limitDate.setDate(limitDate.getDate() - 30);
+          }
+          query = query.gte('created_at', limitDate.toISOString());
+        }
+
+        // Apply Range Pagination
+        const from = (currentPage - 1) * itemsPerPage;
+        const to = from + itemsPerPage - 1;
+
+        const { data, count, error } = await query
+          .order('created_at', { ascending: false })
+          .range(from, to);
+
+        if (error) throw error;
+
+        setHistoryAttempts((data as unknown[] as HistoryAttemptItem[]) ?? []);
+        setTotalItems(count ?? 0);
+      } catch (err) {
+        console.error('[Foundations] Error loading history attempts:', err);
+      } finally {
+        setLoadingHistory(false);
+      }
+    };
+
+    fetchHistoryData();
+  }, [profile, currentPage, itemsPerPage, searchQuery, selectedTheory, selectedResult, selectedDateRange]);
 
   // ── Pagination Calculation ──
-  const totalItems = filteredAttempts.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-  const pagedAttempts = React.useMemo(() => {
-    return filteredAttempts.slice(startIndex, endIndex);
-  }, [filteredAttempts, startIndex, endIndex]);
 
   // Group current page's attempts by date
   const groupedAttempts = React.useMemo(() => {
     const groups: Record<string, HistoryAttemptItem[]> = {};
-    pagedAttempts.forEach(item => {
+    historyAttempts.forEach(item => {
       const key = getDayGroupKey(item.created_at);
       if (!groups[key]) groups[key] = [];
       groups[key].push(item);
     });
     return groups;
-  }, [pagedAttempts]);
+  }, [historyAttempts]);
 
   // Helper to format date headers
   function getDayGroupKey(createdAtStr: string) {

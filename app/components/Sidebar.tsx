@@ -11,8 +11,7 @@ import type { Profile } from '@/lib/types';
 import {
   User, LogOut,
   ShieldAlert, Search, PanelLeft, PanelLeftClose, ChevronDown, ChevronUp, Sun, Moon,
-  Globe, HelpCircle, ArrowUpCircle, Info, ChevronsUpDown, ChevronRight, Settings,
-  Brain
+  Globe, HelpCircle, ArrowUpCircle, Info, ChevronsUpDown, ChevronRight, Settings
 } from 'lucide-react';
 
 interface SidebarTheoryPractice {

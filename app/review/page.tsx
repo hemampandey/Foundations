@@ -33,21 +33,7 @@ interface BrowseScheduleItem {
   } | null;
 }
 
-interface HistoryAttemptItem {
-  id: string;
-  is_correct: boolean;
-  response_ms: number;
-  created_at: string;
-  questions: {
-    id: string;
-    stem: string;
-    difficulty: number;
-    bloom_level: string;
-    theories: {
-      title: string;
-    } | null;
-  } | null;
-}
+
 
 
 interface RawQuestion {
@@ -95,9 +81,7 @@ function ReviewContent() {
   const [loadingSchedules, setLoadingSchedules] = useState(false);
   const [theoryOptions, setTheoryOptions] = useState<string[]>([]);
 
-  // History state
-  const [historyAttempts, setHistoryAttempts] = useState<HistoryAttemptItem[]>([]);
-  const [loadingHistory, setLoadingHistory] = useState(false);
+
 
   // Completed Session Metrics
   const [completedAttempts, setCompletedAttempts] = useState<{ isCorrect: boolean; responseMs: number }[] | null>(null);
@@ -115,74 +99,97 @@ function ReviewContent() {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('review_schedule')
-        .select(`
-          *,
-          questions (
-            id,
-            stem,
-            options,
-            correct_index,
-            explanation,
-            difficulty,
-            bloom_level,
-            source_excerpt,
-            theories (
-              id,
-              title
-            )
-          )
-        `)
-        .eq('user_id', profile.id)
-        .lte('due_at', new Date().toISOString())
-        .order('due_at', { ascending: true });
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      sevenDaysAgo.setHours(0, 0, 0, 0);
 
-      if (error) throw error;
+      const [
+        dueRes,
+        forecastRes,
+        attemptsRes,
+        progressRes,
+        recentAttemptsRes,
+        historyRes
+      ] = await Promise.all([
+        supabase
+          .from('review_schedule')
+          .select(`
+            *,
+            questions (
+              id,
+              stem,
+              options,
+              correct_index,
+              explanation,
+              difficulty,
+              bloom_level,
+              source_excerpt,
+              theories (
+                id,
+                title
+              )
+            )
+          `)
+          .eq('user_id', profile.id)
+          .lte('due_at', new Date().toISOString())
+          .order('due_at', { ascending: true }),
+        supabase
+          .from('review_schedule')
+          .select(`
+            due_at,
+            questions (
+              id,
+              stem,
+              difficulty,
+              bloom_level,
+              theories (
+                title
+              )
+            )
+          `)
+          .eq('user_id', profile.id),
+        supabase
+          .from('attempts')
+          .select(`
+            id,
+            is_correct,
+            questions (
+              theories (
+                id,
+                title
+              )
+            )
+          `)
+          .eq('user_id', profile.id),
+        supabase
+          .from('user_progress')
+          .select('*')
+          .eq('user_id', profile.id)
+          .maybeSingle(),
+        supabase
+          .from('attempts')
+          .select('created_at, is_correct')
+          .eq('user_id', profile.id)
+          .gte('created_at', sevenDaysAgo.toISOString()),
+        supabase
+          .from('attempts')
+          .select('created_at, is_correct')
+          .eq('user_id', profile.id)
+          .order('created_at', { ascending: false })
+          .limit(150)
+      ]);
+
+      if (dueRes.error) throw dueRes.error;
 
       // Filter out items where the question was deleted
-      const validItems = (data ?? []).filter(
+      const validItems = (dueRes.data ?? []).filter(
         (item: ReviewScheduleWithQuestion) => item.questions !== null
       );
       setDueItems(validItems as ReviewScheduleWithQuestion[]);
 
-      // Fetch all schedules for forecast calculation
-      const { data: forecastSchedules } = await supabase
-        .from('review_schedule')
-        .select(`
-          due_at,
-          questions (
-            id,
-            stem,
-            difficulty,
-            bloom_level,
-            theories (
-              title
-            )
-          )
-        `)
-        .eq('user_id', profile.id);
-
-
-
-      // Fetch user attempts to compute weak theories diagnostics
-      const { data: attemptsData } = await supabase
-        .from('attempts')
-        .select(`
-          id,
-          is_correct,
-          questions (
-            theories (
-              id,
-              title
-            )
-          )
-        `)
-        .eq('user_id', profile.id);
-
       const theoryStats: Record<string, { id: string; title: string; correct: number; total: number }> = {};
-      if (attemptsData) {
-        (attemptsData ?? []).forEach((rawAttempt: unknown) => {
+      if (attemptsRes.data) {
+        (attemptsRes.data ?? []).forEach((rawAttempt: unknown) => {
           const attempt = rawAttempt as {
             is_correct: boolean;
             questions: unknown;
@@ -218,8 +225,6 @@ function ReviewContent() {
 
       setWeakTheories(computedWeak);
 
-
-
       // Compute local 7-day forecast
       const days = [];
       const now = new Date();
@@ -240,7 +245,7 @@ function ReviewContent() {
         let count = 0;
         const theoriesDue = new Set<string>();
         
-        (forecastSchedules ?? []).forEach(s => {
+        (forecastRes.data ?? []).forEach(s => {
           if (!s.due_at) return;
           const due = new Date(s.due_at);
           const q = s.questions ? (Array.isArray(s.questions) ? (s.questions[0] as RawQuestion) : (s.questions as RawQuestion)) : null;
@@ -264,49 +269,24 @@ function ReviewContent() {
 
       setForecastData(forecast);
 
-      // 1. Fetch user progress for streak
-      const { data: progData } = await supabase
-        .from('user_progress')
-        .select('*')
-        .eq('user_id', profile.id)
-        .maybeSingle();
-
-      if (progData) {
-        setStreak(progData.streak_days ?? 0);
+      if (progressRes.data) {
+        setStreak(progressRes.data.streak_days ?? 0);
       }
 
-      // 2. Fetch attempts in the last 7 days for the weekly history bar chart
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      sevenDaysAgo.setHours(0, 0, 0, 0);
-
-      const { data: recentAttempts } = await supabase
-        .from('attempts')
-        .select('created_at, is_correct')
-        .eq('user_id', profile.id)
-        .gte('created_at', sevenDaysAgo.toISOString());
-
-      const weeklyCounts = [0, 0, 0, 0, 0, 0, 0]; // Mon = 0, Tue = 1 ... Sun = 6
-      if (recentAttempts) {
-        recentAttempts.forEach((att) => {
+      const weeklyCounts = [0, 0, 0, 0, 0, 0, 0];
+      if (recentAttemptsRes.data) {
+        recentAttemptsRes.data.forEach((att) => {
           const date = new Date(att.created_at);
-          const day = date.getDay(); // Sun = 0, Mon = 1 ... Sat = 6
+          const day = date.getDay();
           const index = day === 0 ? 6 : day - 1;
           weeklyCounts[index] += 1;
         });
       }
       setWeeklyHistory(weeklyCounts);
 
-      // 3. Group attempts by date for recent history feed (last 3 active days)
-      const { data: allHistory } = await supabase
-        .from('attempts')
-        .select('created_at, is_correct')
-        .eq('user_id', profile.id)
-        .order('created_at', { ascending: false });
-
       const dateGroups: Record<string, { count: number; xp: number }> = {};
-      if (allHistory) {
-        allHistory.forEach((att) => {
+      if (historyRes.data) {
+        historyRes.data.forEach((att) => {
           const dateStr = new Date(att.created_at).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
@@ -350,7 +330,7 @@ function ReviewContent() {
       let thisWeekVal = 0;
       let nextWeekVal = 0;
 
-      (forecastSchedules ?? []).forEach(s => {
+      (forecastRes.data ?? []).forEach(s => {
         if (!s.due_at) return;
         const due = new Date(s.due_at);
         if (due >= todayStart && due < endOfWeek) {
@@ -417,41 +397,6 @@ function ReviewContent() {
     }
   }, [profile]);
 
-  // Fetch history attempts
-  const fetchHistoryAttempts = useCallback(async () => {
-    if (!profile) return;
-    setLoadingHistory(true);
-    try {
-      const { data, error } = await supabase
-        .from('attempts')
-        .select(`
-          id,
-          is_correct,
-          response_ms,
-          created_at,
-          questions (
-            id,
-            stem,
-            difficulty,
-            bloom_level,
-            theories (
-              title
-            )
-          )
-        `)
-        .eq('user_id', profile.id)
-        .order('created_at', { ascending: false })
-        .limit(100);
-
-      if (error) throw error;
-      setHistoryAttempts(data as unknown as HistoryAttemptItem[] ?? []);
-    } catch (err) {
-      console.error('[Foundations] Error loading review history:', err);
-    } finally {
-      setLoadingHistory(false);
-    }
-  }, [profile]);
-
   // Trigger loads based on active tab
   useEffect(() => {
     if (profile) {
@@ -460,12 +405,10 @@ function ReviewContent() {
           fetchDueItems();
         } else if (activeTab === 'browse') {
           fetchAllSchedules();
-        } else if (activeTab === 'history') {
-          fetchHistoryAttempts();
         }
       });
     }
-  }, [profile, activeTab, fetchDueItems, fetchAllSchedules, fetchHistoryAttempts]);
+  }, [profile, activeTab, fetchDueItems, fetchAllSchedules]);
 
   // Handle auto-start action
   useEffect(() => {
@@ -623,10 +566,7 @@ function ReviewContent() {
       )}
 
       {activeTab === 'history' && (
-        <HistoryTab
-          historyAttempts={historyAttempts}
-          loadingHistory={loadingHistory}
-        />
+        <HistoryTab />
       )}
     </div>
   );

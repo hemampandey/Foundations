@@ -291,3 +291,22 @@ begin
 end;
 $$ language plpgsql security definer;
 
+
+-- ─── Performance Indexes ───
+
+-- Index for finding and sorting attempts by user
+CREATE INDEX IF NOT EXISTS idx_attempts_user_created 
+ON public.attempts (user_id, created_at DESC);
+
+-- Index for counting/filtering questions by theory and status
+CREATE INDEX IF NOT EXISTS idx_questions_theory_status 
+ON public.questions (theory_id, status);
+
+-- Index for fetching due review schedules
+CREATE INDEX IF NOT EXISTS idx_review_schedule_user_due 
+ON public.review_schedule (user_id, due_at ASC);
+
+-- Index for journey questions matching
+CREATE INDEX IF NOT EXISTS idx_journey_questions_mapping 
+ON public.journey_questions (journey_id);
+

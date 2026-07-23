@@ -45,81 +45,85 @@ export default function DashboardPage() {
 
     setLoadingData(true);
     try {
-      // Fetch published theories
-      const { data: theoryData, error: tErr } = await supabase
-        .from('theories')
-        .select('*')
-        .eq('status', 'published')
-        .order('created_at', { ascending: true });
+      const [
+        theoriesRes,
+        questionsRes,
+        journeysRes,
+        jqRes,
+        attemptsRes,
+        progressRes,
+        reviewRes
+      ] = await Promise.all([
+        supabase
+          .from('theories')
+          .select('*')
+          .eq('status', 'published')
+          .order('created_at', { ascending: true }),
+        supabase
+          .from('questions')
+          .select('id, theory_id')
+          .eq('status', 'approved'),
+        supabase
+          .from('journeys')
+          .select('*')
+          .eq('published', true)
+          .order('created_at', { ascending: true }),
+        supabase
+          .from('journey_questions')
+          .select('journey_id'),
+        supabase
+          .from('attempts')
+          .select('*, question:questions(stem, theories(id, title))')
+          .eq('user_id', profile.id)
+          .order('created_at', { ascending: false })
+          .limit(200),
+        supabase
+          .from('user_progress')
+          .select('*')
+          .eq('user_id', profile.id)
+          .maybeSingle(),
+        supabase
+          .from('review_schedule')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', profile.id)
+          .lte('due_at', new Date().toISOString())
+      ]);
 
-      if (tErr) throw tErr;
-      setTheories(theoryData ?? []);
+      if (theoriesRes.error) throw theoriesRes.error;
+      if (questionsRes.error) throw questionsRes.error;
+      if (journeysRes.error) throw journeysRes.error;
+      if (jqRes.error) throw jqRes.error;
+      if (attemptsRes.error) throw attemptsRes.error;
+      if (progressRes.error) throw progressRes.error;
 
-      // Fetch approved question counts per theory
-      const { data: qData, error: qErr } = await supabase
-        .from('questions')
-        .select('id, theory_id')
-        .eq('status', 'approved');
+      // Theories
+      setTheories(theoriesRes.data ?? []);
 
-      if (qErr) throw qErr;
-
+      // Question counts
       const counts: Record<string, number> = {};
-      qData?.forEach((q) => {
+      questionsRes.data?.forEach((q) => {
         counts[q.theory_id] = (counts[q.theory_id] || 0) + 1;
       });
       setTheoryQuestionCounts(counts);
 
-      // Fetch published journeys
-      const { data: journeyData, error: jErr } = await supabase
-        .from('journeys')
-        .select('*')
-        .eq('published', true)
-        .order('created_at', { ascending: true });
+      // Journeys
+      setJourneys(journeysRes.data ?? []);
 
-      if (jErr) throw jErr;
-      setJourneys(journeyData ?? []);
-
-      // Fetch journey question counts
-      const { data: jqData, error: jqErr } = await supabase
-        .from('journey_questions')
-        .select('journey_id');
-
-      if (jqErr) throw jqErr;
-
+      // Journey question counts
       const jCounts: Record<string, number> = {};
-      jqData?.forEach((jq) => {
+      jqRes.data?.forEach((jq) => {
         jCounts[jq.journey_id] = (jCounts[jq.journey_id] || 0) + 1;
       });
       setJourneyQuestionCounts(jCounts);
 
-      // Fetch user's attempts with joined question & theory details (capped for performance)
-      const { data: attData, error: aErr } = await supabase
-        .from('attempts')
-        .select('*, question:questions(stem, theories(id, title))')
-        .eq('user_id', profile.id)
-        .order('created_at', { ascending: false })
-        .limit(200);
+      // Attempts
+      setAttempts((attemptsRes.data as unknown[] as AttemptWithQuestion[]) ?? []);
 
-      if (aErr) throw aErr;
-      setAttempts((attData as unknown[] as AttemptWithQuestion[]) ?? []);
+      // User Progress
+      setProgress(progressRes.data as UserProgress | null);
 
-      // Fetch user progress (XP / level / streak)
-      const { data: progressData } = await supabase
-        .from('user_progress')
-        .select('*')
-        .eq('user_id', profile.id)
-        .maybeSingle();
-
-      setProgress(progressData as UserProgress | null);
-
-      // Fetch review due count
-      const { count: reviewCount } = await supabase
-        .from('review_schedule')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', profile.id)
-        .lte('due_at', new Date().toISOString());
-
-      setReviewDueCount(reviewCount ?? 0);
+      // Review Due Count
+      setReviewDueCount(reviewRes.count ?? 0);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       console.error('[Foundations] Error loading dashboard data:', message);
