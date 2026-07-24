@@ -9,7 +9,7 @@ import { useToast } from '@/app/components/ToastProvider';
 interface ManageTheoriesProps {
   theories: Theory[];
   loadingLists: boolean;
-  loadDbData: () => Promise<void>;
+  loadDbData: (silent?: boolean) => Promise<void>;
 }
 
 const GENERATION_TIPS = [
@@ -334,6 +334,7 @@ export default function ManageTheories({
         }
       }));
       loadDbData();
+      window.dispatchEvent(new CustomEvent('sync-sidebar-badges'));
     } catch (err: unknown) {
       if (err instanceof Error && err.name === 'AbortError') {
         showToast('MCQ generation was cancelled.', 'info');

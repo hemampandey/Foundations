@@ -10,7 +10,7 @@ interface ReviewQueueProps {
   questions: QuestionWithTheory[];
   setQuestions: React.Dispatch<React.SetStateAction<QuestionWithTheory[]>>;
   loadingLists: boolean;
-  loadDbData: () => Promise<void>;
+  loadDbData: (silent?: boolean) => Promise<void>;
   setActiveTab: (tab: 'theories' | 'questions' | 'review' | 'journeys') => void;
 }
 
@@ -27,6 +27,7 @@ export default function ReviewQueue({
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showBulkRejectConfirm, setShowBulkRejectConfirm] = useState(false);
+  const [animatingOutIds, setAnimatingOutIds] = useState<Set<string>>(new Set());
 
   const toggleSelectQuestion = (id: string) => {
     setSelectedIds((prev) => {
@@ -53,9 +54,11 @@ export default function ReviewQueue({
     const idsToApprove = Array.from(selectedIds);
     if (idsToApprove.length === 0) return;
 
-    setQuestions((prev) =>
-      prev.map((q) => (selectedIds.has(q.id) ? { ...q, status: 'approved' } : q))
-    );
+    setAnimatingOutIds((prev) => {
+      const next = new Set(prev);
+      idsToApprove.forEach((id) => next.add(id));
+      return next;
+    });
     setSelectedIds(new Set());
 
     try {
@@ -65,12 +68,29 @@ export default function ReviewQueue({
         .in('id', idsToApprove);
 
       if (error) throw error;
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      setQuestions((prev) =>
+        prev.map((q) => (idsToApprove.includes(q.id) ? { ...q, status: 'approved' } : q))
+      );
       showToast(`✓ Approved ${idsToApprove.length} MCQs`, 'success');
-      loadDbData();
+      window.dispatchEvent(new CustomEvent('sync-sidebar-badges'));
     } catch (err) {
       console.error('Failed to bulk approve questions:', err);
       showToast('Failed to bulk approve questions.', 'error');
-      loadDbData();
+      setAnimatingOutIds((prev) => {
+        const next = new Set(prev);
+        idsToApprove.forEach((id) => next.delete(id));
+        return next;
+      });
+      loadDbData(true);
+    } finally {
+      setAnimatingOutIds((prev) => {
+        const next = new Set(prev);
+        idsToApprove.forEach((id) => next.delete(id));
+        return next;
+      });
     }
   };
 
@@ -78,7 +98,11 @@ export default function ReviewQueue({
     const idsToReject = Array.from(selectedIds);
     if (idsToReject.length === 0) return;
 
-    setQuestions((prev) => prev.filter((q) => !selectedIds.has(q.id)));
+    setAnimatingOutIds((prev) => {
+      const next = new Set(prev);
+      idsToReject.forEach((id) => next.add(id));
+      return next;
+    });
     setSelectedIds(new Set());
     setShowBulkRejectConfirm(false);
 
@@ -89,12 +113,27 @@ export default function ReviewQueue({
         .in('id', idsToReject);
 
       if (error) throw error;
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      setQuestions((prev) => prev.filter((q) => !idsToReject.includes(q.id)));
       showToast(`✗ Deleted ${idsToReject.length} questions`, 'info');
-      loadDbData();
+      window.dispatchEvent(new CustomEvent('sync-sidebar-badges'));
     } catch (err) {
       console.error('Failed to bulk delete questions:', err);
       showToast('Failed to bulk delete questions.', 'error');
-      loadDbData();
+      setAnimatingOutIds((prev) => {
+        const next = new Set(prev);
+        idsToReject.forEach((id) => next.delete(id));
+        return next;
+      });
+      loadDbData(true);
+    } finally {
+      setAnimatingOutIds((prev) => {
+        const next = new Set(prev);
+        idsToReject.forEach((id) => next.delete(id));
+        return next;
+      });
     }
   };
 
@@ -154,19 +193,21 @@ export default function ReviewQueue({
         .eq('id', id);
 
       if (error) throw error;
-      showToast('✓ Changes saved', 'success');
-      loadDbData();
+      showToast('Changes saved', 'success');
+      window.dispatchEvent(new CustomEvent('sync-sidebar-badges'));
     } catch (err: unknown) {
       console.error('Failed to save inline edit:', err);
       showToast('Failed to save changes.', 'error');
-      loadDbData();
+      loadDbData(true);
     }
   };
 
   const handleApproveQuestion = async (id: string) => {
-    setQuestions((prev) =>
-      prev.map((q) => (q.id === id ? { ...q, status: 'approved' } : q))
-    );
+    setAnimatingOutIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
 
     try {
       const { error } = await supabase
@@ -175,17 +216,38 @@ export default function ReviewQueue({
         .eq('id', id);
 
       if (error) throw error;
-      showToast('✓ MCQ approved', 'success');
-      loadDbData();
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      setQuestions((prev) =>
+        prev.map((q) => (q.id === id ? { ...q, status: 'approved' } : q))
+      );
+      showToast('MCQ approved', 'success');
+      window.dispatchEvent(new CustomEvent('sync-sidebar-badges'));
     } catch (err: unknown) {
       console.error('[Foundations] Error approving question:', err);
       showToast('Failed to approve question.', 'error');
-      loadDbData();
+      setAnimatingOutIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      loadDbData(true);
+    } finally {
+      setAnimatingOutIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   };
 
   const handleRejectQuestion = async (id: string) => {
-    setQuestions((prev) => prev.filter((q) => q.id !== id));
+    setAnimatingOutIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
     setRejectingId(null);
 
     try {
@@ -195,12 +257,27 @@ export default function ReviewQueue({
         .eq('id', id);
 
       if (error) throw error;
-      showToast('✗ Question deleted', 'info');
-      loadDbData();
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      setQuestions((prev) => prev.filter((q) => q.id !== id));
+      showToast('Question deleted', 'info');
+      window.dispatchEvent(new CustomEvent('sync-sidebar-badges'));
     } catch (err: unknown) {
       console.error('[Foundations] Error rejecting question:', err);
       showToast('Failed to reject question.', 'error');
-      loadDbData();
+      setAnimatingOutIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      loadDbData(true);
+    } finally {
+      setAnimatingOutIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   };
 
@@ -292,10 +369,14 @@ export default function ReviewQueue({
             {draftQuestions.map((q) => (
               <div
                 key={q.id}
-                className={`p-5 rounded-2xl border transition-all flex flex-col justify-between gap-5 relative shadow-sm ${
-                  selectedIds.has(q.id)
+                className={`transition-all duration-500 ease-in-out relative overflow-hidden ${
+                  animatingOutIds.has(q.id)
+                    ? 'max-h-0 p-0 my-0 border-0 opacity-0 scale-90 pointer-events-none gap-0'
+                    : 'max-h-[800px] p-5 rounded-2xl border bg-card hover:border-primary/20 shadow-sm flex flex-col justify-between gap-5'
+                } ${
+                  selectedIds.has(q.id) && !animatingOutIds.has(q.id)
                     ? 'border-primary bg-primary/5 ring-1 ring-primary/20 shadow-md'
-                    : 'border-border bg-card hover:border-primary/20'
+                    : 'border-border'
                 }`}>
               {inlineEditingId === q.id ? (
                 <div className="space-y-4 text-xs">

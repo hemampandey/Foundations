@@ -7,8 +7,54 @@ import { useProfile } from '@/app/components/ProfileProvider';
 import StatsHeader from '@/app/components/StatsHeader';
 import type { AttemptWithQuestion, UserProgress } from '@/lib/types';
 import {
-  ChevronRight
+  ChevronRight,
+  Calendar,
+  Layers,
+  Clock,
+  BarChart2,
+  BookOpen,
+  Award,
+  Trophy,
+  Flame,
+  Zap,
+  Target,
+  GraduationCap,
+  Rocket,
+  Car,
+  Building2,
+  Users
 } from 'lucide-react';
+
+const getBezierPath = (points: { x: number; y: number }[]) => {
+  if (points.length === 0) return '';
+  let path = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i];
+    const p1 = points[i + 1];
+    const cpX1 = p0.x + (p1.x - p0.x) / 2;
+    const cpY1 = p0.y;
+    const cpX2 = p0.x + (p1.x - p0.x) / 2;
+    const cpY2 = p1.y;
+    path += ` C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${p1.x} ${p1.y}`;
+  }
+  return path;
+};
+
+const getDomainIcon = (title: string) => {
+  const t = title.toLowerCase();
+  if (t.includes('car')) return <Car className="w-4 h-4 text-blue-500" />;
+  if (t.includes('materialism') || t.includes('history') || t.includes('philosophy')) return <Building2 className="w-4 h-4 text-violet-500" />;
+  if (t.includes('demographic') || t.includes('population') || t.includes('social') || t.includes('transition')) return <Users className="w-4 h-4 text-emerald-500" />;
+  return <BookOpen className="w-4 h-4 text-indigo-500" />;
+};
+
+const getDomainBg = (title: string) => {
+  const t = title.toLowerCase();
+  if (t.includes('car')) return 'bg-blue-500/10 border-blue-500/20';
+  if (t.includes('materialism') || t.includes('history') || t.includes('philosophy')) return 'bg-violet-500/10 border-violet-500/20';
+  if (t.includes('demographic') || t.includes('population') || t.includes('social') || t.includes('transition')) return 'bg-emerald-500/10 border-emerald-500/20';
+  return 'bg-indigo-500/10 border-indigo-500/20';
+};
 
 export default function ProgressPage() {
   const router = useRouter();
@@ -200,20 +246,7 @@ export default function ProgressPage() {
       desc: 'Complete your first MCQ practice attempt.',
       icon: '🚀',
       unlocked: totalAttempts >= 1,
-    },
-    {
-      id: 'perfect-score',
-      title: 'Precision',
-      desc: 'Achieve 100% accuracy in any theory domain.',
-      icon: '🎯',
-      unlocked: theoryMastery.some((t) => t.accuracy === 100 && t.total >= 3),
-    },
-    {
-      id: 'streak-builder',
-      title: 'Unstoppable',
-      desc: 'Maintain a day streak of 3 days or more.',
-      icon: '🔥',
-      unlocked: streak >= 3,
+      type: 'badge'
     },
     {
       id: 'scholar',
@@ -221,14 +254,96 @@ export default function ProgressPage() {
       desc: 'Complete at least 20 MCQ practice attempts.',
       icon: '🎓',
       unlocked: totalAttempts >= 20,
+      type: 'badge'
+    },
+    {
+      id: 'perfect-score',
+      title: 'Precision',
+      desc: 'Achieve 100% accuracy in any theory domain.',
+      icon: '🎯',
+      unlocked: theoryMastery.some((t) => t.accuracy === 100 && t.total >= 3),
+      type: 'badge'
     },
     {
       id: 'speed-demon',
       title: 'Speed Responder',
       desc: 'Correctly answer a question in under 5 seconds.',
       icon: '⚡',
-      unlocked: attempts.some((att) => att.is_correct && att.response_ms && att.response_ms < 5000),
+      unlocked: false,
+      type: 'progress',
+      current: attempts.filter((att) => att.is_correct && att.response_ms && att.response_ms < 5000).length,
+      max: 10
     },
+    {
+      id: 'streak-builder',
+      title: 'Unstoppable',
+      desc: 'Maintain a day streak of 3 days or more.',
+      icon: '🔥',
+      unlocked: false,
+      type: 'progress',
+      current: Math.min(streak, 5),
+      max: 5
+    },
+    {
+      id: 'theory-explorer',
+      title: 'Theory Explorer',
+      desc: 'Practice in 5 different theory domains.',
+      icon: '🔥',
+      unlocked: false,
+      type: 'progress',
+      current: Math.min(theoryMastery.length, 5),
+      max: 5
+    },
+    {
+      id: 'domain-streaks',
+      title: 'Theory Explorer',
+      desc: 'Maintain a streak across domains.',
+      icon: '📖',
+      unlocked: false,
+      type: 'progress',
+      current: Math.min(theoryMastery.filter(t => t.accuracy >= 80).length, 5),
+      max: 5
+    },
+    {
+      id: 'mastermind',
+      title: 'Mastermind',
+      desc: 'Achieve 90% average accuracy over 30 days.',
+      icon: '🧠',
+      unlocked: false,
+      type: 'locked'
+    },
+    {
+      id: 'perfectionist',
+      title: 'Perfectionist',
+      desc: 'Score 100% in 10 attempts.',
+      icon: '🏅',
+      unlocked: false,
+      type: 'locked'
+    },
+    {
+      id: 'legend',
+      title: 'Legend',
+      desc: 'Complete 100 MCQ attempts.',
+      icon: '⭐',
+      unlocked: false,
+      type: 'locked'
+    },
+    {
+      id: 'ultimate',
+      title: 'The Ultimate',
+      desc: 'Unlock all other achievements.',
+      icon: '💎',
+      unlocked: false,
+      type: 'locked'
+    },
+    {
+      id: 'coming-soon',
+      title: 'Coming Soon',
+      desc: 'New achievement on the way!',
+      icon: '🎁',
+      unlocked: false,
+      type: 'locked'
+    }
   ];
 
   // Group attempts by weekday
@@ -317,7 +432,7 @@ export default function ProgressPage() {
 
   // SVG Chart Dimensions
   const width = 500;
-  const height = 180;
+  const height = 140;
   const paddingLeft = 40;
   const paddingRight = 20;
   const paddingTop = 20;
@@ -330,16 +445,16 @@ export default function ProgressPage() {
     x: paddingLeft + (idx / Math.max(1, trendData.length - 1)) * chartW,
     y: paddingTop + chartH - (d.rollingAccuracy / 100) * chartH
   }));
-  const accPath = accPoints.length > 0 ? 'M ' + accPoints.map(p => `${p.x} ${p.y}`).join(' L ') : '';
-  const accAreaPath = accPoints.length > 0 ? `${accPath} L ${accPoints[accPoints.length - 1].x} ${paddingTop + chartH} L ${accPoints[0].x} ${paddingTop + chartH} Z` : '';
+  const accBezier = getBezierPath(accPoints);
+  const accAreaPath = accPoints.length > 0 ? `${accBezier} L ${accPoints[accPoints.length - 1].x} ${paddingTop + chartH} L ${accPoints[0].x} ${paddingTop + chartH} Z` : '';
 
   const maxSpeedVal = Math.max(...trendData.map(d => d.speedSeconds), 5);
   const speedPoints = trendData.map((d, idx) => ({
     x: paddingLeft + (idx / Math.max(1, trendData.length - 1)) * chartW,
     y: paddingTop + chartH - (d.speedSeconds / maxSpeedVal) * chartH
   }));
-  const speedPath = speedPoints.length > 0 ? 'M ' + speedPoints.map(p => `${p.x} ${p.y}`).join(' L ') : '';
-  const speedAreaPath = speedPoints.length > 0 ? `${speedPath} L ${speedPoints[speedPoints.length - 1].x} ${paddingTop + chartH} L ${speedPoints[0].x} ${paddingTop + chartH} Z` : '';
+  const speedBezier = getBezierPath(speedPoints);
+  const speedAreaPath = speedPoints.length > 0 ? `${speedBezier} L ${speedPoints[speedPoints.length - 1].x} ${paddingTop + chartH} L ${speedPoints[0].x} ${paddingTop + chartH} Z` : '';
 
   // Summary metrics for heatmap panel
   const activeDaysCount = attempts.reduce((acc, att) => {
@@ -348,8 +463,11 @@ export default function ProgressPage() {
     return acc;
   }, new Set<string>()).size;
 
+  const unlockedCount = achievements.filter((a) => a.unlocked).length;
+
   return (
-    <div className="w-full space-y-6 animate-fade-in">
+    <div className="w-full space-y-6 animate-fade-in text-foreground">
+      {/* Top Stats Banner */}
       <StatsHeader
         role={profile?.role}
         streak={streak}
@@ -358,136 +476,151 @@ export default function ProgressPage() {
         description="Track your learning activity, domain mastery, and performance trends."
       />
 
-      {/* ─── Daily Activity Heatmap ─── */}
-      <div className="p-6 premium-card space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/40 pb-4">
-          <div>
-            <h3 className="text-lg font-bold font-inria text-foreground flex items-center gap-2">
-              Learning Activity
-            </h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Practice attempts recorded over the last 6 months</p>
-          </div>
-          <div className="flex items-center gap-4 text-xs">
-            <div className="flex items-center gap-1.5 bg-secondary/40 px-3 py-1.5 rounded-xl border border-border/40">
-              <span className="text-muted-foreground font-medium">Active Days:</span>
-              <span className="font-bold text-foreground font-mono">{activeDaysCount}</span>
+      {/* Row 1: Learning Activity (2/3 width) and Mastery Progression (1/3 width) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+        {/* ─── Daily Activity Heatmap ─── (takes 2/3 width) */}
+        <div className="lg:col-span-2 p-4 premium-card space-y-5 flex flex-col justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/40 pb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
+                <Calendar className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Learning Activity</h3>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Practice attempts recorded over the last 6 months</p>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 bg-secondary/40 px-3 py-1.5 rounded-xl border border-border/40">
-              <span className="text-muted-foreground font-medium">Total MCQs:</span>
-              <span className="font-bold text-foreground font-mono">{totalAttempts}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 pt-1">
-          {/* Heatmap Area */}
-          <div className="flex-1 overflow-x-auto pb-2 scrollbar-none">
-            <div className="flex flex-col gap-2 min-w-[620px]">
-              <div className="flex gap-2">
-                {/* Weekday Labels (Sun to Sat) */}
-                <div className="flex flex-col justify-between text-[10px] font-bold text-muted-foreground/70 pr-1.5 h-[98px] py-0.5 shrink-0 select-none">
-                  <span>Sun</span>
-                  <span>Mon</span>
-                  <span>Tue</span>
-                  <span>Wed</span>
-                  <span>Thu</span>
-                  <span>Fri</span>
-                  <span>Sat</span>
+            
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 rounded-xl p-2 px-3.5">
+                <Calendar className="w-4 h-4 text-indigo-500" />
+                <div className="text-left select-none">
+                  <p className="text-[9px] text-muted-foreground font-bold uppercase leading-none">Active Days</p>
+                  <p className="text-xs font-extrabold text-foreground leading-tight mt-1">{activeDaysCount}</p>
                 </div>
+              </div>
+              <div className="flex items-center gap-2.5 bg-violet-50/50 dark:bg-violet-950/20 border border-violet-100 dark:border-violet-900/30 rounded-xl p-2 px-3.5">
+                <Layers className="w-4 h-4 text-violet-500" />
+                <div className="text-left select-none">
+                  <p className="text-[9px] text-muted-foreground font-bold uppercase leading-none">Total MCQs</p>
+                  <p className="text-xs font-extrabold text-foreground leading-tight mt-1">{totalAttempts}</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                {/* Heatmap Grid */}
-                <div className="flex gap-[4px]">
-                  {heatmapData.map((week, wIdx) => (
-                    <div key={wIdx} className="flex flex-col gap-[4px]">
-                      {week.map((day) => {
-                        let colorClass = 'bg-secondary/60 dark:bg-neutral-800/40 border border-border/30';
-                        if (day.count > 0 && day.count <= 2) {
-                          colorClass = 'bg-primary/25 border border-primary/30 text-primary';
-                        } else if (day.count > 2 && day.count <= 5) {
-                          colorClass = 'bg-primary/60 border border-primary/70 text-primary-foreground';
-                        } else if (day.count > 5) {
-                          colorClass = 'bg-primary border border-primary text-primary-foreground shadow-sm shadow-primary/20';
-                        }
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
+            {/* Heatmap Area */}
+            <div className="flex-1 overflow-x-auto scrollbar-none">
+              <div className="flex flex-col gap-2 min-w-[620px]">
+                <div className="flex gap-2">
+                  {/* Weekday Labels (Sun to Sat) */}
+                  <div className="flex flex-col justify-between text-[10px] font-bold text-muted-foreground/70 pr-1.5 h-[98px] py-0.5 shrink-0 select-none">
+                    <span>Sun</span>
+                    <span>Mon</span>
+                    <span>Tue</span>
+                    <span>Wed</span>
+                    <span>Thu</span>
+                    <span>Fri</span>
+                    <span>Sat</span>
+                  </div>
 
-                        let formattedDate = day.dateStr;
-                        try {
-                          const dateObj = new Date(day.dateStr);
-                          formattedDate = dateObj.toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                          });
-                        } catch {
-                          // Safe fallback
-                        }
+                  {/* Heatmap Grid */}
+                  <div className="flex gap-[4px]">
+                    {heatmapData.map((week, wIdx) => (
+                      <div key={wIdx} className="flex flex-col gap-[4px]">
+                        {week.map((day) => {
+                          let colorClass = 'bg-secondary/60 dark:bg-neutral-800/40 border border-border/30';
+                          if (day.count > 0 && day.count <= 2) {
+                            colorClass = 'bg-primary/25 border border-primary/30 text-primary';
+                          } else if (day.count > 2 && day.count <= 5) {
+                            colorClass = 'bg-primary/60 border border-primary/70 text-primary-foreground';
+                          } else if (day.count > 5) {
+                            colorClass = 'bg-primary border border-primary text-primary-foreground shadow-sm shadow-primary/20';
+                          }
 
-                        return (
-                          <div
-                            key={day.dateStr}
-                            className={`w-[11px] h-[11px] rounded-[3px] transition-all duration-200 relative group cursor-pointer hover:scale-125 hover:z-20 ${colorClass}`}
-                          >
-                            {/* Tooltip */}
-                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-30 pointer-events-none">
-                              <div className="bg-popover border border-border text-popover-foreground text-[10px] font-bold py-1 px-2 rounded-lg shadow-lg whitespace-nowrap leading-tight">
-                                {day.count === 0 ? 'No' : day.count} practice {day.count === 1 ? 'attempt' : 'attempts'} on {formattedDate}
+                          let formattedDate = day.dateStr;
+                          try {
+                            const dateObj = new Date(day.dateStr);
+                            formattedDate = dateObj.toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            });
+                          } catch {
+                            // Safe fallback
+                          }
+
+                          return (
+                            <div
+                              key={day.dateStr}
+                              className={`w-[11px] h-[11px] rounded-[3px] transition-all duration-200 relative group cursor-pointer hover:scale-125 hover:z-20 ${colorClass}`}
+                            >
+                              {/* Tooltip */}
+                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-30 pointer-events-none">
+                                <div className="bg-popover border border-border text-popover-foreground text-[10px] font-bold py-1 px-2 rounded-lg shadow-lg whitespace-nowrap leading-tight">
+                                  {day.count === 0 ? 'No' : day.count} practice {day.count === 1 ? 'attempt' : 'attempts'} on {formattedDate}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ))}
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Month Labels */}
+                <div className="flex gap-[4px] text-[10px] font-bold text-muted-foreground/70 pt-1 select-none ml-[32px] relative h-4">
+                  {heatmapData.map((week, wIdx) => {
+                    const dayObj = new Date(week[0].dateStr);
+                    const isFirstWeekOfMonth = dayObj.getDate() <= 7;
+                    if (isFirstWeekOfMonth) {
+                      return (
+                        <div key={wIdx} className="w-[11px] relative">
+                          <span className="absolute left-0 top-0 whitespace-nowrap">
+                            {dayObj.toLocaleString('default', { month: 'short' })}
+                          </span>
+                        </div>
+                      );
+                    }
+                    return <div key={wIdx} className="w-[11px]" />;
+                  })}
                 </div>
               </div>
-
-              {/* Month Labels */}
-              <div className="flex gap-[4px] text-[10px] font-bold text-muted-foreground/70 pt-1 select-none ml-[32px] relative h-4">
-                {heatmapData.map((week, wIdx) => {
-                  const dayObj = new Date(week[0].dateStr);
-                  const isFirstWeekOfMonth = dayObj.getDate() <= 7;
-                  if (isFirstWeekOfMonth) {
-                    return (
-                      <div key={wIdx} className="w-[11px] relative">
-                        <span className="absolute left-0 top-0 whitespace-nowrap">
-                          {dayObj.toLocaleString('default', { month: 'short' })}
-                        </span>
-                      </div>
-                    );
-                  }
-                  return <div key={wIdx} className="w-[11px]" />;
-                })}
-              </div>
             </div>
-          </div>
 
-          {/* Legend */}
-          <div className="flex items-center justify-end lg:justify-center gap-2 text-[10px] font-bold text-muted-foreground/80 shrink-0 select-none pt-2 lg:pt-0 lg:border-l lg:border-border/40 lg:pl-6">
-            <span>Less</span>
-            <div className="w-3 h-3 rounded-[3px] bg-secondary/60 border border-border/30" />
-            <div className="w-3 h-3 rounded-[3px] bg-primary/25 border border-primary/30" />
-            <div className="w-3 h-3 rounded-[3px] bg-primary/60 border border-primary/70" />
-            <div className="w-3 h-3 rounded-[3px] bg-primary border border-primary" />
-            <span>More</span>
+            {/* Legend */}
+            <div className="flex items-center justify-end lg:justify-center gap-2 text-[10px] font-bold text-muted-foreground/80 shrink-0 select-none pt-2 lg:pt-0 lg:border-l lg:border-border/40 lg:pl-6">
+              <span>Less</span>
+              <div className="w-3 h-3 rounded-[3px] bg-secondary/60 border border-border/30" />
+              <div className="w-3 h-3 rounded-[3px] bg-primary/25 border border-primary/30" />
+              <div className="w-3 h-3 rounded-[3px] bg-primary/60 border border-primary/70" />
+              <div className="w-3 h-3 rounded-[3px] bg-primary border border-primary" />
+              <span>More</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* ─── Performance Trends ─── */}
-      {trendData.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Accuracy Chart */}
-          <div className="p-6 premium-card space-y-4">
-            <div>
-              <h3 className="text-md font-bold font-inria text-foreground">Mastery Progression</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Rolling accuracy over the last 15 practice attempts</p>
+        {/* Mastery Progression (Accuracy Chart) ─── (takes 1/3 width) */}
+        <div className="lg:col-span-1 p-4 premium-card flex flex-col justify-between gap-4">
+          <div className="flex items-center gap-2.5 border-b border-border/40 pb-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
+              <Award className="w-5 h-5" />
             </div>
+            <div>
+              <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Mastery Progression</h3>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Rolling accuracy over the last 15 attempts</p>
+            </div>
+          </div>
 
-            <div className="w-full pt-2">
-              <svg className="w-full h-auto overflow-visible select-none" viewBox="0 0 500 180">
+          <div className="w-full pt-2 flex-1 flex items-center justify-center">
+            {trendData.length > 0 ? (
+              <svg className="w-full h-auto overflow-visible select-none" viewBox="0 0 500 140">
                 <defs>
                   <linearGradient id="accGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.0" />
+                    <stop offset="0%" stopColor="#248DCE" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#248DCE" stopOpacity="0.0" />
                   </linearGradient>
                 </defs>
 
@@ -502,12 +635,14 @@ export default function ProgressPage() {
                 })}
 
                 {accAreaPath && <path d={accAreaPath} fill="url(#accGrad)" />}
-                {accPath && <path d={accPath} fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />}
+                {accPoints.length > 0 && (
+                  <path d={accBezier} fill="none" stroke="#248DCE" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                )}
 
                 {accPoints.map((p, idx) => (
                   <g key={idx} className="group cursor-pointer">
-                    <circle cx={p.x} cy={p.y} r="4" className="fill-background stroke-primary" strokeWidth="2.5" />
-                    <circle cx={p.x} cy={p.y} r="8" className="fill-primary/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <circle cx={p.x} cy={p.y} r="4" className="fill-white stroke-[#248DCE]" strokeWidth="3" />
+                    <circle cx={p.x} cy={p.y} r="8" className="fill-[#248DCE]/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <foreignObject x={p.x - 55} y={p.y - 36} width="110" height="30" className="overflow-visible pointer-events-none hidden group-hover:block z-30">
                       <div className="bg-popover border border-border text-popover-foreground text-[9px] font-bold py-1 px-2 rounded-lg shadow-lg text-center leading-tight">
                         <p>{trendData[idx].rollingAccuracy}% Accuracy</p>
@@ -517,152 +652,328 @@ export default function ProgressPage() {
                   </g>
                 ))}
               </svg>
-            </div>
+            ) : (
+              <div className="text-center py-8 text-xs text-muted-foreground italic border border-dashed border-border/60 rounded-xl w-full my-auto">
+                Complete practice sessions to view accuracy trend.
+              </div>
+            )}
           </div>
+        </div>
+      </div>
 
-          {/* Speed Chart */}
-          <div className="p-6 premium-card space-y-4">
+      {/* Row 2: Response Speed Curve, Weekly Practice Activity, and Domain Mastery in 1/3 widths */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+        {/* Average Response Time Chart (1/3 width) */}
+        <div className="p-4 premium-card flex flex-col justify-between gap-4">
+          <div className="flex items-center gap-2.5 border-b border-border/40 ">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
+              <Clock className="w-5 h-5" />
+            </div>
             <div>
-              <h3 className="text-md font-bold font-inria text-foreground">Response Speed Curve</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Time elapsed per question over the last 15 practice attempts</p>
-            </div>
-
-            <div className="w-full pt-2">
-              <svg className="w-full h-auto overflow-visible select-none" viewBox="0 0 500 180">
-                <defs>
-                  <linearGradient id="speedGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.0" />
-                  </linearGradient>
-                </defs>
-
-                {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
-                  const val = Math.round(ratio * maxSpeedVal);
-                  const y = paddingTop + chartH - ratio * chartH;
-                  return (
-                    <g key={ratio}>
-                      <line x1={paddingLeft} y1={y} x2={width - paddingRight} y2={y} className="stroke-border/40" strokeWidth="1" strokeDasharray="3 3" />
-                      <text x={paddingLeft - 8} y={y + 3} className="text-[10px] fill-muted-foreground font-bold text-right" textAnchor="end">{val}s</text>
-                    </g>
-                  );
-                })}
-
-                {speedAreaPath && <path d={speedAreaPath} fill="url(#speedGrad)" />}
-                {speedPath && <path d={speedPath} fill="none" stroke="#8b5cf6" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />}
-
-                {speedPoints.map((p, idx) => (
-                  <g key={idx} className="group cursor-pointer">
-                    <circle cx={p.x} cy={p.y} r="4" className="fill-background stroke-[#8b5cf6]" strokeWidth="2.5" />
-                    <circle cx={p.x} cy={p.y} r="8" className="fill-[#8b5cf6]/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <foreignObject x={p.x - 55} y={p.y - 36} width="110" height="30" className="overflow-visible pointer-events-none hidden group-hover:block z-30">
-                      <div className="bg-popover border border-border text-popover-foreground text-[9px] font-bold py-1 px-2 rounded-lg shadow-lg text-center leading-tight">
-                        <p>{trendData[idx].speedSeconds}s Response</p>
-                        <p className="text-[8px] text-muted-foreground truncate">{trendData[idx].theoryTitle}</p>
-                      </div>
-                    </foreignObject>
-                  </g>
-                ))}
-              </svg>
+              <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Average Response Time</h3>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Time elapsed per question (last 15 attempts)</p>
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Performance Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Weekly Activity columns */}
-        <div className="p-6 premium-card flex flex-col justify-between gap-4">
-          <div>
-            <h3 className="text-md font-bold font-inria text-foreground">Weekly Practice Activity</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">MCQ attempts in the last 7 days</p>
-          </div>
-          <div className="flex justify-between items-end h-32 pt-4 px-2">
-            {weeklyAttempts.map((count, index) => {
-              const percent = Math.max(12, Math.min(100, (count / maxWeekly) * 100));
+          <div className="w-full pt-2 flex-1 flex items-center justify-center">
+            {trendData.length > 0 ? (() => {
+              const peakIdx = trendData.findIndex(d => d.speedSeconds === Math.max(...trendData.map(t => t.speedSeconds)));
               return (
-                <div key={index} className="flex flex-col items-center justify-end h-full flex-1 gap-2">
-                  <div
-                    className="w-6 bg-primary hover:bg-primary/90 rounded-t-lg transition-all relative group cursor-pointer shadow-sm"
-                    style={{ height: `${percent}%` }}
-                    title={`${count} attempts`}
-                  >
-                    <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity font-mono shadow-md border border-border">
-                      {count}
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-bold text-muted-foreground/80">{dayNames[index]}</span>
-                </div>
+                <svg className="w-full h-auto overflow-visible select-none" viewBox="0 0 500 140">
+                  <defs>
+                    <linearGradient id="speedGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#248DCE" stopOpacity="0.25" />
+                      <stop offset="100%" stopColor="#248DCE" stopOpacity="0.0" />
+                    </linearGradient>
+                  </defs>
+
+                  {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+                    const val = Math.round(ratio * maxSpeedVal);
+                    const y = paddingTop + chartH - ratio * chartH;
+                    return (
+                      <g key={ratio}>
+                        <line x1={paddingLeft} y1={y} x2={width - paddingRight} y2={y} className="stroke-border/40" strokeWidth="1" strokeDasharray="3 3" />
+                        <text x={paddingLeft - 8} y={y + 3} className="text-[10px] fill-muted-foreground font-bold text-right" textAnchor="end">{val}s</text>
+                      </g>
+                    );
+                  })}
+
+                  {speedAreaPath && <path d={speedAreaPath} fill="url(#speedGrad)" />}
+                  {speedPoints.length > 0 && (
+                    <path d={speedBezier} fill="none" stroke="#248DCE" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  )}
+
+                  {speedPoints.map((p, idx) => {
+                    const isPeak = idx === peakIdx;
+                    return (
+                      <g key={idx} className="group cursor-pointer">
+                        <circle
+                          cx={p.x}
+                          cy={p.y}
+                          r={isPeak ? "5" : "4"}
+                          className={isPeak ? "fill-white stroke-[#248DCE]" : "fill-background stroke-[#248DCE]"}
+                          strokeWidth={isPeak ? "3" : "2.5"}
+                        />
+                        {isPeak && (
+                          <g>
+                            <rect
+                              x={p.x - 16}
+                              y={p.y - 25}
+                              width="32"
+                              height="16"
+                              rx="6"
+                              className="fill-primary stroke-white stroke-1 shadow-sm"
+                            />
+                            <text
+                              x={p.x}
+                              y={p.y - 14}
+                              className="text-[9px] font-extrabold fill-white"
+                              textAnchor="middle"
+                            >
+                              {trendData[idx].speedSeconds}s
+                            </text>
+                          </g>
+                        )}
+                        <circle cx={p.x} cy={p.y} r="8" className="fill-[#248DCE]/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <foreignObject x={p.x - 55} y={p.y - 36} width="110" height="30" className="overflow-visible pointer-events-none hidden group-hover:block z-30">
+                          <div className="bg-popover border border-border text-popover-foreground text-[9px] font-bold py-1 px-2 rounded-lg shadow-lg text-center leading-tight">
+                            <p>{trendData[idx].speedSeconds}s Response</p>
+                            <p className="text-[8px] text-muted-foreground truncate">{trendData[idx].theoryTitle}</p>
+                          </div>
+                        </foreignObject>
+                      </g>
+                    );
+                  })}
+                </svg>
               );
-            })}
+            })() : (
+              <div className="text-center py-8 text-xs text-muted-foreground italic border border-dashed border-border/60 rounded-xl w-full my-auto">
+                Complete practice sessions to view response speed.
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Theory Mastery Progress */}
-        <div className="p-6 premium-card flex flex-col justify-between gap-4">
-          <div>
-            <h3 className="text-md font-bold font-inria text-foreground">Domain Mastery</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Topic accuracy across answered theories</p>
+        {/* Weekly Practice Activity (1/3 width) */}
+        <div className="p-4 premium-card flex flex-col justify-between gap-4">
+          <div className="flex items-center gap-2.5 border-b border-border/40 pb-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
+              <BarChart2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Weekly Practice Activity</h3>
+              <p className="text-[11px] text-muted-foreground mt-0.5">MCQ attempts in the last 7 days</p>
+            </div>
+          </div>
+          
+          <div className="flex justify-between items-end h-[140px] px-2 my-auto">
+            {(() => {
+              const maxCountIdx = weeklyAttempts.indexOf(maxWeekly);
+              return weeklyAttempts.map((count, index) => {
+                const percent = count > 0 ? (count / maxWeekly) * 70 : 5;
+                const isHighest = index === maxCountIdx && maxWeekly > 0;
+                return (
+                  <div key={index} className="flex flex-col items-center justify-end h-full flex-1 gap-2">
+                    <div className="relative flex flex-col items-center w-full h-[70%] justify-end">
+                      {count > 0 && (
+                        <span className="text-sm font-extrabold font-inria text-primary/95 bg-primary/20 border border-primary/20 rounded-[6px] px-3 py-0.5 mb-1 block">{count}</span>
+                      )}
+                      <div
+                        className={`w-8 rounded-t-[4px] transition-all duration-300 relative group cursor-pointer ${
+                          isHighest ? 'bg-primary shadow-md shadow-primary/20' : 'bg-primary/40 hover:bg-primary/60'
+                        }`}
+                        style={{ height: `${percent}%` }}
+                      >
+                        <span className="absolute left-1/2 top-0 -translate-x-1/2 bg-popover text-popover-foreground text-[11px] font-serif italic px-2 py-0.5 rounded-[6px] opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity font-serif shadow-md border border-border z-30">{count} attempts</span>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-muted-foreground/80">{dayNames[index]}</span>
+                  </div>
+                );
+              });
+            })()}
+          </div>
+        </div>
+
+        {/* Domain Mastery (1/3 width) */}
+        <div className="p-4 premium-card flex flex-col justify-between gap-4">
+          <div className="flex items-center gap-2.5 border-b border-border/40 pb-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Domain Mastery</h3>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Topic accuracy across answered theories</p>
+            </div>
           </div>
           {theoryMastery.length === 0 ? (
-            <div className="text-center py-8 text-xs text-muted-foreground italic border border-dashed border-border/60 rounded-xl">
+            <div className="text-center py-8 text-xs text-muted-foreground italic border border-dashed border-border/60 rounded-xl my-auto">
               Complete practice questions to view domain accuracy breakdowns.
             </div>
           ) : (
-            <div className="space-y-3.5">
-              {theoryMastery.slice(0, 5).map((tm) => (
-                <div key={tm.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-secondary/40 transition-all cursor-pointer">
-                  <div className="flex-1 space-y-1.5">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="font-bold text-foreground truncate max-w-[240px]" title={tm.title}>{tm.title}</span>
-                      <span className="text-[10px] text-muted-foreground font-mono font-bold">{tm.correct}/{tm.total} Correct ({tm.accuracy}%)</span>
+            <div className="space-y-2.5 overflow-y-auto max-h-[145px] pr-1 scrollbar-none my-auto">
+              {theoryMastery.slice(0, 3).map((tm) => {
+                let badgeClass = 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
+                if (tm.accuracy >= 90) {
+                  badgeClass = 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
+                } else if (tm.accuracy >= 70) {
+                  badgeClass = 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20';
+                }
+                return (
+                  <div key={tm.id} className="flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-secondary/40 transition-all cursor-pointer">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center border shrink-0 ${getDomainBg(tm.title)}`}>
+                      {getDomainIcon(tm.title)}
                     </div>
-                    <div className="w-full h-2.5 bg-secondary rounded-full overflow-hidden border border-border/40">
-                      <div
-                        className="h-full bg-primary rounded-full transition-all duration-500"
-                        style={{ width: `${tm.accuracy}%` }}
-                      />
+                    
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex justify-between items-center text-[10px] gap-1">
+                        <span className="font-bold text-foreground truncate max-w-[110px]" title={tm.title}>{tm.title}</span>
+                        <span className="text-[9px] text-muted-foreground font-mono font-bold shrink-0">{tm.correct}/{tm.total}</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden border border-border/40">
+                        <div
+                          className="h-full bg-primary rounded-full transition-all duration-500"
+                          style={{ width: `${tm.accuracy}%` }}
+                        />
+                      </div>
                     </div>
+                    
+                    <div className={`px-2 py-0.5 text-[10px] font-extrabold rounded-full border shrink-0 select-none ${badgeClass}`}>
+                      {tm.accuracy}%
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60 shrink-0" />
                   </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
       </div>
 
-      {/* Gamified Achievements Grid */}
-      <div className="space-y-3">
-        <div>
-          <h3 className="text-md font-bold font-inria text-foreground">Accomplishments</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">Badges unlocked through active learning</p>
+      {/* Row 3: Accomplishments (Full width) */}
+      <div className="p-4 rounded-3xl bg-gradient-to-br from-[#F4F9FD] to-[#FAFDFE] dark:from-neutral-900/60 dark:to-neutral-900/20 border border-[#D9EAF5] dark:border-neutral-800 space-y-5 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/40 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
+              <Trophy className="w-5 h-5 animate-pulse" />
+            </div>
+            <div>
+              <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Accomplishments</h3>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Badges unlocked through active learning</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <span className="text-[11px] font-extrabold px-3.5 py-1 rounded-full bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700/60 text-slate-900 dark:text-slate-100 select-none shadow-sm">
+              {unlockedCount} / {achievements.filter(a => a.type === 'badge').length} Unlocked
+            </span>
+          </div>
         </div>
 
-        <div className="relative group">
-          <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-none snap-x snap-mandatory">
-            {achievements.map((ach) => (
-              <div
-                key={ach.id}
-                className={`p-4 border rounded-2xl flex gap-3.5 items-center shrink-0 w-[270px] snap-start relative transition-all duration-300 ${
-                  ach.unlocked
-                    ? 'border-primary/30 bg-primary/[0.04] shadow-sm hover:border-primary/50'
-                    : 'border-border/60 opacity-60 bg-secondary/20'
-                }`}
-              >
-                <div className="text-3xl shrink-0 select-none">{ach.icon}</div>
-                <div className="min-w-0">
-                  <h4 className="text-xs font-bold text-foreground flex items-center gap-2">
-                    <span>{ach.title}</span>
-                    {ach.unlocked ? (
-                      <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Unlocked</span>
-                    ) : (
-                      <span className="text-[9px] font-bold text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">Locked</span>
+        <div className="relative group/nav">
+          {/* Scroll Container */}
+          <div className="flex gap-3 overflow-x-auto pb-3 pt-1 scrollbar-none snap-x snap-mandatory scroll-smooth">
+            {achievements.map((ach) => {
+              const unlocked = ach.type === 'badge' && ach.unlocked;
+              const isProgress = ach.type === 'progress';
+              const isLocked = ach.type === 'locked';
+
+              // Icon layout
+              let achIcon = null;
+              if (ach.id === 'first-step') achIcon = <Rocket className="w-6 h-6 text-blue-500" />;
+              else if (ach.id === 'scholar') achIcon = <GraduationCap className="w-6 h-6 text-emerald-600" />;
+              else if (ach.id === 'perfect-score') achIcon = <Target className="w-6 h-6 text-violet-500" />;
+              else if (ach.id === 'speed-demon') achIcon = <Zap className="w-6 h-6 text-amber-500" />;
+              else if (ach.id === 'streak-builder') achIcon = <Flame className="w-6 h-6 text-red-500" />;
+              else if (ach.id === 'theory-explorer') achIcon = <Flame className="w-6 h-6 text-orange-500" />;
+              else if (ach.id === 'domain-streaks') achIcon = <BookOpen className="w-6 h-6 text-teal-600" />;
+              else if (ach.id === 'mastermind') achIcon = <span className="text-2xl">🧠</span>;
+              else if (ach.id === 'perfectionist') achIcon = <span className="text-2xl">🏅</span>;
+              else if (ach.id === 'legend') achIcon = <span className="text-2xl">⭐</span>;
+              else if (ach.id === 'ultimate') achIcon = <span className="text-2xl">💎</span>;
+              else achIcon = <span className="text-2xl">🎁</span>;
+
+              // Color classes for circles
+              let circleColorClass = '';
+              if (isLocked) {
+                circleColorClass = 'bg-slate-50 dark:bg-neutral-900 border-slate-100 dark:border-neutral-800 grayscale opacity-60';
+              } else {
+                if (ach.id === 'first-step') circleColorClass = 'bg-blue-50/70 border-blue-100/60 dark:bg-blue-950/20 dark:border-blue-900/30';
+                else if (ach.id === 'scholar') circleColorClass = 'bg-emerald-50/70 border-emerald-100/60 dark:bg-emerald-950/20 dark:border-emerald-900/30';
+                else if (ach.id === 'perfect-score') circleColorClass = 'bg-violet-50/70 border-violet-100/60 dark:bg-violet-950/20 dark:border-violet-900/30';
+                else if (ach.id === 'speed-demon') circleColorClass = 'bg-amber-50/70 border-amber-100/60 dark:bg-amber-950/20 dark:border-amber-900/30';
+                else if (ach.id === 'streak-builder') circleColorClass = 'bg-red-50/70 border-red-100/60 dark:bg-red-950/20 dark:border-red-900/30';
+                else if (ach.id === 'theory-explorer') circleColorClass = 'bg-orange-50/70 border-orange-100/60 dark:bg-orange-950/20 dark:border-orange-900/30';
+                else circleColorClass = 'bg-teal-50/70 border-teal-100/60 dark:bg-teal-950/20 dark:border-teal-900/30';
+              }
+
+              return (
+                <div
+                  key={ach.id}
+                  className={`flex flex-col items-center justify-between p-3 bg-white dark:bg-neutral-800 border border-slate-100 dark:border-neutral-700/50 rounded-2xl w-[130px] h-[195px] shrink-0 snap-start text-center shadow-sm hover:shadow-md transition-all duration-300 select-none`}
+                >
+                  {/* Circular Avatar */}
+                  <div className={`w-13 h-13 rounded-full flex items-center justify-center border shadow-inner shrink-0 mb-1 ${circleColorClass}`}>
+                    {achIcon}
+                  </div>
+
+                  {/* Title & Description */}
+                  <div className="flex-1 flex flex-col justify-start">
+                    <h4 className="text-[11px] font-extrabold text-slate-800 dark:text-slate-100 tracking-tight leading-snug">
+                      {ach.title}
+                    </h4>
+                    <p className="text-[8.5px] text-muted-foreground mt-0.5 leading-tight line-clamp-2 max-w-[110px] mx-auto font-medium">
+                      {ach.desc}
+                    </p>
+                  </div>
+
+                  {/* Bottom Indicator Badge */}
+                  <div className="w-full mt-auto pt-1.5 border-t border-border/20 flex items-center justify-center">
+                    {unlocked && (
+                      <div className="flex items-center justify-center h-6">
+                        <div className="w-5.5 h-5.5 rounded-full bg-[#10B981] text-white flex items-center justify-center shadow-sm">
+                          <svg className="w-3 h-3 text-white stroke-[3.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      </div>
                     )}
-                  </h4>
-                  <p className="text-[10px] text-muted-foreground mt-1 leading-snug">{ach.desc}</p>
+
+                    {isProgress && (
+                      <div className="flex items-center justify-center gap-1 h-6">
+                        <svg className="w-[16px] h-[16px] transform -rotate-90">
+                          <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" fill="none" className="text-slate-100 dark:text-neutral-700/60" />
+                          <circle
+                            cx="8"
+                            cy="8"
+                            r="6"
+                            stroke="#248DCE"
+                            strokeWidth="2.2"
+                            fill="none"
+                            strokeDasharray={2 * Math.PI * 6}
+                            strokeDashoffset={2 * Math.PI * 6 - (ach.current! / ach.max!) * (2 * Math.PI * 6)}
+                            className="transition-all duration-300 stroke-[#248DCE]"
+                          />
+                        </svg>
+                        <span className="text-[9.5px] font-extrabold text-slate-750 dark:text-slate-350 font-mono leading-none">
+                          {ach.current}/{ach.max}
+                        </span>
+                      </div>
+                    )}
+
+                    {isLocked && (
+                      <div className="flex items-center justify-center h-6">
+                        <div className="w-5.5 h-5.5 rounded-full bg-slate-50 border border-slate-200 dark:bg-neutral-800 dark:border-neutral-700 text-muted-foreground/80 flex items-center justify-center shadow-inner">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

@@ -304,6 +304,7 @@ function PracticeContent() {
       }
 
       setSessionAttempts((prev) => [...prev, { qId: currentQuestion.id, isCorrect, responseMs }]);
+      window.dispatchEvent(new CustomEvent('sync-sidebar-badges'));
     } catch (err: unknown) {
       console.error('[Foundations] Failed to log attempt:', err);
     }

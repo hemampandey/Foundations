@@ -126,6 +126,7 @@ export default function ReviewSession({
         );
 
       setSessionAttempts((prev) => [...prev, { isCorrect, responseMs }]);
+      window.dispatchEvent(new CustomEvent('sync-sidebar-badges'));
     } catch (err) {
       console.error('[Foundations] Review answer error:', err);
     }

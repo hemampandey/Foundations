@@ -313,16 +313,26 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Load sidebar-specific data (attempts, draft count, review due count) on mount and auth changes
+  // Load sidebar-specific data (attempts, draft count, review due count) on mount, auth, pathname or custom sync events
   useEffect(() => {
     if (!profileLoading && contextProfile) {
-      Promise.resolve().then(() => {
+      const loadAll = () => {
         fetchAttempts();
         fetchDraftCount();
         fetchReviewDueCount();
-      });
+      };
+      
+      loadAll();
+
+      window.addEventListener('sync-sidebar-badges', loadAll);
+      window.addEventListener('focus', loadAll);
+
+      return () => {
+        window.removeEventListener('sync-sidebar-badges', loadAll);
+        window.removeEventListener('focus', loadAll);
+      };
     }
-  }, [profileLoading, contextProfile, fetchAttempts, fetchDraftCount, fetchReviewDueCount]);
+  }, [profileLoading, contextProfile, pathname, searchParams, fetchAttempts, fetchDraftCount, fetchReviewDueCount]);
 
   // Handle sign-out navigation
   useEffect(() => {
@@ -391,9 +401,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
             <Link href="/dashboard" className="flex items-center gap-2 min-w-0">
               {!collapsed && (
                 <>
-                  <span className="font-inria font-bold text-lg text-foreground truncate">
-                    Foundations
-                  </span>
+                  <span className="font-inria font-bold text-lg text-foreground truncate">Foundations</span>
                 </>
               )}
             </Link>
@@ -427,10 +435,10 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
           </div>
 
           {/* Practice Button */}
-          <div className="shrink-0">
+          <div className="relative group shrink-0">
             <Link
               href="/review?action=start"
-              className={`flex items-center justify-center gap-2.5 bg-gradient-to-r from-[#264D8E] to-[#3b82f6] text-white rounded-2xl text-xs font-bold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-md ${collapsed ? 'w-10 h-10 mx-auto p-0' : 'w-full px-4 py-3'
+              className={`flex items-center justify-center gap-2.5 bg-gradient-to-r from-primary to-[#3b82f6] text-white rounded-2xl text-xs font-bold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-md ${collapsed ? 'w-10 h-10 mx-auto p-0' : 'w-full px-4 py-3'
                 } ${reviewDueCount > 0 ? 'animate-practice-btn-glow' : ''}`}
             >
               {collapsed ? (
@@ -439,7 +447,8 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                   alt="Brain Icon"
                   width={20}
                   height={20}
-                  className="w-5 h-5"
+                  className="w-5 h-5 shrink-0"
+                  unoptimized
                 />
               ) : (
                 <span className="flex items-center justify-between w-full font-serif font-bold">
@@ -452,52 +461,73 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                 </span>
               )}
             </Link>
+            {collapsed && (
+              <span className="absolute left-12 top-1/2 -translate-y-1/2 ml-2 bg-secondary text-primary text-[10px] font-bold font-serif px-1.5 py-1 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-md z-50">
+                Daily Practice
+              </span>
+            )}
           </div>
 
           {/* Main Navigation Links */}
           <nav className="space-y-0.5 shrink-0 animate-fade-in" aria-label="Primary">
-            <Link
-              href="/dashboard"
-              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-200 border hover-glow-sweep ${collapsed ? 'w-10 h-10 mx-auto justify-center p-0' : 'gap-3 px-3 py-2'
-                } ${pathname === '/dashboard' || pathname.startsWith('/practice')
-                  ? 'bg-primary/5 text-primary font-serif border-primary/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
-                  : 'text-muted-foreground hover:text-foreground font-serif hover:bg-secondary/45 border-transparent'
-                }`}
-            >
-              <Image
-                src="/icons/learn.svg"
-                alt="Learn Icon"
-                width={30}
-                height={30}
-                className="w-5 h-5 shrink-0"
-                unoptimized
-              />
-              {!collapsed && <span>Learn</span>}
-            </Link>
+            <div className="relative group">
+              <Link
+                href="/dashboard"
+                className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-200 border hover-glow-sweep ${collapsed ? 'w-10 h-10 mx-auto justify-center p-0' : 'gap-3 px-3 py-2'
+                  } ${pathname === '/dashboard' || pathname.startsWith('/practice')
+                    ? 'bg-primary/5 text-primary font-serif border-primary/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
+                    : 'text-muted-foreground hover:text-foreground font-serif hover:bg-secondary/45 border-transparent'
+                  }`}
+              >
+                <Image
+                  src="/icons/learn.svg"
+                  alt="Learn Icon"
+                  width={30}
+                  height={30}
+                  className="w-5 h-5 shrink-0"
+                  unoptimized
+                />
+                {!collapsed && <span>Learn</span>}
+              </Link>
+              {collapsed && (
+                <span className="absolute left-12 top-1/2 -translate-y-1/2 ml-2 bg-secondary text-primary text-[10px] font-bold font-serif px-1.5 py-1 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-md z-50">Learn</span>
+              )}
+            </div>
  
-            <Link
-              href="/progress"
-              className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-200 border hover-glow-sweep ${collapsed ? 'w-10 h-10 mx-auto justify-center p-0' : 'gap-3 px-3 py-2'
-                } ${pathname === '/progress'
-                  ? 'bg-primary/5 text-primary font-serif border-primary/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
-                  : 'text-muted-foreground font-serif hover:text-foreground hover:bg-secondary/45 border-transparent'
-                }`}
-            >
-              <Image
-                src="/icons/progress.svg"
-                alt="Progress Icon"
-                width={30}
-                height={30}
-                className="w-5 h-5 shrink-0"
-                unoptimized
-              />
-              {!collapsed && <span>Progress</span>}
-            </Link>
+            <div className="relative group">
+              <Link
+                href="/progress"
+                className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-200 border hover-glow-sweep ${collapsed ? 'w-10 h-10 mx-auto justify-center p-0' : 'gap-3 px-3 py-2'
+                  } ${pathname === '/progress'
+                    ? 'bg-primary/5 text-primary font-serif border-primary/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
+                    : 'text-muted-foreground font-serif hover:text-foreground hover:bg-secondary/45 border-transparent'
+                  }`}
+              >
+                <Image
+                  src="/icons/progress.svg"
+                  alt="Progress Icon"
+                  width={30}
+                  height={30}
+                  className="w-5 h-5 shrink-0"
+                  unoptimized
+                />
+                {!collapsed && <span>Progress</span>}
+              </Link>
+              {collapsed && (
+                <span className="absolute left-12 top-1/2 -translate-y-1/2 ml-2 bg-secondary text-primary text-[10px] font-bold font-serif px-1.5 py-1 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-md z-50">
+                  Progress
+                </span>
+              )}
+            </div>
 
             {(() => {
               const activeReviewTab = searchParams.get('tab') || 'forecast';
               return (
-                <div className="space-y-0.5 relative">
+                <div
+                  className="space-y-0.5 relative"
+                  onMouseEnter={() => collapsed && setReviewExpanded(true)}
+                  onMouseLeave={() => collapsed && setReviewExpanded(false)}
+                >
                   <button
                     onClick={() => {
                       const nextVal = !reviewExpanded;
@@ -581,12 +611,12 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                   {/* Collapsed flyout popover menu */}
                   {collapsed && (
                     <div
-                      className={`absolute left-[54px] top-0 z-50 bg-card border border-border rounded-2xl p-2.5 shadow-xl w-[150px] space-y-0.5 transition-all duration-300 ease-out transform origin-left ${reviewExpanded
+                      className={`absolute left-[54px] top-0 z-50 bg-card border border-border rounded-2xl p-2.5 shadow-xl w-[150px] space-y-0.5 transition-all duration-300 ease-out transform origin-left before:content-[''] before:absolute before:right-full before:top-0 before:bottom-0 before:w-[25px] before:bg-transparent ${reviewExpanded
                         ? 'translate-x-2 opacity-100 scale-100 pointer-events-auto'
                         : 'translate-x-0 opacity-0 scale-95 pointer-events-none'
                         }`}
                     >
-                      <div className="text-[10px] font-bold font-serif text-primary/80 uppercase tracking-wider px-2.5 pb-1 border-b border-border/40 mb-1">Review Menu</div>
+                      <div className="text-[10px] font-bold font-serif text-primary/80 px-2 pb-1 border-b border-border/40 mb-1">Review Menu</div>
 
                       {/* Forecast & Stats */}
                       <Link
@@ -633,7 +663,11 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
             {!profileLoading && profile?.role === 'admin' && (() => {
               const activeTab = searchParams.get('tab') || 'theories';
               return (
-                <div className="space-y-0.5 relative">
+                <div
+                  className="space-y-0.5 relative"
+                  onMouseEnter={() => collapsed && setAdminExpanded(true)}
+                  onMouseLeave={() => collapsed && setAdminExpanded(false)}
+                >
                   <button
                     onClick={() => {
                       const nextVal = !adminExpanded;
@@ -726,12 +760,12 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                   {/* Collapsed flyout popover menu */}
                   {collapsed && (
                     <div
-                      className={`absolute left-[54px] top-0 z-50 bg-card border border-border rounded-2xl p-2.5 shadow-xl w-[150px] space-y-0.5 transition-all duration-300 ease-in-out transform origin-left ${adminExpanded
+                      className={`absolute left-[54px] top-0 z-50 bg-card border border-border rounded-2xl p-2.5 shadow-xl w-[150px] space-y-0.5 transition-all duration-300 ease-in-out transform origin-left before:content-[''] before:absolute before:right-full before:top-0 before:bottom-0 before:w-[25px] before:bg-transparent ${adminExpanded
                         ? 'translate-x-2 opacity-100 scale-100 pointer-events-auto'
                         : 'translate-x-0 opacity-0 scale-95 pointer-events-none'
                         }`}
                     >
-                      <div className="text-[10px] font-serif font-bold text-primary/80 uppercase tracking-wider px-2.5 pb-1 border-b border-border/40 mb-1">Admin Menu</div>
+                      <div className="text-[10px] font-serif font-bold text-primary/80 px-2 pb-1 border-b border-border/40 mb-1">Admin Menu</div>
 
                       {/* Manage Theories */}
                       <Link

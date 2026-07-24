@@ -58,8 +58,9 @@ function AdminPageContent() {
     }
   }, [tabParam]);
 
-  const loadDbData = useCallback(async () => {
-    setLoadingLists(true);
+  const loadDbData = useCallback(async (silent: boolean | unknown = false) => {
+    const isSilent = silent === true;
+    if (!isSilent) setLoadingLists(true);
     try {
       const { data: theoryData, error: tErr } = await supabase
         .from('theories')
@@ -88,7 +89,7 @@ function AdminPageContent() {
       const message = err instanceof Error ? err.message : String(err);
       console.error('[Foundations] Error loading admin lists:', message);
     } finally {
-      setLoadingLists(false);
+      if (!isSilent) setLoadingLists(false);
     }
   }, []);
 

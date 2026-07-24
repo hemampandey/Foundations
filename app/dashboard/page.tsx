@@ -274,10 +274,10 @@ export default function DashboardPage() {
       />
 
       {/* ─── Two Column Layout ─── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* Left Column (2/3 width) - Journeys and Theories */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6">
 
           {/* CURATED JOURNEYS */}
           {loadingData ? (
@@ -413,21 +413,13 @@ export default function DashboardPage() {
               </div>
 
               {/* Grid Content */}
-              <div className="grid grid-cols-12 gap-4 items-center">
-                <div className="col-span-5 space-y-3">
+              <div className="grid grid-cols-10 gap-4 items-center">
+                <div className="col-span-5 space-y-2">
                   <p className="text-xs font-serif text-slate-500">Strengthen your due concepts</p>
                   <button onClick={() => router.push('/review')} className="w-fit py-3 px-8 rounded-sm bg-[#264D8E] font-serif dark:bg-primary/70 text-white font-extrabold hover:bg-[#1f3e73] active:scale-[0.98] transition-all text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-blue-900/10">
                     <span>Start Review</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
-                </div>
-
-                {/* Donut progress */}
-                <div className="col-span-3 flex justify-center items-center">
-                  <svg className="w-14 h-14 transform -rotate-90">
-                    <circle cx="28" cy="28" r="23" stroke="#e0e7ff" strokeWidth="4.5" fill="transparent" />
-                    <circle cx="28" cy="28" r="23" stroke="#264D8E" strokeWidth="4.5" fill="transparent" strokeDasharray="144.5" strokeDashoffset="43.3" strokeLinecap="round" />
-                  </svg>
                 </div>
 
                 {/* Vertical Divider */}

@@ -9,7 +9,7 @@ interface ManageJourneysProps {
   journeys: Journey[];
   questions: QuestionWithTheory[];
   loadingLists: boolean;
-  loadDbData: () => Promise<void>;
+  loadDbData: (silent?: boolean) => Promise<void>;
 }
 
 export default function ManageJourneys({
