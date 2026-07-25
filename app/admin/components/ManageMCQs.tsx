@@ -602,7 +602,7 @@ export default function ManageMCQs({
                         <button
                           type="button"
                           onClick={() => handleSaveInlineEdit(q.id)}
-                          className="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-white bg-primary hover:opacity-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                          className="flex-1 py-2 px-3 rounded-xl text-xs font-bold font-serif text-white bg-primary hover:opacity-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
                         >
                           <Save className="w-3.5 h-3.5" />
                           Save Changes
@@ -614,9 +614,7 @@ export default function ManageMCQs({
                       {/* Header Row */}
                       <div className="flex justify-between items-center gap-4 relative">
                         {/* Theory Tag */}
-                        <span className="px-2.5 py-1 rounded-[6px] text-[9.5px] font-bold tracking-wider uppercase bg-[#E6EFFC] text-[#2B6CB0] border border-[#C5DCFA] dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/40 select-none">
-                          {q.theories?.title ?? 'Unknown Theory'}
-                        </span>
+                        <span className="px-2.5 py-1 rounded-[6px] text-[9.5px] font-bold tracking-wider uppercase bg-[#E6EFFC] text-[#2B6CB0] border border-[#C5DCFA] dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/40 select-none">{q.theories?.title ?? 'Unknown Theory'}</span>
                         
                         {/* Action buttons on the right */}
                         <div className="flex items-center gap-2 shrink-0">

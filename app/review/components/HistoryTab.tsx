@@ -59,6 +59,39 @@ export default function HistoryTab() {
     const fetchHistoryData = async () => {
       setLoadingHistory(true);
       try {
+        let matchingQuestionIds: string[] | null = null;
+        
+        if (searchQuery.trim() !== '') {
+          // 1. Get questions matching stem
+          const { data: stemMatches } = await supabase
+            .from('questions')
+            .select('id')
+            .ilike('stem', `%${searchQuery.trim()}%`);
+
+          // 2. Get theories matching title
+          const { data: theoryMatches } = await supabase
+            .from('theories')
+            .select('id')
+            .ilike('title', `%${searchQuery.trim()}%`);
+
+          let theoryQuestionIds: string[] = [];
+          if (theoryMatches && theoryMatches.length > 0) {
+            const theoryIds = theoryMatches.map(t => t.id);
+            const { data: theoryQuestions } = await supabase
+              .from('questions')
+              .select('id')
+              .in('theory_id', theoryIds);
+            if (theoryQuestions) {
+              theoryQuestionIds = theoryQuestions.map(q => q.id);
+            }
+          }
+
+          matchingQuestionIds = Array.from(new Set([
+            ...(stemMatches?.map(q => q.id) || []),
+            ...theoryQuestionIds
+          ]));
+        }
+
         let query = supabase
           .from('attempts')
           .select(`
@@ -78,9 +111,14 @@ export default function HistoryTab() {
           `, { count: 'exact' })
           .eq('user_id', profile.id);
 
-        // Apply Search
-        if (searchQuery.trim() !== '') {
-          query = query.or(`stem.ilike.%${searchQuery}%,theories.title.ilike.%${searchQuery}%`, { referencedTable: 'questions' });
+        // Apply Search Filter via matching question IDs
+        if (matchingQuestionIds !== null) {
+          if (matchingQuestionIds.length > 0) {
+            query = query.in('question_id', matchingQuestionIds);
+          } else {
+            // No matching questions, force query to return no results safely
+            query = query.in('question_id', ['00000000-0000-0000-0000-000000000000']);
+          }
         }
 
         // Apply Theory Filter
@@ -183,7 +221,7 @@ export default function HistoryTab() {
   };
 
   return (
-    <div className="space-y-4 w-full text-left">
+    <div className="space-y-3 w-full text-left">
       {/* ─── Top Filter Row ─── */}
       <div className="flex flex-col md:flex-row gap-3 items-center">
         {/* Search */}
@@ -197,7 +235,7 @@ export default function HistoryTab() {
               setSearchQuery(e.target.value);
               setCurrentPage(1);
             }}
-            className="w-full pl-9 pr-4 py-2.5 text-xs rounded-xl bg-card border border-border focus:border-primary outline-none transition-all placeholder:text-muted-foreground/60 shadow-sm"
+            className="w-full pl-10 pr-4 py-2.5 text-xs font-serif rounded-xl bg-card border border-border focus:border-primary outline-none transition-all placeholder:text-muted-foreground shadow-sm"
           />
         </div>
 
@@ -212,7 +250,7 @@ export default function HistoryTab() {
                 setSelectedTheory(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full pl-9 pr-8 py-2.5 text-xs rounded-xl bg-card border border-border appearance-none focus:border-primary outline-none transition-all cursor-pointer font-bold text-foreground shadow-sm"
+              className="w-full pl-9 pr-8 py-2.5 text-xs font-serif rounded-xl bg-card border border-border appearance-none focus:border-primary outline-none transition-all cursor-pointer font-bold text-foreground shadow-sm"
             >
               <option value="">All Topics</option>
               {theoryOptions.map((title, idx) => (
@@ -231,7 +269,7 @@ export default function HistoryTab() {
                 setSelectedResult(e.target.value as 'all' | 'correct' | 'incorrect');
                 setCurrentPage(1);
               }}
-              className="w-full pl-9 pr-8 py-2.5 text-xs rounded-xl bg-card border border-border appearance-none focus:border-primary outline-none transition-all cursor-pointer font-bold text-foreground shadow-sm"
+              className="w-full pl-9 pr-8 py-2.5 text-xs font-serif rounded-xl bg-card border border-border appearance-none focus:border-primary outline-none transition-all cursor-pointer font-bold text-foreground shadow-sm"
             >
               <option value="all">All Results</option>
               <option value="correct">Correct Only</option>
@@ -249,7 +287,7 @@ export default function HistoryTab() {
                 setSelectedDateRange(e.target.value as 'all' | '7days' | '30days');
                 setCurrentPage(1);
               }}
-              className="w-full pl-9 pr-8 py-2.5 text-xs rounded-xl bg-card border border-border appearance-none focus:border-primary outline-none transition-all cursor-pointer font-bold text-foreground shadow-sm"
+              className="w-full pl-9 pr-8 py-2.5 text-xs font-serif rounded-xl bg-card border border-border appearance-none focus:border-primary outline-none transition-all cursor-pointer font-bold text-foreground shadow-sm"
             >
               <option value="all">All Time</option>
               <option value="7days">Last 7 Days</option>
@@ -268,7 +306,7 @@ export default function HistoryTab() {
       ) : totalItems === 0 ? (
         <div className="bg-card border border-border rounded-2xl py-12 text-center text-muted-foreground font-serif">
           <History className="w-8 h-8 mx-auto mb-2 opacity-35" />
-          <p className="text-xs font-serif font-semibold">No recent review attempts found matching filters</p>
+          <p className="text-xs font-serif font-semibold">No recent review attempts found</p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -297,13 +335,13 @@ export default function HistoryTab() {
                       className="bg-card border border-border/80 rounded-2xl p-4 hover:shadow-md transition-all flex flex-col md:flex-row md:items-center gap-5 relative overflow-hidden"
                     >
                       {/* Left/Middle textual metadata details */}
-                      <div className="flex-1 space-y-2 min-w-0 pr-2">
+                      <div className="flex-1 space-y-1 min-w-0 pr-2">
                         {/* Top Theory Category Tag */}
                         <div className="flex items-center">
-                          <span className="px-1.5 py-0.5 rounded-sm bg-primary/20 text-primary text-[10px] font-extrabold font-sans tracking-wide uppercase">{q.theories?.title ?? 'N/A'}</span>
+                          <span className="px-1.5 py-0.5 rounded-sm bg-primary/20 text-primary text-[9px] font-extrabold font-serif uppercase">{q.theories?.title ?? 'N/A'}</span>
                         </div>
                         {/* Question Stem */}
-                        <p className="text-sm font-bold text-foreground leading-snug line-clamp-2 mt-1 font-sans">{q.stem}</p>
+                        <p className="text-sm font-bold font-inria text-foreground leading-snug line-clamp-2 mt-1">{q.stem}</p>
 
                         {/* Bottom Metadata Line */}
                         <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-semibold text-slate-500 select-none font-sans">

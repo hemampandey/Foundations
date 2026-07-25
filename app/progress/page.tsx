@@ -5,25 +5,9 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useProfile } from '@/app/components/ProfileProvider';
 import StatsHeader from '@/app/components/StatsHeader';
+import Image from 'next/image';
 import type { AttemptWithQuestion, UserProgress } from '@/lib/types';
-import {
-  ChevronRight,
-  Calendar,
-  Layers,
-  Clock,
-  BarChart2,
-  BookOpen,
-  Award,
-  Trophy,
-  Flame,
-  Zap,
-  Target,
-  GraduationCap,
-  Rocket,
-  Car,
-  Building2,
-  Users
-} from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 const getBezierPath = (points: { x: number; y: number }[]) => {
   if (points.length === 0) return '';
@@ -38,22 +22,6 @@ const getBezierPath = (points: { x: number; y: number }[]) => {
     path += ` C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${p1.x} ${p1.y}`;
   }
   return path;
-};
-
-const getDomainIcon = (title: string) => {
-  const t = title.toLowerCase();
-  if (t.includes('car')) return <Car className="w-4 h-4 text-blue-500" />;
-  if (t.includes('materialism') || t.includes('history') || t.includes('philosophy')) return <Building2 className="w-4 h-4 text-violet-500" />;
-  if (t.includes('demographic') || t.includes('population') || t.includes('social') || t.includes('transition')) return <Users className="w-4 h-4 text-emerald-500" />;
-  return <BookOpen className="w-4 h-4 text-indigo-500" />;
-};
-
-const getDomainBg = (title: string) => {
-  const t = title.toLowerCase();
-  if (t.includes('car')) return 'bg-blue-500/10 border-blue-500/20';
-  if (t.includes('materialism') || t.includes('history') || t.includes('philosophy')) return 'bg-violet-500/10 border-violet-500/20';
-  if (t.includes('demographic') || t.includes('population') || t.includes('social') || t.includes('transition')) return 'bg-emerald-500/10 border-emerald-500/20';
-  return 'bg-indigo-500/10 border-indigo-500/20';
 };
 
 export default function ProgressPage() {
@@ -482,9 +450,14 @@ export default function ProgressPage() {
         <div className="lg:col-span-2 p-4 premium-card space-y-5 flex flex-col justify-between">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/40 pb-4">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
-                <Calendar className="w-5 h-5" />
-              </div>
+              <Image 
+                src="/icons/calendar.svg"
+                alt="Calendar Icon"
+                width={36}
+                height={36}
+                className="w-9 h-9 shrink-0"
+                unoptimized
+              />
               <div>
                 <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Learning Activity</h3>
                 <p className="text-[11px] text-muted-foreground mt-0.5">Practice attempts recorded over the last 6 months</p>
@@ -493,14 +466,12 @@ export default function ProgressPage() {
             
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2.5 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 rounded-xl p-2 px-3.5">
-                <Calendar className="w-4 h-4 text-indigo-500" />
                 <div className="text-left select-none">
                   <p className="text-[9px] text-muted-foreground font-bold uppercase leading-none">Active Days</p>
                   <p className="text-xs font-extrabold text-foreground leading-tight mt-1">{activeDaysCount}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5 bg-violet-50/50 dark:bg-violet-950/20 border border-violet-100 dark:border-violet-900/30 rounded-xl p-2 px-3.5">
-                <Layers className="w-4 h-4 text-violet-500" />
                 <div className="text-left select-none">
                   <p className="text-[9px] text-muted-foreground font-bold uppercase leading-none">Total MCQs</p>
                   <p className="text-xs font-extrabold text-foreground leading-tight mt-1">{totalAttempts}</p>
@@ -605,9 +576,14 @@ export default function ProgressPage() {
         {/* Mastery Progression (Accuracy Chart) ─── (takes 1/3 width) */}
         <div className="lg:col-span-1 p-4 premium-card flex flex-col justify-between gap-4">
           <div className="flex items-center gap-2.5 border-b border-border/40 pb-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
-              <Award className="w-5 h-5" />
-            </div>
+            <Image 
+              src="/icons/mastery.svg"
+              alt="Mastery Icon"
+              width={36}
+              height={36}
+              className="w-9 h-9 shrink-0"
+              unoptimized
+            />
             <div>
               <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Mastery Progression</h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">Rolling accuracy over the last 15 attempts</p>
@@ -666,9 +642,14 @@ export default function ProgressPage() {
         {/* Average Response Time Chart (1/3 width) */}
         <div className="p-4 premium-card flex flex-col justify-between gap-4">
           <div className="flex items-center gap-2.5 border-b border-border/40 ">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
-              <Clock className="w-5 h-5" />
-            </div>
+              <Image 
+                src="/icons/time.svg"
+                alt="Time Icon"
+                width={32}
+                height={32}
+                className="w-9 h-9 shrink-0"
+                unoptimized
+              />
             <div>
               <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Average Response Time</h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">Time elapsed per question (last 15 attempts)</p>
@@ -757,9 +738,15 @@ export default function ProgressPage() {
         {/* Weekly Practice Activity (1/3 width) */}
         <div className="p-4 premium-card flex flex-col justify-between gap-4">
           <div className="flex items-center gap-2.5 border-b border-border/40 pb-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
-              <BarChart2 className="w-5 h-5" />
-            </div>
+              <Image 
+                src="/icons/time.svg"
+                alt="Brain Icon"
+                width={32}
+                height={32}
+                className="w-9 h-9 shrink-0"
+                unoptimized
+              />
+
             <div>
               <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Weekly Practice Activity</h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">MCQ attempts in the last 7 days</p>
@@ -798,20 +785,22 @@ export default function ProgressPage() {
         {/* Domain Mastery (1/3 width) */}
         <div className="p-4 premium-card flex flex-col justify-between gap-4">
           <div className="flex items-center gap-2.5 border-b border-border/40 pb-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
-              <BookOpen className="w-5 h-5" />
-            </div>
+            <Image 
+              src="/icons/book.svg"
+              alt="Book Icon"
+              width={32}
+              height={32}
+              className="w-8 h-8 shrink-0"
+              unoptimized
+            />
             <div>
               <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Domain Mastery</h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">Topic accuracy across answered theories</p>
             </div>
           </div>
           {theoryMastery.length === 0 ? (
-            <div className="text-center py-8 text-xs text-muted-foreground italic border border-dashed border-border/60 rounded-xl my-auto">
-              Complete practice questions to view domain accuracy breakdowns.
-            </div>
-          ) : (
-            <div className="space-y-2.5 overflow-y-auto max-h-[145px] pr-1 scrollbar-none my-auto">
+            <div className="text-center py-8 text-xs text-muted-foreground italic border border-dashed border-border/60 rounded-xl my-auto">Complete practice questions to view domain accuracy breakdowns.</div>
+          ) : (<div className="space-y-2.5 overflow-y-auto max-h-[145px] pr-1 scrollbar-none my-auto">
               {theoryMastery.slice(0, 3).map((tm) => {
                 let badgeClass = 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
                 if (tm.accuracy >= 90) {
@@ -820,27 +809,20 @@ export default function ProgressPage() {
                   badgeClass = 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20';
                 }
                 return (
-                  <div key={tm.id} className="flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-secondary/40 transition-all cursor-pointer">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center border shrink-0 ${getDomainBg(tm.title)}`}>
-                      {getDomainIcon(tm.title)}
-                    </div>
-                    
+                  <div key={tm.id} className="flex items-center gap-2.5 rounded-xl hover:bg-secondary/40 transition-all cursor-pointer">
                     <div className="flex-1 min-w-0 space-y-1">
                       <div className="flex justify-between items-center text-[10px] gap-1">
                         <span className="font-bold text-foreground truncate max-w-[110px]" title={tm.title}>{tm.title}</span>
                         <span className="text-[9px] text-muted-foreground font-mono font-bold shrink-0">{tm.correct}/{tm.total}</span>
                       </div>
-                      <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden border border-border/40">
+                      <div className="w-full h-2 bg-secondary rounded-full overflow-hidden border border-border/40">
                         <div
                           className="h-full bg-primary rounded-full transition-all duration-500"
                           style={{ width: `${tm.accuracy}%` }}
                         />
                       </div>
-                    </div>
-                    
-                    <div className={`px-2 py-0.5 text-[10px] font-extrabold rounded-full border shrink-0 select-none ${badgeClass}`}>
-                      {tm.accuracy}%
-                    </div>
+                    </div>     
+                    <div className={`px-2 py-0.5 text-[10px] font-extrabold rounded-full border shrink-0 select-none ${badgeClass}`}>{tm.accuracy}%</div>
                     <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60 shrink-0" />
                   </div>
                 );
@@ -854,9 +836,14 @@ export default function ProgressPage() {
       <div className="p-4 rounded-3xl bg-gradient-to-br from-[#F4F9FD] to-[#FAFDFE] dark:from-neutral-900/60 dark:to-neutral-900/20 border border-[#D9EAF5] dark:border-neutral-800 space-y-5 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/40 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
-              <Trophy className="w-5 h-5 animate-pulse" />
-            </div>
+              <Image 
+                src="/icons/accomplishments.svg"
+                alt="Accomplishments Icon"
+                width={36}
+                height={36}
+                className="w-9 h-9 shrink-0"
+                unoptimized
+              />
             <div>
               <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Accomplishments</h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">Badges unlocked through active learning</p>
@@ -880,54 +867,29 @@ export default function ProgressPage() {
 
               // Icon layout
               let achIcon = null;
-              if (ach.id === 'first-step') achIcon = <Rocket className="w-6 h-6 text-blue-500" />;
-              else if (ach.id === 'scholar') achIcon = <GraduationCap className="w-6 h-6 text-emerald-600" />;
-              else if (ach.id === 'perfect-score') achIcon = <Target className="w-6 h-6 text-violet-500" />;
-              else if (ach.id === 'speed-demon') achIcon = <Zap className="w-6 h-6 text-amber-500" />;
-              else if (ach.id === 'streak-builder') achIcon = <Flame className="w-6 h-6 text-red-500" />;
-              else if (ach.id === 'theory-explorer') achIcon = <Flame className="w-6 h-6 text-orange-500" />;
-              else if (ach.id === 'domain-streaks') achIcon = <BookOpen className="w-6 h-6 text-teal-600" />;
-              else if (ach.id === 'mastermind') achIcon = <span className="text-2xl">🧠</span>;
-              else if (ach.id === 'perfectionist') achIcon = <span className="text-2xl">🏅</span>;
-              else if (ach.id === 'legend') achIcon = <span className="text-2xl">⭐</span>;
-              else if (ach.id === 'ultimate') achIcon = <span className="text-2xl">💎</span>;
-              else achIcon = <span className="text-2xl">🎁</span>;
-
-              // Color classes for circles
-              let circleColorClass = '';
-              if (isLocked) {
-                circleColorClass = 'bg-slate-50 dark:bg-neutral-900 border-slate-100 dark:border-neutral-800 grayscale opacity-60';
-              } else {
-                if (ach.id === 'first-step') circleColorClass = 'bg-blue-50/70 border-blue-100/60 dark:bg-blue-950/20 dark:border-blue-900/30';
-                else if (ach.id === 'scholar') circleColorClass = 'bg-emerald-50/70 border-emerald-100/60 dark:bg-emerald-950/20 dark:border-emerald-900/30';
-                else if (ach.id === 'perfect-score') circleColorClass = 'bg-violet-50/70 border-violet-100/60 dark:bg-violet-950/20 dark:border-violet-900/30';
-                else if (ach.id === 'speed-demon') circleColorClass = 'bg-amber-50/70 border-amber-100/60 dark:bg-amber-950/20 dark:border-amber-900/30';
-                else if (ach.id === 'streak-builder') circleColorClass = 'bg-red-50/70 border-red-100/60 dark:bg-red-950/20 dark:border-red-900/30';
-                else if (ach.id === 'theory-explorer') circleColorClass = 'bg-orange-50/70 border-orange-100/60 dark:bg-orange-950/20 dark:border-orange-900/30';
-                else circleColorClass = 'bg-teal-50/70 border-teal-100/60 dark:bg-teal-950/20 dark:border-teal-900/30';
-              }
+              if (ach.id === 'first-step') achIcon = <Image src="/icons/first-step.svg" alt="First Step Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
+              else if (ach.id === 'scholar') achIcon = <Image src="/icons/scholar.svg" alt="Scholar Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
+              else if (ach.id === 'perfect-score') achIcon = <Image src="/icons/precision.svg" alt="Precision Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
+              else if (ach.id === 'speed-demon') achIcon = <Image src="/icons/speed.svg" alt="Speed Demon Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
+              else if (ach.id === 'streak-builder') achIcon = <Image src="/icons/unstoppable.svg" alt="Streak Builder Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
+              else if (ach.id === 'theory-explorer') achIcon = <Image src="/icons/theory-explorer.svg" alt="Theory Explorer Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
+              else if (ach.id === 'domain-streaks') achIcon = <Image src="/icons/domain-streak.svg" alt="Domain Streaks Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
+              else if (ach.id === 'mastermind') achIcon = <Image src="/icons/mastermind.svg" alt="Mastermind Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
+              else if (ach.id === 'perfectionist') achIcon = <Image src="/icons/perfectionist.svg" alt="Perfectionist Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
+              else if (ach.id === 'legend') achIcon = <Image src="/icons/legend.svg" alt="Legend Icon" width={32} height={32} className="w-8 h-8 shrink-0" unoptimized />;
+              else if (ach.id === 'ultimate') achIcon = <Image src="/icons/ultimate.svg" alt="Ultimate Icon" width={32} height={32} className="w-8 h-8 shrink-0" unoptimized />;
+              else achIcon = <Image src="/icons/coming-soon.svg" alt="Coming Soon Icon" width={32} height={32} className="w-8 h-8 shrink-0" unoptimized />;
 
               return (
                 <div
                   key={ach.id}
                   className={`flex flex-col items-center justify-between p-3 bg-white dark:bg-neutral-800 border border-slate-100 dark:border-neutral-700/50 rounded-2xl w-[130px] h-[195px] shrink-0 snap-start text-center shadow-sm hover:shadow-md transition-all duration-300 select-none`}
                 >
-                  {/* Circular Avatar */}
-                  <div className={`w-13 h-13 rounded-full flex items-center justify-center border shadow-inner shrink-0 mb-1 ${circleColorClass}`}>
-                    {achIcon}
+                  {achIcon}
+                  <div className="flex-1 pt-4 flex flex-col justify-start">
+                    <h4 className="text-[11px] font-extrabold font-serif text-slate-800 dark:text-slate-100 tracking-tight leading-snug">{ach.title}</h4>
+                    <p className="text-[8.5px] text-muted-foreground mt-0.5 leading-tight line-clamp-2 max-w-[110px] mx-auto font-medium">{ach.desc}</p>
                   </div>
-
-                  {/* Title & Description */}
-                  <div className="flex-1 flex flex-col justify-start">
-                    <h4 className="text-[11px] font-extrabold text-slate-800 dark:text-slate-100 tracking-tight leading-snug">
-                      {ach.title}
-                    </h4>
-                    <p className="text-[8.5px] text-muted-foreground mt-0.5 leading-tight line-clamp-2 max-w-[110px] mx-auto font-medium">
-                      {ach.desc}
-                    </p>
-                  </div>
-
-                  {/* Bottom Indicator Badge */}
                   <div className="w-full mt-auto pt-1.5 border-t border-border/20 flex items-center justify-center">
                     {unlocked && (
                       <div className="flex items-center justify-center h-6">
