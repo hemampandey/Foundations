@@ -49,7 +49,9 @@ export default function HistoryTab() {
         console.error('Error fetching theory titles:', err);
       }
     };
-    fetchTheories();
+    Promise.resolve().then(() => {
+      fetchTheories();
+    });
   }, []);
 
   // Fetch paginated, filtered attempts from PostgreSQL
@@ -163,7 +165,9 @@ export default function HistoryTab() {
       }
     };
 
-    fetchHistoryData();
+    Promise.resolve().then(() => {
+      fetchHistoryData();
+    });
   }, [profile, currentPage, itemsPerPage, searchQuery, selectedTheory, selectedResult, selectedDateRange]);
 
   // ── Pagination Calculation ──

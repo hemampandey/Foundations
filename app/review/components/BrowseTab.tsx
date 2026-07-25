@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Search, ChevronDown, ChevronUp, MoreVertical, BookOpen, BarChart3, Users, Calendar, Bookmark, ListFilter, CheckSquare, SlidersHorizontal } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Search, ChevronDown, ChevronUp, Calendar, ListFilter, CheckSquare, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { useProfile } from '@/app/components/ProfileProvider';
 
 interface BrowseScheduleItem {
   user_id: string;
@@ -23,21 +25,28 @@ interface BrowseScheduleItem {
   } | null;
 }
 
-interface BrowseTabProps {
-  allSchedules: BrowseScheduleItem[];
-  loadingSchedules: boolean;
-  theoryOptions: string[];
-}
-
-export default function BrowseTab({
-  allSchedules,
-  loadingSchedules,
-  theoryOptions
-}: BrowseTabProps) {
+export default function BrowseTab() {
+  const { profile } = useProfile();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTheory, setSelectedTheory] = useState('');
   const [activePillFilter, setActivePillFilter] = useState<'today' | 'tomorrow' | 'week' | 'later' | 'mastered'>('today');
   const [expandedStems, setExpandedStems] = useState<Record<string, boolean>>({});
+
+  const [schedules, setSchedules] = useState<BrowseScheduleItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [theoryOptions, setTheoryOptions] = useState<string[]>([]);
+
+  // Category Counts
+  const [countToday, setCountToday] = useState(0);
+  const [countTomorrow, setCountTomorrow] = useState(0);
+  const [countWeek, setCountWeek] = useState(0);
+  const [countLater, setCountLater] = useState(0);
+  const [countMastered, setCountMastered] = useState(0);
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const toggleStem = (qId: string) => {
     setExpandedStems(prev => ({
@@ -46,9 +55,8 @@ export default function BrowseTab({
     }));
   };
 
-  // ── Date Boundary Calculations ──
+  // Date constants for helpers
   const now = new Date();
-  
   const todayEnd = new Date();
   todayEnd.setHours(23, 59, 59, 999);
 
@@ -62,48 +70,216 @@ export default function BrowseTab({
   weekEnd.setDate(weekEnd.getDate() + 7);
   weekEnd.setHours(23, 59, 59, 999);
 
-  // ── Category Count Calculations ──
-  const countToday = allSchedules.filter(s => new Date(s.due_at) <= todayEnd).length;
-  const countTomorrow = allSchedules.filter(s => {
-    const due = new Date(s.due_at);
-    return due >= tomorrowStart && due <= tomorrowEnd;
-  }).length;
-  const countWeek = allSchedules.filter(s => {
-    const due = new Date(s.due_at);
-    return due >= now && due <= weekEnd;
-  }).length;
-  const countLater = allSchedules.filter(s => new Date(s.due_at) > weekEnd).length;
-  const countMastered = allSchedules.filter(s => s.repetitions >= 4 || s.interval_days >= 15).length;
+  // ── Fetch dynamic Category Counts & Theories list ──
+  const fetchCountsAndTheories = useCallback(async () => {
+    if (!profile) return;
+    try {
+      const currentDate = new Date();
+      const currentTodayEnd = new Date();
+      currentTodayEnd.setHours(23, 59, 59, 999);
 
-  // ── Filters & Filters Matching ──
-  const filtered = allSchedules.filter(item => {
-    if (!item.questions) return false;
-    
-    // Search Query (Stems & Theory Title)
-    const matchesSearch = item.questions.stem.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          (item.questions.theories?.title ?? '').toLowerCase().includes(searchQuery.toLowerCase());
-    
-    // Theory dropdown select
-    const matchesTheory = selectedTheory === '' || item.questions.theories?.title === selectedTheory;
-    
-    // Status category matching
-    let matchesStatus = true;
-    const due = new Date(item.due_at);
-    
-    if (activePillFilter === 'today') {
-      matchesStatus = due <= todayEnd;
-    } else if (activePillFilter === 'tomorrow') {
-      matchesStatus = due >= tomorrowStart && due <= tomorrowEnd;
-    } else if (activePillFilter === 'week') {
-      matchesStatus = due >= now && due <= weekEnd;
-    } else if (activePillFilter === 'later') {
-      matchesStatus = due > weekEnd;
-    } else if (activePillFilter === 'mastered') {
-      matchesStatus = item.repetitions >= 4 || item.interval_days >= 15;
+      const currentTomorrowStart = new Date();
+      currentTomorrowStart.setDate(currentTomorrowStart.getDate() + 1);
+      currentTomorrowStart.setHours(0, 0, 0, 0);
+      const currentTomorrowEnd = new Date(currentTomorrowStart);
+      currentTomorrowEnd.setHours(23, 59, 59, 999);
+
+      const currentWeekEnd = new Date();
+      currentWeekEnd.setDate(currentWeekEnd.getDate() + 7);
+      currentWeekEnd.setHours(23, 59, 59, 999);
+
+      const [
+        resToday,
+        resTomorrow,
+        resWeek,
+        resLater,
+        resMastered,
+        theoriesRes
+      ] = await Promise.all([
+        supabase.from('review_schedule').select('question_id', { count: 'exact', head: true }).eq('user_id', profile.id).lte('due_at', currentTodayEnd.toISOString()),
+        supabase.from('review_schedule').select('question_id', { count: 'exact', head: true }).eq('user_id', profile.id).gte('due_at', currentTomorrowStart.toISOString()).lte('due_at', currentTomorrowEnd.toISOString()),
+        supabase.from('review_schedule').select('question_id', { count: 'exact', head: true }).eq('user_id', profile.id).gte('due_at', currentDate.toISOString()).lte('due_at', currentWeekEnd.toISOString()),
+        supabase.from('review_schedule').select('question_id', { count: 'exact', head: true }).eq('user_id', profile.id).gt('due_at', currentWeekEnd.toISOString()),
+        supabase.from('review_schedule').select('question_id', { count: 'exact', head: true }).eq('user_id', profile.id).or('repetitions.gte.4,interval_days.gte.15'),
+        supabase.from('theories').select('title').eq('status', 'published').order('title', { ascending: true })
+      ]);
+
+      setCountToday(resToday.count ?? 0);
+      setCountTomorrow(resTomorrow.count ?? 0);
+      setCountWeek(resWeek.count ?? 0);
+      setCountLater(resLater.count ?? 0);
+      setCountMastered(resMastered.count ?? 0);
+      
+      if (theoriesRes.data) {
+        setTheoryOptions(theoriesRes.data.map(t => t.title));
+      }
+    } catch (err) {
+      console.error('Error loading counts and theories:', err);
     }
-    
-    return matchesSearch && matchesTheory && matchesStatus;
-  });
+  }, [profile]);
+
+  useEffect(() => {
+    Promise.resolve().then(() => {
+      fetchCountsAndTheories();
+    });
+  }, [fetchCountsAndTheories]);
+
+  // ── Fetch paginated, filtered review schedules from PostgreSQL ──
+  const fetchSchedulesData = useCallback(async () => {
+    if (!profile) return;
+    setLoading(true);
+    try {
+      let matchingQuestionIds: string[] | null = null;
+
+      if (searchQuery.trim() !== '') {
+        // 1. Get questions matching stem
+        const { data: stemMatches } = await supabase
+          .from('questions')
+          .select('id')
+          .ilike('stem', `%${searchQuery.trim()}%`);
+
+        // 2. Get theories matching title
+        const { data: theoryMatches } = await supabase
+          .from('theories')
+          .select('id')
+          .ilike('title', `%${searchQuery.trim()}%`);
+
+        let theoryQuestionIds: string[] = [];
+        if (theoryMatches && theoryMatches.length > 0) {
+          const theoryIds = theoryMatches.map(t => t.id);
+          const { data: theoryQuestions } = await supabase
+            .from('questions')
+            .select('id')
+            .in('theory_id', theoryIds);
+          if (theoryQuestions) {
+            theoryQuestionIds = theoryQuestions.map(q => q.id);
+          }
+        }
+
+        matchingQuestionIds = Array.from(new Set([
+          ...(stemMatches?.map(q => q.id) || []),
+          ...theoryQuestionIds
+        ]));
+      }
+
+      let query = supabase
+        .from('review_schedule')
+        .select(`
+          user_id,
+          question_id,
+          ease_factor,
+          interval_days,
+          due_at,
+          repetitions,
+          created_at,
+          questions!inner (
+            id,
+            stem,
+            difficulty,
+            bloom_level,
+            theories!inner (
+              id,
+              title
+            )
+          )
+        `, { count: 'exact' })
+        .eq('user_id', profile.id);
+
+      // Apply Search Filter via matching question IDs
+      if (matchingQuestionIds !== null) {
+        if (matchingQuestionIds.length > 0) {
+          query = query.in('question_id', matchingQuestionIds);
+        } else {
+          // No matching questions, force query to return no results safely
+          query = query.in('question_id', ['00000000-0000-0000-0000-000000000000']);
+        }
+      }
+
+      // Apply Theory Filter
+      if (selectedTheory !== '') {
+        query = query.eq('questions.theories.title', selectedTheory);
+      }
+
+      // Apply Status Category matching
+      const currentDate = new Date();
+      const currentTodayEnd = new Date();
+      currentTodayEnd.setHours(23, 59, 59, 999);
+
+      const currentTomorrowStart = new Date();
+      currentTomorrowStart.setDate(currentTomorrowStart.getDate() + 1);
+      currentTomorrowStart.setHours(0, 0, 0, 0);
+      const currentTomorrowEnd = new Date(currentTomorrowStart);
+      currentTomorrowEnd.setHours(23, 59, 59, 999);
+
+      const currentWeekEnd = new Date();
+      currentWeekEnd.setDate(currentWeekEnd.getDate() + 7);
+      currentWeekEnd.setHours(23, 59, 59, 999);
+
+      if (activePillFilter === 'today') {
+        query = query.lte('due_at', currentTodayEnd.toISOString());
+      } else if (activePillFilter === 'tomorrow') {
+        query = query.gte('due_at', currentTomorrowStart.toISOString()).lte('due_at', currentTomorrowEnd.toISOString());
+      } else if (activePillFilter === 'week') {
+        query = query.gte('due_at', currentDate.toISOString()).lte('due_at', currentWeekEnd.toISOString());
+      } else if (activePillFilter === 'later') {
+        query = query.gt('due_at', currentWeekEnd.toISOString());
+      } else if (activePillFilter === 'mastered') {
+        query = query.or('repetitions.gte.4,interval_days.gte.15');
+      }
+
+      // Pagination calculation
+      const from = (currentPage - 1) * itemsPerPage;
+      const to = from + itemsPerPage - 1;
+
+      const { data, count, error } = await query
+        .order('due_at', { ascending: true })
+        .range(from, to);
+
+      if (error) throw error;
+
+      const valid = (data as unknown as BrowseScheduleItem[] ?? []).filter(item => item.questions !== null);
+      setSchedules(valid);
+      setTotalItems(count ?? 0);
+    } catch (err) {
+      console.error('[Foundations] Error loading schedules page:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [profile, currentPage, itemsPerPage, searchQuery, selectedTheory, activePillFilter]);
+
+  useEffect(() => {
+    Promise.resolve().then(() => {
+      fetchSchedulesData();
+    });
+  }, [fetchSchedulesData]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    Promise.resolve().then(() => {
+      setCurrentPage(1);
+    });
+  }, [searchQuery, selectedTheory, activePillFilter]);
+
+  // Pagination calculation
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (currentPage > 3) pages.push('...');
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      if (currentPage < totalPages - 2) pages.push('...');
+      pages.push(totalPages);
+    }
+    return pages;
+  };
 
   // Safe helper to extract relative last seen time
   const getLastSeenText = (createdAtStr: string, reps: number) => {
@@ -293,79 +469,141 @@ export default function BrowseTab({
       </div>
 
       {/* ─── Cards Grid ─── */}
-      {loadingSchedules ? (
+      {loading ? (
         <div className="flex justify-center items-center py-12">
           <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
         </div>
-      ) : filtered.length === 0 ? (
+      ) : schedules.length === 0 ? (
         <div className="bg-card border border-border rounded-2xl py-12 text-center text-muted-foreground font-serif">
           <SlidersHorizontal className="w-8 h-8 mx-auto mb-2 opacity-35" />
           <p className="text-xs font-semibold font-serif">No tracked items matching your criteria</p>
         </div>
       ) : (
         <div className="space-y-4">
-          {filtered.map((item, idx) => {
-            const q = item.questions!;
-            const isExpanded = expandedStems[q.id] || false;
-            const dueInfo = getDueBadgeInfo(item.due_at, item.repetitions, item.interval_days);
+          <div className="space-y-4">
+            {schedules.map((item, idx) => {
+              const q = item.questions!;
+              const isExpanded = expandedStems[q.id] || false;
+              const dueInfo = getDueBadgeInfo(item.due_at, item.repetitions, item.interval_days);
 
-            return (
-              <div
-                key={idx}
-                className={`bg-card border border-border/80 border-l-[3.5px] rounded-xl p-3 hover:shadow-md transition-all flex flex-col md:flex-row items-stretch gap-4 relative overflow-hidden`}
-              >
+              return (
+                <div
+                  key={idx}
+                  className={`bg-card border border-border/80 border-l-[3.5px] rounded-xl p-3 hover:shadow-md transition-all flex flex-col md:flex-row items-stretch gap-4 relative overflow-hidden`}
+                >
+                  {/* Central main question content */}
+                  <div className="flex-1 space-y-1.5 min-w-0 pr-2">
+                    <div className="flex items-center flex-wrap gap-2 text-[9px] font-extrabold uppercase">
+                      <span className="text-primary bg-primary/20 px-2 py-0.5 rounded-md font-serif">{q.theories?.title}</span>
+                      <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-[8px] font-bold tracking-wider">{q.bloom_level}</span>
+                      <span className="text-amber-500 font-extrabold text-[8px]">L{q.difficulty}</span>
+                    </div>
 
-                {/* Central main question content */}
-                <div className="flex-1 space-y-1.5 min-w-0 pr-2">
-                  <div className="flex items-center flex-wrap gap-2 text-[9px] font-extrabold uppercase">
-                    <span className="text-primary bg-primary/20 px-2 py-0.5 rounded-md font-serif">{q.theories?.title}</span>
-                    <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-[8px] font-bold tracking-wider">{q.bloom_level}</span>
-                    <span className="text-amber-500 font-extrabold text-[8px]">L{q.difficulty}</span>
-                  </div>
-
-                  <div className="text-xs sm:text-sm font-bold font-inria text-foreground leading-snug">
-                    {isExpanded ? q.stem : (
-                      <p className="line-clamp-2">{q.stem}</p>
-                    )}
-                  </div>
-
-                  {q.stem.length > 150 && (
-                    <button
-                      onClick={() => toggleStem(q.id)}
-                      className="text-[10px] font-bold text-primary hover:text-primary/80 flex items-center gap-0.5 cursor-pointer mt-1 font-serif select-none"
-                    >
-                      {isExpanded ? (
-                        <>Show Less <ChevronUp className="w-3.5 h-3.5" /></>
-                      ) : (
-                        <>Expand Question <ChevronDown className="w-3.5 h-3.5" /></>
+                    <div className="text-xs sm:text-sm font-bold font-inria text-foreground leading-snug">
+                      {isExpanded ? q.stem : (
+                        <p className="line-clamp-2">{q.stem}</p>
                       )}
-                    </button>
-                  )}
+                    </div>
 
-                  {/* SRS metadata footer */}
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1.5 text-[9px] italic font-bold text-muted-foreground font-sans select-none">
-                    <span>Last seen: {getLastSeenText(item.created_at, item.repetitions)}</span>
-                    <span className="text-muted-foreground/30">•</span>
-                    <span>Repetitions: {item.repetitions}</span>
+                    {q.stem.length > 150 && (
+                      <button
+                        onClick={() => toggleStem(q.id)}
+                        className="text-[10px] font-bold text-primary hover:text-primary/80 flex items-center gap-0.5 cursor-pointer mt-1 font-serif select-none"
+                      >
+                        {isExpanded ? (
+                          <>Show Less <ChevronUp className="w-3.5 h-3.5" /></>
+                        ) : (
+                          <>Expand Question <ChevronDown className="w-3.5 h-3.5" /></>
+                        )}
+                      </button>
+                    )}
+
+                    {/* SRS metadata footer */}
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1.5 text-[9px] italic font-bold text-muted-foreground font-sans select-none">
+                      <span>Last seen: {getLastSeenText(item.created_at, item.repetitions)}</span>
+                      <span className="text-muted-foreground/30">•</span>
+                      <span>Repetitions: {item.repetitions}</span>
+                    </div>
+                  </div>
+
+                  {/* Right side due badge */}
+                  <div className="flex md:flex-col justify-between md:justify-center items-end border-t md:border-t-0 border-border/40 pt-3 md:pt-0 shrink-0 select-none">
+                    <div className="text-right space-y-1">
+                      {/* Calendar Due Badge */}
+                      <div className={`inline-flex items-center gap-1 text-[9px] font-extrabold px-2.5 py-0.5 rounded-full border ${dueInfo.color}`}>
+                        <Calendar className="w-3 h-3" />
+                        <span>{dueInfo.label}</span>
+                      </div>
+                      <div className="text-[10px] pt-1 text-muted-foreground/80 font-serif">
+                        Next review <span className="font-bold text-foreground/90">{dueInfo.nextText}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              );
+            })}
+          </div>
 
-                {/* Right side due badge and actions menu */}
-                <div className="flex md:flex-col justify-between md:justify-center items-end border-t md:border-t-0 border-border/40 pt-3 md:pt-0 shrink-0 select-none">
-                  <div className="text-right space-y-1">
-                    {/* Calendar Due Badge */}
-                    <div className={`inline-flex items-center gap-1 text-[9px] font-extrabold px-2.5 py-0.5 rounded-full border ${dueInfo.color}`}>
-                      <Calendar className="w-3 h-3" />
-                      <span>{dueInfo.label}</span>
-                    </div>
-                    <div className="text-[10px] pt-1 text-muted-foreground/80 font-serif">
-                      Next review <span className="font-bold text-foreground/90">{dueInfo.nextText}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {/* ─── Bottom Pagination controls ─── */}
+          <div className="flex flex-col sm:flex-row justify-between items-center border-t border-border/40 pt-5 gap-4 select-none">
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="w-8 h-8 rounded-xl border border-border flex items-center justify-center hover:bg-secondary/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer text-muted-foreground hover:text-foreground"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              {getPageNumbers().map((pageNum, idx) => {
+                if (pageNum === '...') {
+                  return (
+                    <span key={idx} className="w-8 h-8 flex items-center justify-center text-xs text-muted-foreground font-semibold">
+                      ...
+                    </span>
+                  );
+                }
+
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentPage(pageNum as number)}
+                    className={`w-8 h-8 rounded-xl font-bold text-xs flex items-center justify-center transition-all cursor-pointer ${
+                      currentPage === pageNum
+                        ? 'bg-primary text-white shadow-sm'
+                        : 'border border-border hover:bg-secondary/40 text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="w-8 h-8 rounded-xl border border-border flex items-center justify-center hover:bg-secondary/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer text-muted-foreground hover:text-foreground"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Page items size selector */}
+            <div className="relative min-w-[120px] self-end sm:self-center">
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="w-full px-3 py-1.5 border border-border bg-card rounded-xl text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer text-slate-700 dark:text-slate-300"
+              >
+                <option value={10}>10 per page</option>
+                <option value={20}>20 per page</option>
+                <option value={50}>50 per page</option>
+              </select>
+            </div>
+          </div>
         </div>
       )}
     </div>

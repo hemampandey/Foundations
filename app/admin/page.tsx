@@ -150,7 +150,7 @@ function AdminPageContent() {
   return (
     <div className="w-full space-y-5 animate-fade-in">
       {/* Top Banner with compact stats inline */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between border-b border-border/80 pb-4 gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <h1 className="text-xl sm:text-2xl font-extrabold font-inria text-foreground">Theory & MCQ Manager</h1>
           <div className="px-2.5 py-0.5 text-[9px] font-extrabold text-primary bg-primary/10 border border-primary/20 rounded-full uppercase tracking-wider select-none shrink-0">Admin Console</div>

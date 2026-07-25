@@ -195,14 +195,14 @@ export default function ManageMCQs({
   return (
     <>
       {/* Create MCQ Form */}
-      <div className="lg:col-span-6 bg-card border border-border rounded-2xl p-6 h-fit shadow-sm">
-        <h3 className="text-lg text-primary font-bold font-inria mb-4 flex items-center gap-2">
+      <div className="lg:col-span-6 bg-card border border-border rounded-2xl p-4 h-fit shadow-sm">
+        <h3 className="text-lg text-primary font-bold font-inria mb-2.5 flex items-center gap-2">
           <Plus className="w-5 h-5 text-primary" />
           Write MCQ Manually
         </h3>
 
         {qMessage && (
-          <div className={`p-4 mb-4 rounded-xl text-xs border transition-opacity ${qMessage.type === 'success'
+          <div className={`p-4 mb-2 rounded-xl text-xs border transition-opacity ${qMessage.type === 'success'
               ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
               : 'bg-destructive/10 border-destructive/20 text-destructive'
               }`}>{qMessage.text}</div>
@@ -210,13 +210,13 @@ export default function ManageMCQs({
 
         <form onSubmit={handleCreateQuestion} className="space-y-4">
           <div>
-            <label htmlFor="q-theory" className="block text-sm font-bold font-inria text-primary mb-1.5">Select Theory</label>
+            <label htmlFor="q-theory" className="block text-sm font-bold font-inria text-primary mb-1">Select Theory</label>
             <select
               id="q-theory"
               required
               value={selectedTheoryId}
               onChange={(e) => setSelectedTheoryId(e.target.value)}
-              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
+              className="w-full px-3 py-2 font-serif border border-border bg-background rounded-xl focus:ring-3 focus:ring-primary focus:border-transparent text-sm">
               <option value="">Choose a Theory</option>
               {theories.map((t) => (
                 <option key={t.id} value={t.id}>{t.title} ({t.domain})</option>
@@ -225,14 +225,14 @@ export default function ManageMCQs({
           </div>
 
           <div>
-            <label htmlFor="q-stem" className="block text-sm font-bold font-inria text-primary mb-1.5">Question</label>
+            <label htmlFor="q-stem" className="block text-sm font-bold font-inria text-primary mb-1">Question</label>
             <textarea
               id="q-stem"
               required
               rows={2}
               value={qStem}
               onChange={(e) => setQStem(e.target.value)}
-              className="w-full px-2 py-2 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm resize-none"
+              className="w-full px-2 py-2 font-inria border border-border bg-background rounded-xl focus:ring-3 focus:ring-primary focus:border-transparent text-sm resize-none"
             />
           </div>
 
@@ -242,12 +242,12 @@ export default function ManageMCQs({
             {qOptions.map((opt, idx) => {
               const isSelected = qCorrectIndex === idx;
               return (
-                <div key={idx} className="flex items-center gap-3 w-full">
+                <div key={idx} className="flex items-center gap-2 w-full">
                   {/* Letter Label Box */}
-                  <div className={`w-9 h-9 shrink-0 rounded-xl flex items-center justify-center font-bold text-xs border select-none transition-all duration-200 ${
+                  <div className={`w-9 h-9 shrink-0 rounded-xl flex items-center justify-center font-bold font-serif text-xs select-none transition-all duration-200 ${
                     isSelected 
-                      ? 'bg-[#EBFDF3] border-emerald-250 text-[#15803D] dark:bg-emerald-950/30 dark:border-emerald-800/40 dark:text-emerald-400' 
-                      : 'bg-slate-50 dark:bg-neutral-800/50 border-slate-100 dark:border-neutral-700/50 text-slate-600 dark:text-neutral-400'
+                      ? 'bg-emerald-500/20 text-[#15803D] dark:bg-emerald-500/30 dark:text-emerald-400' 
+                      : 'bg-slate-50 dark:bg-neutral-800/50 text-slate-600 dark:text-neutral-400'
                   }`}>
                     {String.fromCharCode(65 + idx)}
                   </div>
@@ -258,7 +258,7 @@ export default function ManageMCQs({
                     name="correct-choice"
                     checked={qCorrectIndex === idx}
                     onChange={() => setQCorrectIndex(idx)}
-                    className="w-4 h-4 text-primary focus:ring-primary border-slate-200 dark:border-neutral-700 bg-background cursor-pointer shrink-0"
+                    className="w-3 h-3 cursor-pointer shrink-0"
                     aria-label={`Mark choice ${String.fromCharCode(65 + idx)} as correct`}
                   />
 
@@ -269,24 +269,19 @@ export default function ManageMCQs({
                     value={opt}
                     onChange={(e) => handleOptionChange(idx, e.target.value)}
                     placeholder={`Choice ${String.fromCharCode(65 + idx)}`}
-                    className={`flex-1 px-3.5 py-2.5 rounded-xl text-xs focus:outline-none transition-all duration-200 border ${
+                    className={`flex-1 px-3.5 py-2.5 font-serif rounded-xl text-xs transition-all duration-200 ${
                       isSelected
-                        ? 'bg-[#F7FDF9] dark:bg-emerald-950/10 border-[#D1F2D9] dark:border-emerald-900/30 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500/10'
+                        ? 'bg-emerald-500/20 dark:bg-emerald-500/30 border-[#D1F2D9] dark:border-emerald-900/30 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500/50'
                         : 'bg-white dark:bg-neutral-800 border-slate-100 dark:border-neutral-700 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary/10 focus:border-primary/40'
                     }`}
                   />
-
-                  {/* Grip Handle */}
-                  <div className="p-1 text-slate-350 dark:text-neutral-600 shrink-0 cursor-default">
-                    <GripVertical className="w-4 h-4" />
-                  </div>
                 </div>
               );
             })}
           </div>
 
           <div>
-            <label htmlFor="q-explanation" className="block text-sm font-inria font-bold text-primary mb-1.5">Explanation</label>
+            <label htmlFor="q-explanation" className="block text-sm font-inria font-bold text-primary mb-1">Explanation</label>
             <textarea
               id="q-explanation"
               required
@@ -294,18 +289,18 @@ export default function ManageMCQs({
               value={qExplanation}
               onChange={(e) => setQExplanation(e.target.value)}
               placeholder="Provide a detailed explanation of why the correct answer is right and why others are incorrect."
-              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-xs resize-none"/>
+              className="w-full p-2 border border-border font-inria bg-background rounded-sm focus:outline-none focus:ring-3 focus:ring-primary focus:border-transparent text-sm resize"/>
           </div>
 
           <div>
-            <label htmlFor="q-source" className="block text-sm font-inria font-bold text-primary mb-1.5">Source Excerpt (Optional)</label>
+            <label htmlFor="q-source" className="block text-sm font-inria font-bold text-primary mb-1">Source Excerpt (Optional)</label>
             <textarea
               id="q-source"
               rows={2}
               value={qSourceExcerpt}
               onChange={(e) => setQSourceExcerpt(e.target.value)}
               placeholder="Quote the exact line/phrase from the theory body that supports this answer..."
-              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm resize-none"
+              className="w-full p-2 border border-border font-inria bg-background rounded-sm focus:outline-none focus:ring-3 focus:ring-primary focus:border-transparent text-sm resize"
             />
           </div>
 
@@ -316,7 +311,7 @@ export default function ManageMCQs({
                 id="q-difficulty"
                 value={qDifficulty}
                 onChange={(e) => setQDifficulty(Number(e.target.value) as 1 | 2 | 3)}
-                className="w-full px-2 py-2 border border-border bg-background rounded-xl text-xs"
+                className="w-full px-2 py-2 font-serif border border-border bg-background rounded-xl text-xs"
               >
                 <option value={1}>1 (Easy)</option>
                 <option value={2}>2 (Medium)</option>
@@ -330,7 +325,7 @@ export default function ManageMCQs({
                 id="q-bloom"
                 value={qBloomLevel}
                 onChange={(e) => setQBloomLevel(e.target.value as BloomLevel)}
-                className="w-full px-2 py-2 border border-border bg-background rounded-xl text-xs"
+                className="w-full px-2 py-2 font-serif border border-border bg-background rounded-xl text-xs"
               >
                 <option value="remember">Remember</option>
                 <option value="understand">Understand</option>
@@ -347,7 +342,7 @@ export default function ManageMCQs({
                 id="q-status"
                 value={qStatus}
                 onChange={(e) => setQStatus(e.target.value as 'draft' | 'approved')}
-                className="w-full px-2 py-2 border border-border bg-background rounded-xl text-xs"
+                className="w-full px-2 py-2 font-serif border border-border bg-background rounded-xl text-xs"
               >
                 <option value="approved">Approved</option>
                 <option value="draft">Draft</option>
@@ -357,7 +352,7 @@ export default function ManageMCQs({
 
           <button type="submit"
             disabled={qSubmitLoading}
-            className="w-full py-2.5 px-4 bg-primary text-primary-foreground font-semibold rounded-xl hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-primary/10 disabled:opacity-50">
+            className="w-full py-2.5 px-4 bg-primary text-primary-foreground font-semibold font-serif rounded-xl hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-primary/10 disabled:opacity-50">
             {qSubmitLoading ? (
               <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
             ) : (<>
@@ -370,7 +365,7 @@ export default function ManageMCQs({
 
       {/* Questions List */}
       <div className="lg:col-span-6 bg-card border border-border rounded-2xl p-6 h-fit min-h-[400px]">
-        <div className="flex flex-col gap-3 mb-4 border-b border-border/40 pb-4">
+        <div className="flex flex-col gap-3 pb-4">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-lg font-bold text-primary tracking-tight font-inria">Existing Questions</h3>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/5 text-primary border border-primary/10 font-mono">Total: {filteredQuestions.length}</span>
@@ -394,7 +389,7 @@ export default function ManageMCQs({
             <select
               value={filterTheoryId}
               onChange={(e) => setFilterTheoryId(e.target.value)}
-              className="w-full px-2 py-1.5 border border-slate-200 dark:border-neutral-700 bg-background rounded-xl text-[11px] font-semibold text-foreground/80 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer truncate"
+              className="w-full px-2 py-1.5 border border-slate-200 dark:border-neutral-700 bg-background rounded-xl text-[11px] font-semibold font-serif text-foreground/80 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer truncate"
             >
               <option value="">All Theories</option>
               {theories.map((t) => (
@@ -406,7 +401,7 @@ export default function ManageMCQs({
             <select
               value={filterDifficulty}
               onChange={(e) => setFilterDifficulty(e.target.value)}
-              className="w-full px-2 py-1.5 border border-slate-200 dark:border-neutral-700 bg-background rounded-xl text-[11px] font-semibold text-foreground/80 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+              className="w-full px-2 py-1.5 border border-slate-200 dark:border-neutral-700 bg-background rounded-xl text-[11px] font-semibold font-serif text-foreground/80 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
             >
               <option value="">All Difficulty</option>
               <option value="1">L1 (Easy)</option>
@@ -418,7 +413,7 @@ export default function ManageMCQs({
             <select
               value={filterBloomLevel}
               onChange={(e) => setFilterBloomLevel(e.target.value)}
-              className="w-full px-2 py-1.5 border border-slate-200 dark:border-neutral-700 bg-background rounded-xl text-[11px] font-semibold text-foreground/80 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+              className="w-full px-2 py-1.5 border border-slate-200 dark:border-neutral-700 bg-background rounded-xl text-[11px] font-semibold font-serif text-foreground/80 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
             >
               <option value="">All Bloom Levels</option>
               <option value="remember">Remember</option>
@@ -433,7 +428,7 @@ export default function ManageMCQs({
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full px-2 py-1.5 border border-slate-200 dark:border-neutral-700 bg-background rounded-xl text-[11px] font-semibold text-foreground/80 focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
+              className="w-full px-2 py-1.5 border border-slate-200 dark:border-neutral-700 bg-background rounded-xl text-[11px] font-semibold font-serif text-foreground/80 focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
             >
               <option value="">All Status</option>
               <option value="approved">Approved</option>
@@ -483,36 +478,36 @@ export default function ManageMCQs({
               return (
                 <div
                   key={q.id}
-                  className="p-5 rounded-2xl border border-slate-100 dark:border-neutral-800 bg-white dark:bg-neutral-800 shadow-sm flex flex-col justify-between gap-4 transition-all duration-300 hover:shadow-md relative"
+                  className="p-3 rounded-2xl border border-primary/20 dark:border-neutral-800 bg-white dark:bg-neutral-800 shadow-sm flex flex-col justify-between gap-4 transition-all duration-300 hover:shadow-md relative"
                 >
                   {inlineEditingId === q.id ? (
                     <div className="space-y-4 text-xs">
-                      <div className="flex justify-between items-center border-b border-border/40 pb-2">
-                        <span className="text-[10px] font-bold text-primary uppercase">Edit MCQ</span>
+                      <div className="flex justify-between items-center pb-2">
+                        <span className="pl-0.5 text-sm font-inria font-bold text-primary uppercase">Edit MCQ</span>
                         <span className="text-[10px] text-muted-foreground">ID: {q.id.substring(0, 8)}…</span>
                       </div>
 
                       <div>
-                        <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Question</label>
+                        <label className="block text-sm font-inria font-bold text-muted-foreground mb-1">Question</label>
                         <textarea
                           value={inlineStem}
                           onChange={(e) => setInlineStem(e.target.value)}
                           rows={3}
-                          className="w-full px-2.5 py-2 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                          className="w-full px-2.5 py-2 font-inria text-xs border border-border bg-background rounded-xl focus:outline-none focus:ring-1 focus:ring-primary"
                         />
                       </div>
 
                       <div className="space-y-2.5">
-                        <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Choices &amp; Correct Index</label>
+                        <label className="block text-sm font-inria font-bold text-muted-foreground">Choices &amp; Correct Index</label>
                         {inlineOptions.map((opt, oIdx) => {
                           const isSelected = inlineCorrectIndex === oIdx;
                           return (
-                            <div key={oIdx} className="flex items-center gap-3 w-full">
+                            <div key={oIdx} className="flex items-center gap-2 w-full">
                               {/* Letter Label Box */}
-                              <div className={`w-9 h-9 shrink-0 rounded-xl flex items-center justify-center font-bold text-xs border select-none transition-all duration-200 ${
+                              <div className={`w-9 h-9 shrink-0 rounded-xl flex items-center justify-center font-serif font-bold text-xs select-none transition-all duration-200 ${
                                 isSelected 
-                                  ? 'bg-[#EBFDF3] border-emerald-250 text-[#15803D] dark:bg-emerald-950/30 dark:border-emerald-800/40 dark:text-emerald-400' 
-                                  : 'bg-slate-50 dark:bg-neutral-800/50 border-slate-100 dark:border-neutral-700/50 text-slate-600 dark:text-neutral-400'
+                                  ? 'bg-emerald-500/20 text-[#15803D] dark:bg-emerald-950/30 dark:text-emerald-400' 
+                                  : 'bg-slate-50 dark:bg-neutral-800/50 text-slate-600 dark:text-neutral-400'
                               }`}>
                                 {String.fromCharCode(65 + oIdx)}
                               </div>
@@ -523,7 +518,7 @@ export default function ManageMCQs({
                                 name={`inline-correct-approved-${q.id}`}
                                 checked={inlineCorrectIndex === oIdx}
                                 onChange={() => setInlineCorrectIndex(oIdx)}
-                                className="w-4 h-4 text-primary focus:ring-primary border-slate-200 dark:border-neutral-700 bg-background cursor-pointer shrink-0"
+                                className="w-3 h-3 cursor-pointer shrink-0"
                               />
 
                               {/* Text Input */}
@@ -536,38 +531,33 @@ export default function ManageMCQs({
                                   newOpts[oIdx] = e.target.value;
                                   setInlineOptions(newOpts);
                                 }}
-                                className={`flex-1 px-3.5 py-2.5 rounded-xl text-xs focus:outline-none transition-all duration-200 border ${
+                                className={`flex-1 px-3.5 py-2.5 rounded-xl text-xs font-serif focus:outline-none transition-all duration-200 ${
                                   isSelected
-                                    ? 'bg-[#F7FDF9] dark:bg-emerald-950/10 border-[#D1F2D9] dark:border-emerald-900/30 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500/10'
-                                    : 'bg-white dark:bg-neutral-800 border-slate-100 dark:border-neutral-700 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary/10 focus:border-primary/40'
+                                    ? 'bg-emerald-500/20 dark:bg-emerald-950/10 text-slate-800 dark:text-slate-200'
+                                    : 'bg-white dark:bg-neutral-800 text-slate-800 dark:text-slate-100'
                                 }`}
                               />
-
-                              {/* Grip Handle */}
-                              <div className="p-1 text-slate-350 dark:text-neutral-600 shrink-0 cursor-default">
-                                <GripVertical className="w-4 h-4" />
-                              </div>
                             </div>
                           );
                         })}
                       </div>
 
                       <div>
-                        <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Explanation</label>
+                        <label className="block text-sm font-bold font-inria text-muted-foreground mb-1">Explanation</label>
                         <textarea
                           value={inlineExplanation}
                           onChange={(e) => setInlineExplanation(e.target.value)}
                           rows={3}
-                          className="w-full px-2.5 py-2 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"/>
+                          className="w-full p-2 font-serif border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-3 focus:ring-primary"/>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs font-semibold text-muted-foreground mb-1">Difficulty</label>
+                          <label className="block text-sm font-semibold font-inria text-muted-foreground mb-1">Difficulty</label>
                           <select
                             value={inlineDifficulty}
                             onChange={(e) => setInlineDifficulty(Number(e.target.value) as 1 | 2 | 3)}
-                            className="w-full px-2 py-1.5 border border-border bg-background rounded-xl text-xs"
+                            className="w-full px-2 py-1.5 font-serif border border-border bg-background rounded-xl text-xs"
                           >
                             <option value={1}>L1 (Easy)</option>
                             <option value={2}>L2 (Medium)</option>
@@ -575,13 +565,11 @@ export default function ManageMCQs({
                           </select>
                         </div>
                         <div>
-                          <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                            Bloom Level
-                          </label>
+                          <label className="block text-sm font-bold font-inria text-muted-foreground mb-1">Bloom Level</label>
                           <select
                             value={inlineBloomLevel}
                             onChange={(e) => setInlineBloomLevel(e.target.value as BloomLevel)}
-                            className="w-full px-2 py-1.5 border border-border bg-background rounded-xl text-xs"
+                            className="w-full px-2 py-1.5 font-serif border border-border bg-background rounded-xl text-xs"
                           >
                             <option value="remember">Remember</option>
                             <option value="understand">Understand</option>
@@ -598,7 +586,7 @@ export default function ManageMCQs({
                         <button
                           type="button"
                           onClick={() => setInlineEditingId(null)}
-                          className="flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80 transition-all cursor-pointer">Cancel</button>
+                          className="flex-1 py-2 px-3 rounded-xl text-xs font-bold font-serif bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80 transition-all cursor-pointer">Cancel</button>
                         <button
                           type="button"
                           onClick={() => handleSaveInlineEdit(q.id)}
@@ -614,7 +602,7 @@ export default function ManageMCQs({
                       {/* Header Row */}
                       <div className="flex justify-between items-center gap-4 relative">
                         {/* Theory Tag */}
-                        <span className="px-2.5 py-1 rounded-[6px] text-[9.5px] font-bold tracking-wider uppercase bg-[#E6EFFC] text-[#2B6CB0] border border-[#C5DCFA] dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/40 select-none">{q.theories?.title ?? 'Unknown Theory'}</span>
+                        <span className="px-1.5 py-0.5 rounded-sm text-[9px] font-serif font-bold bg-primary/20 text-primary border border-primary/20 dark:bg-primary-900/30 dark:text-primary-400 dark:border-primary-900/40 select-none">{q.theories?.title ?? 'Unknown Theory'}</span>
                         
                         {/* Action buttons on the right */}
                         <div className="flex items-center gap-2 shrink-0">
@@ -661,9 +649,7 @@ export default function ManageMCQs({
                       </div>
 
                       {/* Question Stem */}
-                      <p className="font-extrabold text-slate-900 dark:text-slate-100 text-sm leading-snug mt-1 max-w-full">
-                        {q.stem}
-                      </p>
+                      <p className="font-bold font-inria text-slate-900 dark:text-slate-100 text-sm leading-snug max-w-full">{q.stem}</p>
 
                       {/* Accordion content */}
                       {expanded && (
@@ -675,13 +661,13 @@ export default function ManageMCQs({
                           </div>
 
                           {/* Explanation Box */}
-                          <div className="bg-[#F1F5F9]/50 dark:bg-neutral-800/40 border border-slate-100 dark:border-neutral-700/30 p-3 rounded-xl text-xs text-[#4A5568] dark:text-neutral-300 leading-relaxed">
+                          <div className="bg-primary/10 dark:bg-neutral-800/40 border border-primary/5 ring-0 dark:border-neutral-700/30 p-2 rounded-xl text-xs text-[#4A5568] dark:text-neutral-300">
                             <strong className="text-foreground font-bold">Explanation:</strong> {q.explanation}
                           </div>
 
                           {/* Source Excerpt */}
                           {q.source_excerpt && (
-                            <div className="bg-[#F1F5F9]/30 dark:bg-neutral-800/20 border border-slate-100/80 dark:border-neutral-700/20 p-2.5 rounded-xl text-xs italic text-[#4A5568] dark:text-neutral-300 leading-relaxed">
+                            <div className="bg-primary/5 dark:bg-neutral-800/20 border border-slate-100/80 dark:border-neutral-700/20 p-2 rounded-xl text-xs italic text-[#4A5568] dark:text-neutral-300 leading-relaxed">
                               <strong className="text-foreground font-bold not-italic">Quote:</strong> &ldquo;{q.source_excerpt}&rdquo;
                             </div>
                           )}
@@ -689,7 +675,7 @@ export default function ManageMCQs({
                       )}
 
                       {/* Bottom Badges Row */}
-                      <div className="flex flex-wrap items-center gap-2 pt-2 text-[10px] select-none">
+                      <div className="flex flex-wrap items-center gap-1 text-[9px] select-none">
                         <span className={`px-2 py-0.5 rounded-[6px] font-extrabold uppercase ${diffBgClass}`}>
                           {diffText}
                         </span>
@@ -698,7 +684,6 @@ export default function ManageMCQs({
                         </span>
                         {q.status === 'approved' ? (
                           <span className="px-2.5 py-0.5 rounded-[6px] font-semibold bg-[#E6FFFA] border border-[#B2F5EA] text-[#319795] dark:bg-teal-950/20 dark:border-teal-900/30 flex items-center gap-1">
-                            <Check className="w-3 h-3 text-[#319795] stroke-[3]" />
                             Approved
                           </span>
                         ) : (

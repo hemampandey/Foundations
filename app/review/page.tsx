@@ -13,25 +13,7 @@ import ForecastTab from './components/ForecastTab';
 import BrowseTab from './components/BrowseTab';
 import HistoryTab from './components/HistoryTab';
 
-interface BrowseScheduleItem {
-  user_id: string;
-  question_id: string;
-  ease_factor: number;
-  interval_days: number;
-  due_at: string;
-  repetitions: number;
-  created_at: string;
-  questions: {
-    id: string;
-    stem: string;
-    difficulty: number;
-    bloom_level: string;
-    theories: {
-      id: string;
-      title: string;
-    } | null;
-  } | null;
-}
+
 
 
 
@@ -76,10 +58,7 @@ function ReviewContent() {
   // AI Diagnostics weak theories state
   const [weakTheories, setWeakTheories] = useState<{ id: string; title: string; accuracy: number; total: number }[]>([]);
 
-  // Browse Schedules state
-  const [allSchedules, setAllSchedules] = useState<BrowseScheduleItem[]>([]);
-  const [loadingSchedules, setLoadingSchedules] = useState(false);
-  const [theoryOptions, setTheoryOptions] = useState<string[]>([]);
+
 
 
 
@@ -138,10 +117,6 @@ function ReviewContent() {
           .select(`
             due_at,
             questions (
-              id,
-              stem,
-              difficulty,
-              bloom_level,
               theories (
                 title
               )
@@ -160,7 +135,9 @@ function ReviewContent() {
               )
             )
           `)
-          .eq('user_id', profile.id),
+          .eq('user_id', profile.id)
+          .order('created_at', { ascending: false })
+          .limit(200),
         supabase
           .from('user_progress')
           .select('*')
@@ -349,53 +326,7 @@ function ReviewContent() {
     }
   }, [profile]);
 
-  // Fetch all schedules for browsing
-  const fetchAllSchedules = useCallback(async () => {
-    if (!profile) return;
-    setLoadingSchedules(true);
-    try {
-      const { data, error } = await supabase
-        .from('review_schedule')
-        .select(`
-          user_id,
-          question_id,
-          ease_factor,
-          interval_days,
-          due_at,
-          repetitions,
-          created_at,
-          questions (
-            id,
-            stem,
-            difficulty,
-            bloom_level,
-            theories (
-              id,
-              title
-            )
-          )
-        `)
-        .eq('user_id', profile.id)
-        .order('due_at', { ascending: true });
 
-      if (error) throw error;
-
-      const valid = (data as unknown as BrowseScheduleItem[] ?? []).filter(item => item.questions !== null);
-      setAllSchedules(valid);
-
-      // Extract unique theory options
-      const theories = new Set<string>();
-      valid.forEach((s) => {
-        const title = s.questions?.theories?.title;
-        if (title) theories.add(title);
-      });
-      setTheoryOptions(Array.from(theories));
-    } catch (err) {
-      console.error('[Foundations] Error loading all schedules:', err);
-    } finally {
-      setLoadingSchedules(false);
-    }
-  }, [profile]);
 
   // Trigger loads based on active tab
   useEffect(() => {
@@ -403,12 +334,12 @@ function ReviewContent() {
       Promise.resolve().then(() => {
         if (activeTab === 'forecast') {
           fetchDueItems();
-        } else if (activeTab === 'browse') {
-          fetchAllSchedules();
+        } else {
+          setLoading(false);
         }
       });
     }
-  }, [profile, activeTab, fetchDueItems, fetchAllSchedules]);
+  }, [profile, activeTab, fetchDueItems]);
 
   // Handle auto-start action
   useEffect(() => {
@@ -535,7 +466,7 @@ function ReviewContent() {
   return (
     <div className="w-full space-y-6 animate-fade-in">
       {/* Premium Dashboard Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-border/80 pb-6 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-primary font-inria text-foreground tracking-tight flex items-center gap-2">Review</h1>
           <p className="text-xs text-primary font-inria text-muted-foreground mt-1 leading-relaxed max-w-md">Tracks card repetition intervals and manages scheduled memory retention.</p>
@@ -558,11 +489,7 @@ function ReviewContent() {
       )}
 
       {activeTab === 'browse' && (
-        <BrowseTab
-          allSchedules={allSchedules}
-          loadingSchedules={loadingSchedules}
-          theoryOptions={theoryOptions}
-        />
+        <BrowseTab />
       )}
 
       {activeTab === 'history' && (

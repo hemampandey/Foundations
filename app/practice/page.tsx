@@ -522,7 +522,7 @@ function PracticeContent() {
         <p className="text-muted-foreground mt-2">{errorMsg || 'Could not launch practice session.'}</p>
         <button
           onClick={() => router.push('/dashboard')}
-          className="mt-6 px-5 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5">
+          className="mt-6 px-5 py-2.5 rounded-xl font-semibold font-serif bg-primary text-primary-foreground hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5">
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
         </button>
@@ -542,7 +542,7 @@ function PracticeContent() {
         {/* Back navigation */}
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+          className="flex items-center gap-1.5 text-xs font-semibold font-serif text-muted-foreground hover:text-foreground transition-all cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
@@ -554,40 +554,33 @@ function PracticeContent() {
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
           <div className="space-y-2">
-            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary border border-primary/20">
-              {domainText}
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold font-inria text-foreground tracking-tight leading-tight pt-1">
-              {theory.title}
-            </h2>
+            <span className="px-2 py-1 rounded-full text-[9px] font-bold font-serif uppercase bg-primary/10 text-primary border border-primary/20">{domainText}</span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold font-inria text-foreground tracking-tight leading-tight pt-1">{theory.title}</h2>
           </div>
 
           {/* Quick Metrics Row */}
           <div className="grid grid-cols-3 gap-4 border-y border-border/40 py-5">
             <div className="space-y-1">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Questions</span>
-              <p className="text-lg font-extrabold text-foreground font-mono">{totalQ}</p>
+              <span className="text-xs font-bold font-serif text-muted-foreground uppercase">Questions</span>
+              <p className="text-lg font-extrabold font-inria text-foreground font-mono">{totalQ}</p>
             </div>
             <div className="space-y-1">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Reward Potential</span>
-              <p className="text-lg font-extrabold text-primary font-mono">+{maxXp} XP</p>
+              <span className="text-xs font-bold font-serif text-muted-foreground uppercase">Reward Potential</span>
+              <p className="text-lg font-extrabold font-inria text-primary font-mono">+{maxXp} XP</p>
             </div>
             <div className="space-y-1">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Past Accuracy</span>
-              <p className="text-lg font-extrabold text-foreground font-mono font-serif">
-                {pastAccuracy !== null ? `${pastAccuracy}%` : '—'}
-              </p>
+              <span className="text-xs font-bold font-serif text-muted-foreground uppercase">Past Accuracy</span>
+              <p className="text-lg font-extrabold font-inria text-foreground font-mono">{pastAccuracy !== null ? `${pastAccuracy}%` : '—'}</p>
             </div>
           </div>
 
           {/* Theory notes study section */}
           {hasTheoryNote && (
             <div className="space-y-3 pt-1">
-              <h4 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-                <Lightbulb className="w-4 h-4 text-amber-500 shrink-0" />
-                <span>Theory Notes (Review Before Practice)</span>
+              <h4 className="text-xs font-bold font-serif text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <span>Theory Notes</span>
               </h4>
-              <div className="p-5 rounded-2xl bg-secondary/35 border border-border/55 text-xs sm:text-sm text-muted-foreground leading-relaxed max-h-[220px] overflow-y-auto pr-2 scrollbar-thin">
+              <div className="p-4 rounded-[8px] bg-primary/10 font-inria border border-border/55 text-xs sm:text-sm text-muted-foreground max-h-[350px] overflow-y-auto pr-2 scrollbar-thin">
                 {theory.body_text.split('\n').map((para, pIdx) => (
                   <p key={pIdx} className={pIdx > 0 ? "mt-2.5" : ""}>{para}</p>
                 ))}
@@ -599,7 +592,7 @@ function PracticeContent() {
           <div className="pt-2 flex flex-col sm:flex-row items-center gap-4 justify-between">
             <div className="text-left">
               <p className="text-xs font-bold text-foreground font-serif">Adaptive Session Ready</p>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
+              <p className="text-[11px] font-serif text-muted-foreground leading-relaxed">
                 {pastAttemptsCount > 0
                   ? `You have practiced this topic ${pastAttemptsCount} times before.`
                   : 'This is your first practice attempt for this theory.'}
@@ -610,7 +603,7 @@ function PracticeContent() {
                 setShowPreview(false);
                 questionStartTime.current = Date.now();
               }}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-primary text-primary-foreground font-extrabold hover:opacity-95 transition-all text-xs cursor-pointer shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-primary text-primary-foreground font-extrabold font-serif hover:opacity-95 transition-all text-xs cursor-pointer shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
             >
               <span>Start Practice</span>
               <ChevronRight className="w-4 h-4" />

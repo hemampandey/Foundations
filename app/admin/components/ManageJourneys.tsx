@@ -162,7 +162,7 @@ export default function ManageJourneys({
 
         {journeyMessage && (
           <div
-            className={`p-1 rounded-xl text-xs font-semibold ${journeyMessage.type === 'success'
+            className={`p-1 rounded-xl text-xs font-serif font-semibold ${journeyMessage.type === 'success'
               ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/10'
               : 'bg-destructive/10 text-destructive border border-destructive/10'
               }`}>
@@ -179,7 +179,7 @@ export default function ManageJourneys({
               required
               value={journeyTitle}
               onChange={(e) => setJourneyTitle(e.target.value)}
-              className="w-full px-3 py-2 border border-border bg-background rounded-xl focus:outline-none focus:ring-3 focus:ring-primary focus:border-transparent text-sm"/>
+              className="w-full px-3 py-2 font-inria border border-border bg-background rounded-xl focus:outline-none focus:ring-3 focus:ring-primary focus:border-transparent text-sm" />
           </div>
 
           <div className="flex items-center gap-2 py-2">
@@ -188,7 +188,7 @@ export default function ManageJourneys({
               type="checkbox"
               checked={journeyPublished}
               onChange={(e) => setJourneyPublished(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"/>
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
             <label htmlFor="j-published" className="text-xs font-semibold font-inria text-muted-foreground cursor-pointer">Publish Journey (Make visible to learners)</label>
           </div>
 
@@ -211,9 +211,7 @@ export default function ManageJourneys({
                       key={qId}
                       className="flex items-center justify-between p-2 border border-border bg-card rounded-xl text-xs"
                     >
-                      <span className="truncate max-w-[200px] font-medium" title={question.stem}>
-                        {index + 1}. {question.stem}
-                      </span>
+                      <span className="truncate line-clamp-1 max-w-[600px] font-medium font-inria" title={question.stem}>{index + 1}. {question.stem}</span>
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
@@ -276,12 +274,12 @@ export default function ManageJourneys({
                   setQSelectedTheory('');
                   setQSelectedDifficulty('');
                 }}
-                className="flex-1 py-2.5 px-4 bg-secondary text-secondary-foreground font-serif font-semibold rounded-xl hover:bg-secondary/80 transition-all cursor-pointer tracking-tighter">Cancel</button>
+                className="flex-1 py-2.5 px-4 text-sm bg-secondary text-secondary-foreground font-serif font-semibold rounded-xl hover:bg-secondary/80 transition-all cursor-pointer">Cancel</button>
             )}
             <button
               type="submit"
               disabled={journeySubmitLoading}
-              className="flex-1 py-2.5 px-4 bg-primary text-primary-foreground font-serif font-semibold rounded-xl hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-primary/10 tracking-tighter disabled:opacity-50"
+              className="flex-1 py-2.5 px-4 text-sm bg-primary text-primary-foreground font-serif font-semibold rounded-xl hover:opacity-90 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-primary/10 disabled:opacity-50"
             >
               {journeySubmitLoading ? (
                 <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
@@ -298,10 +296,8 @@ export default function ManageJourneys({
         {/* Available Questions List */}
         <div className="pt-4 border-t border-border space-y-3">
           <div className="flex flex-col gap-2">
-            <label className="block text-sm font-inria font-bold text-primary">
-              Available Questions to Add
-            </label>
-            
+            <label className="block text-sm font-inria font-bold text-primary">Available Questions to Add</label>
+
             {/* Filter controls */}
             <div className="grid grid-cols-2 gap-2">
               <input
@@ -309,12 +305,12 @@ export default function ManageJourneys({
                 placeholder="Search questions..."
                 value={qSearchQuery}
                 onChange={(e) => setQSearchQuery(e.target.value)}
-                className="col-span-2 px-2.5 py-1.5 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary w-full"
+                className="col-span-2 px-2.5 py-1.5 font-serif border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-primary w-full"
               />
               <select
                 value={qSelectedTheory}
                 onChange={(e) => setQSelectedTheory(e.target.value)}
-                className="px-2 py-1.5 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary w-full cursor-pointer font-semibold text-muted-foreground"
+                className="px-2 py-1.5 font-serif border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-primary w-full cursor-pointer font-semibold text-muted-foreground"
               >
                 <option value="">All Topics</option>
                 {Array.from(new Set(approvedQuestions.map(q => q.theories?.title).filter(Boolean))).map((title, idx) => (
@@ -324,7 +320,7 @@ export default function ManageJourneys({
               <select
                 value={qSelectedDifficulty}
                 onChange={(e) => setQSelectedDifficulty(e.target.value)}
-                className="px-2 py-1.5 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary w-full cursor-pointer font-semibold text-muted-foreground"
+                className="px-2 py-1.5 font-serif border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary w-full cursor-pointer font-semibold text-muted-foreground"
               >
                 <option value="">All Difficulties</option>
                 <option value="1">L1 (Easy)</option>
@@ -375,7 +371,7 @@ export default function ManageJourneys({
                         type="checkbox"
                         checked={isChecked}
                         readOnly
-                        className="mt-0.5 h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer shrink-0"/>
+                        className="mt-0.5 h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer shrink-0" />
                       <div className="space-y-0.5 min-w-0">
                         <p className="font-semibold text-foreground truncate" title={q.stem}>{q.stem}</p>
                         <div className="flex gap-1.5 text-[9px] font-medium text-muted-foreground">
@@ -414,7 +410,7 @@ export default function ManageJourneys({
                 className="p-4 rounded-2xl border border-border bg-background/30 hover:border-primary/20 transition-all flex justify-between items-center text-xs">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-bold font-serif text-sm text-foreground">{j.title}</h4>
+                    <h4 className="font-bold font-serif text-xs text-foreground">{j.title}</h4>
                     <span
                       className={`px-2 py-0.5 rounded-full text-[9px] font-serif font-bold uppercase border ${j.published
                         ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/10'
@@ -446,4 +442,5 @@ export default function ManageJourneys({
           </div>
         )}
       </div>
-    </>);}
+    </>);
+}
