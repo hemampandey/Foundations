@@ -1,21 +1,23 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import Sidebar from '@/app/components/Sidebar';
 import { Menu, WifiOff } from 'lucide-react';
 import { useProfile } from '@/app/components/ProfileProvider';
 import { xpToLevel } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 
-export default function ResponsiveLayout({ children }: { children: React.ReactNode }) {
+function LayoutInner({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const isPublicPage = pathname === '/' || pathname?.startsWith('/auth');
   const isPracticePage = pathname === '/practice';
+  const isReviewPractice = pathname === '/review' && searchParams.get('action') === 'start';
   const validPaths = ['/', '/auth', '/dashboard', '/progress', '/practice', '/admin', '/review', '/journeys', '/theories'];
   const is404 = pathname ? !validPaths.some(p => pathname === p || pathname.startsWith(p + '/')) : false;
-  const hideSidebar = isPublicPage || is404 || isPracticePage;
+  const hideSidebar = isPublicPage || is404 || isPracticePage || isReviewPractice;
   const { profile, progress, accuracy } = useProfile();
 
   const [isOffline, setIsOffline] = useState(
@@ -37,9 +39,10 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
     };
   }, []);
 
-  const [prevPathname, setPrevPathname] = useState(pathname);
-  if (pathname !== prevPathname) {
-    setPrevPathname(pathname);
+  const currentUrl = `${pathname}?${searchParams.toString()}`;
+  const [prevUrl, setPrevUrl] = useState(currentUrl);
+  if (currentUrl !== prevUrl) {
+    setPrevUrl(currentUrl);
     setMobileOpen(false);
   }
 
@@ -93,11 +96,11 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
   return (
     <div className="app-inner-canvas flex flex-col md:flex-row">
       {/* Sidebar (receives mobileOpen state for mobile overlay mode) */}
-      {!hideSidebar && (
+      <div className={hideSidebar ? 'hidden' : 'block shrink-0'}>
         <Suspense fallback={<div className="w-[230px] bg-card border-r border-border shrink-0 hidden md:block" />}>
           <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
         </Suspense>
-      )}
+      </div>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 h-full relative">
@@ -183,5 +186,13 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
         {children}
       </div>
     </div>
+  );
+}
+
+export default function ResponsiveLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<div className="app-inner-canvas flex flex-col md:flex-row">{children}</div>}>
+      <LayoutInner>{children}</LayoutInner>
+    </Suspense>
   );
 }

@@ -613,7 +613,7 @@ html, body {
 }
 
 .animate-app-expand-fullscreen {
-  animation: app-expand-fullscreen 1.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: app-expand-fullscreen 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes chart-sweep {

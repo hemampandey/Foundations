@@ -6,6 +6,7 @@ import type { ReviewScheduleWithQuestion } from '@/lib/types';
 import { sm2, gradeFromAttempt } from '@/lib/sm2';
 import { xpToLevel } from '@/lib/utils';
 import { playSound } from '@/lib/audio';
+import ConfirmDialog from '@/app/components/ConfirmDialog';
 import {
   ArrowLeft, Award, Lightbulb, ChevronRight, Clock, Zap
 } from 'lucide-react';
@@ -23,6 +24,7 @@ export default function ReviewSession({
   onExit,
   onCompleteSession
 }: ReviewSessionProps) {
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -170,34 +172,52 @@ export default function ReviewSession({
   if (!currentQ) return null;
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-6 animate-fade-in">
-      {/* Level Up Dialog */}
-      {leveledUpTo !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-fade-in">
-          <div className="bg-card border border-border rounded-3xl p-8 max-w-sm w-full mx-4 text-center space-y-6 shadow-2xl animate-scale-in">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 text-primary animate-bounce">
-              <Award className="w-10 h-10" />
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-2xl font-bold font-display text-foreground">Level Up!</h3>
-              <p className="text-sm text-muted-foreground">
-                Congratulations! You have reached <strong className="text-primary font-bold">Level {leveledUpTo}</strong>.
-              </p>
-            </div>
-            <button
-              onClick={() => setLeveledUpTo(null)}
-              className="w-full py-3 px-4 rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 transition-all cursor-pointer text-sm shadow-lg shadow-primary/10"
-            >
-              Awesome!
-            </button>
-          </div>
-        </div>
-      )}
+    <>
+      {/* Exit confirmation dialog */}
+      <ConfirmDialog
+        open={showExitConfirm}
+        title="Exit Review?"
+        description="Your progress in this session will not be saved. Are you sure you want to leave?"
+        confirmLabel="Exit"
+        cancelLabel="Stay"
+        variant="danger"
+        onConfirm={() => {
+          setShowExitConfirm(false);
+          onExit();
+        }}
+        onCancel={() => setShowExitConfirm(false)}
+      />
 
-      {/* Header bar */}
+      <div className={`w-full max-w-2xl mx-auto space-y-6 animate-fade-in transition-all duration-300 ${
+        showExitConfirm || leveledUpTo !== null ? 'blur-[4px] pointer-events-none select-none' : ''
+      }`}>
+        {/* Level Up Dialog */}
+        {leveledUpTo !== null && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-fade-in">
+            <div className="bg-card border border-border rounded-3xl p-8 max-w-sm w-full mx-4 text-center space-y-6 shadow-2xl animate-scale-in">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 text-primary animate-bounce">
+                <Award className="w-10 h-10" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold font-display text-foreground">Level Up!</h3>
+                <p className="text-sm text-muted-foreground">
+                  Congratulations! You have reached <strong className="text-primary font-bold">Level {leveledUpTo}</strong>.
+                </p>
+              </div>
+              <button
+                onClick={() => setLeveledUpTo(null)}
+                className="w-full py-3 px-4 rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 transition-all cursor-pointer text-sm shadow-lg shadow-primary/10"
+              >
+                Awesome!
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Header bar */}
       <div className="flex items-center justify-between border-b border-border pb-4">
         <button
-          onClick={onExit}
+          onClick={() => setShowExitConfirm(true)}
           className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -357,5 +377,6 @@ export default function ReviewSession({
         </div>
       </div>
     </div>
-  );
+  </>
+);
 }

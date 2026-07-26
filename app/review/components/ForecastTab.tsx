@@ -43,7 +43,8 @@ export default function ForecastTab({
     setIsOpening(true);
     setTimeout(() => {
       onStartPractice();
-    }, 350);
+      setTimeout(() => setIsOpening(false), 500);
+    }, 750);
   };
 
   // Group due items by theory

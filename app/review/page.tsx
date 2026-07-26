@@ -349,10 +349,9 @@ function ReviewContent() {
     if (actionParam === 'start' && !loading && dueItems.length > 0 && !started) {
       Promise.resolve().then(() => {
         setStarted(true);
-        router.replace('/review');
       });
     }
-  }, [actionParam, loading, dueItems, started, router]);
+  }, [actionParam, loading, dueItems, started]);
 
   const handleExitReview = useCallback(() => {
     setStarted(false);
@@ -461,7 +460,7 @@ function ReviewContent() {
   }
 
   // ── Active Quiz Review Session ──
-  if (started && dueItems.length > 0 && profile) {
+  if (started && actionParam === 'start' && dueItems.length > 0 && profile) {
     return (
       <ReviewSession
         profile={profile}
@@ -489,7 +488,10 @@ function ReviewContent() {
           dueItems={dueItems}
           forecastData={forecastData}
           weakTheories={weakTheories}
-          onStartPractice={() => setStarted(true)}
+          onStartPractice={() => {
+            setStarted(true);
+            router.replace('/review?action=start');
+          }}
           streak={streak}
           weeklyHistory={weeklyHistory}
           recentDays={recentDays}

@@ -90,11 +90,12 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
   const handleDeckClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (isDeckOpening) return;
+    onClose?.();
     setIsDeckOpening(true);
     setTimeout(() => {
       router.push('/review?action=start');
       setTimeout(() => setIsDeckOpening(false), 600);
-    }, 350);
+    }, 750);
   };
 
   // Close sub-menus / popovers when clicking outside the sidebar (only when collapsed)

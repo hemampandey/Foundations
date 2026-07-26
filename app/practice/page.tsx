@@ -736,10 +736,13 @@ function PracticeContent() {
         description="Your progress in this session will not be saved. Are you sure you want to leave?"
         confirmLabel="Exit"
         cancelLabel="Stay"
+        variant="danger"
         onConfirm={() => {
           setShowExitConfirm(false);
-          if (window.history.length > 1) {
-            router.back();
+          if (journeyId) {
+            router.push('/journeys');
+          } else if (theoryId) {
+            router.push('/theories');
           } else {
             router.push('/dashboard');
           }
@@ -757,7 +760,9 @@ function PracticeContent() {
           className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-all cursor-pointer">
           <ArrowLeft className="w-4 h-4" />
           <span>Back to{' '}
-            <span className="font-serif italic font-semibold text-primary">Journeys</span>
+            <span className="font-serif italic font-semibold text-primary">
+              {journeyId ? 'Journeys' : theoryId ? 'Theories' : 'Dashboard'}
+            </span>
           </span>
         </button>
 

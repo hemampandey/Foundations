@@ -279,7 +279,7 @@ export default function ProgressPage() {
     },
     {
       id: 'domain-streaks',
-      title: 'Theory Explorer',
+      title: 'Cross-Domain Mastery',
       desc: 'Maintain a streak across domains.',
       icon: '📖',
       unlocked: false,
@@ -867,9 +867,9 @@ export default function ProgressPage() {
       </div>
 
       {/* Row 3: Accomplishments (Full width) */}
-      <div className="p-4 rounded-3xl bg-gradient-to-br from-[#F4F9FD] to-[#FAFDFE] dark:from-neutral-900/60 dark:to-neutral-900/20 border border-[#D9EAF5] dark:border-neutral-800 space-y-5 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/40 pb-3">
-          <div className="flex items-center gap-2.5">
+      <div className="p-4 rounded-3xl bg-gradient-to-br from-[#F4F9FD] via-white to-[#FAFDFE] dark:from-neutral-900/80 dark:via-neutral-900/50 dark:to-neutral-900/20 border border-[#D9EAF5] dark:border-neutral-800 space-y-5 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2">
+          <div className="flex items-center gap-3">
             <Image
               src="/icons/accomplishments.svg"
               alt="Accomplishments Icon"
@@ -879,66 +879,99 @@ export default function ProgressPage() {
               unoptimized
             />
             <div>
-              <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Accomplishments</h3>
+              <h3 className="text-base font-extrabold font-serif text-foreground leading-tight">Accomplishments</h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">Badges unlocked through active learning</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] font-extrabold px-3.5 py-1 rounded-full bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700/60 text-slate-900 dark:text-slate-100 select-none shadow-sm">
-              {unlockedCount} / 11 Unlocked
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700/60 text-slate-800 dark:text-slate-100 select-none shadow-sm flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span>{unlockedCount} / {achievements.length} Unlocked</span>
             </span>
           </div>
         </div>
 
         <div className="relative group/nav">
           {/* Scroll Container */}
-          <div className="flex gap-3 overflow-x-auto pb-3 pt-1 scrollbar-none snap-x snap-mandatory scroll-smooth">
+          <div className="flex gap-4 overflow-x-auto pb-3 pl-6 pr-6 pt-2 scrollbar-none snap-mandatory scroll-smooth">
             {achievements.map((ach) => {
-              const unlocked = ach.type === 'badge' && ach.unlocked;
-              const isProgress = ach.type === 'progress';
-              const isLocked = ach.type === 'locked';
+              const isBadgeUnlocked = ach.type === 'badge' && ach.unlocked;
+              const isProgressUnlocked = ach.type === 'progress' && (ach.current ?? 0) >= (ach.max ?? 1);
+              const isUnlocked = isBadgeUnlocked || isProgressUnlocked || (ach.type === 'locked' && ach.unlocked);
+              const isProgress = ach.type === 'progress' && !isUnlocked;
+              const isLocked = !isUnlocked && !isProgress;
 
               // Icon layout
               let achIcon = null;
-              if (ach.id === 'first-step') achIcon = <Image src="/icons/first-step.svg" alt="First Step Icon" width={40} height={40} className="w-10 h-10 shrink-0" unoptimized />;
-              else if (ach.id === 'scholar') achIcon = <Image src="/icons/scholar.svg" alt="Scholar Icon" width={40} height={40} className="w-10 h-10 shrink-0" unoptimized />;
-              else if (ach.id === 'perfect-score') achIcon = <Image src="/icons/precision.svg" alt="Precision Icon" width={40} height={40} className="w-10 h-10 shrink-0" unoptimized />;
-              else if (ach.id === 'speed-demon') achIcon = <Image src="/icons/speed.svg" alt="Speed Demon Icon" width={40} height={40} className="w-10 h-10 shrink-0" unoptimized />;
-              else if (ach.id === 'streak-builder') achIcon = <Image src="/icons/unstoppable.svg" alt="Streak Builder Icon" width={40} height={40} className="w-10 h-10 shrink-0" unoptimized />;
-              else if (ach.id === 'theory-explorer') achIcon = <Image src="/icons/theory-explorer.svg" alt="Theory Explorer Icon" width={40} height={40} className="w-10 h-10 shrink-0" unoptimized />;
-              else if (ach.id === 'domain-streaks') achIcon = <Image src="/icons/domain-streak.svg" alt="Domain Streaks Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
-              else if (ach.id === 'mastermind') achIcon = <Image src="/icons/mastermind.svg" alt="Mastermind Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
-              else if (ach.id === 'perfectionist') achIcon = <Image src="/icons/perfectionist.svg" alt="Perfectionist Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
-              else if (ach.id === 'legend') achIcon = <Image src="/icons/legend.svg" alt="Legend Icon" width={32} height={32} className="w-8 h-8 shrink-0" unoptimized />;
-              else if (ach.id === 'ultimate') achIcon = <Image src="/icons/ultimate.svg" alt="Ultimate Icon" width={32} height={32} className="w-8 h-8 shrink-0" unoptimized />;
-              else achIcon = <Image src="/icons/coming-soon.svg" alt="Coming Soon Icon" width={32} height={32} className="w-8 h-8 shrink-0" unoptimized />;
+              if (ach.id === 'first-step') achIcon = <Image src="/icons/first-step.svg" alt="First Step Icon" width={40} height={40} className={`w-10 h-10 shrink-0 ${isLocked ? 'grayscale opacity-40 dark:opacity-30 group-hover:grayscale-0 group-hover:opacity-80' : ''} transition-all duration-300`} unoptimized />;
+              else if (ach.id === 'scholar') achIcon = <Image src="/icons/scholar.svg" alt="Scholar Icon" width={40} height={40} className={`w-10 h-10 shrink-0 ${isLocked ? 'grayscale opacity-40 dark:opacity-30 group-hover:grayscale-0 group-hover:opacity-80' : ''} transition-all duration-300`} unoptimized />;
+              else if (ach.id === 'perfect-score') achIcon = <Image src="/icons/precision.svg" alt="Precision Icon" width={40} height={40} className={`w-10 h-10 shrink-0 ${isLocked ? 'grayscale opacity-40 dark:opacity-30 group-hover:grayscale-0 group-hover:opacity-80' : ''} transition-all duration-300`} unoptimized />;
+              else if (ach.id === 'speed-demon') achIcon = <Image src="/icons/speed.svg" alt="Speed Demon Icon" width={40} height={40} className={`w-10 h-10 shrink-0 ${isLocked ? 'grayscale opacity-40 dark:opacity-30 group-hover:grayscale-0 group-hover:opacity-80' : ''} transition-all duration-300`} unoptimized />;
+              else if (ach.id === 'streak-builder') achIcon = <Image src="/icons/unstoppable.svg" alt="Streak Builder Icon" width={40} height={40} className={`w-10 h-10 shrink-0 ${isLocked ? 'grayscale opacity-40 dark:opacity-30 group-hover:grayscale-0 group-hover:opacity-80' : ''} transition-all duration-300`} unoptimized />;
+              else if (ach.id === 'theory-explorer') achIcon = <Image src="/icons/theory-explorer.svg" alt="Theory Explorer Icon" width={40} height={40} className={`w-10 h-10 shrink-0 ${isLocked ? 'grayscale opacity-40 dark:opacity-30 group-hover:grayscale-0 group-hover:opacity-80' : ''} transition-all duration-300`} unoptimized />;
+              else if (ach.id === 'domain-streaks') achIcon = <Image src="/icons/domain-streak.svg" alt="Domain Streaks Icon" width={36} height={36} className={`w-9 h-9 shrink-0 ${isLocked ? 'grayscale opacity-40 dark:opacity-30 group-hover:grayscale-0 group-hover:opacity-80' : ''} transition-all duration-300`} unoptimized />;
+              else if (ach.id === 'mastermind') achIcon = <Image src="/icons/mastermind.svg" alt="Mastermind Icon" width={36} height={36} className={`w-9 h-9 shrink-0 ${isLocked ? 'grayscale opacity-40 dark:opacity-30 group-hover:grayscale-0 group-hover:opacity-80' : ''} transition-all duration-300`} unoptimized />;
+              else if (ach.id === 'perfectionist') achIcon = <Image src="/icons/perfectionist.svg" alt="Perfectionist Icon" width={36} height={36} className={`w-9 h-9 shrink-0 ${isLocked ? 'grayscale opacity-40 dark:opacity-30 group-hover:grayscale-0 group-hover:opacity-80' : ''} transition-all duration-300`} unoptimized />;
+              else if (ach.id === 'legend') achIcon = <Image src="/icons/legend.svg" alt="Legend Icon" width={36} height={36} className={`w-9 h-9 shrink-0 ${isLocked ? 'grayscale opacity-40 dark:opacity-30 group-hover:grayscale-0 group-hover:opacity-80' : ''} transition-all duration-300`} unoptimized />;
+              else if (ach.id === 'ultimate') achIcon = <Image src="/icons/ultimate.svg" alt="Ultimate Icon" width={36} height={36} className={`w-9 h-9 shrink-0 ${isLocked ? 'grayscale opacity-40 dark:opacity-30 group-hover:grayscale-0 group-hover:opacity-80' : ''} transition-all duration-300`} unoptimized />;
+              else achIcon = <Image src="/icons/coming-soon.svg" alt="Coming Soon Icon" width={36} height={36} className={`w-9 h-9 shrink-0 ${isLocked ? 'grayscale opacity-40 dark:opacity-30 group-hover:grayscale-0 group-hover:opacity-80' : ''} transition-all duration-300`} unoptimized />;
 
               return (
                 <div
                   key={ach.id}
-                  className={`flex flex-col items-center justify-between p-2 bg-white dark:bg-neutral-800 border border-slate-100 dark:border-neutral-700/50 rounded-2xl w-[140px] h-[180px] shrink-0 snap-start text-center shadow-sm hover:shadow-md transition-all duration-300 select-none`}
+                  className={`group relative flex flex-col items-center justify-between p-3 rounded-2xl w-[150px] min-w-[150px] h-[190px] shrink-0 snap-start text-center transition-all duration-300 select-none ${
+                    isUnlocked
+                      ? 'bg-white dark:bg-neutral-850 border border-primary/30 ring-1 hover:ring-2 dark:border-primary/20 shadow-sm hover:shadow-md hover:-translate-y-1'
+                      : isProgress
+                      ? 'bg-white dark:bg-neutral-850 border border-primary/20 dark:border-primary/20 shadow-sm hover:shadow-md hover:-translate-y-1'
+                      : 'bg-slate-50/70 dark:bg-neutral-900/50 border border-slate-200/60 dark:border-neutral-800/60 opacity-70 hover:opacity-100 hover:-translate-y-0.5'
+                  }`}
                 >
-                  {achIcon}
-                  <div className="flex-1 pt-3 flex flex-col justify-start">
-                    <h4 className="text-xs font-extrabold font-serif text-slate-800 dark:text-slate-100 tracking-tight leading-snug">{ach.title}</h4>
-                    <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight line-clamp-4 max-w-[140px] mx-auto font-inria">{ach.desc}</p>
+                  {/* Top Status Icon */}
+                  <div className="my-1 flex items-center justify-center h-10">
+                    {achIcon}
                   </div>
-                  <div className="w-full mt-auto flex items-center justify-center">
-                    {unlocked && (
-                      <div className="flex items-center justify-center h-6">
-                        <div className="w-5.5 h-5.5 rounded-full bg-[#10B981] text-white flex items-center justify-center shadow-sm">
-                          <svg className="w-3 h-3 text-white stroke-[3.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                  {/* Title and Description */}
+                  <div className="flex-1 pt-1 flex flex-col justify-start w-full">
+                    <h4 className={`text-xs font-bold font-serif leading-snug tracking-tight ${
+                      isUnlocked
+                        ? 'text-slate-900 dark:text-slate-100'
+                        : isProgress
+                        ? 'text-slate-800 dark:text-slate-200'
+                        : 'text-muted-foreground/80 font-medium'
+                    }`}>
+                      {ach.title}
+                    </h4>
+                    <p className={`text-[10px] mt-1 leading-tight line-clamp-3 ${
+                      isUnlocked
+                        ? 'text-slate-600 dark:text-slate-400'
+                        : isProgress
+                        ? 'text-slate-500 dark:text-slate-400'
+                        : 'text-muted-foreground/60'
+                    }`}>
+                      {ach.desc}
+                    </p>
+                  </div>
+
+                  {/* Bottom Footer Status */}
+                  <div className="w-full mt-auto pt-2 flex items-center justify-center">
+                    {isUnlocked && (
+                      <div className="flex items-center justify-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                        <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-sm shadow-emerald-500/20">
+                          <svg className="w-3 h-3 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
                         </div>
+                        <span className="text-[10px] font-bold tracking-tight">Unlocked</span>
                       </div>
                     )}
 
                     {isProgress && (
-                      <div className="flex items-center justify-center gap-1">
-                        <svg className="w-[16px] h-[16px] transform -rotate-90">
-                          <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" fill="none" className="text-slate-100 dark:text-neutral-700/60" />
+                      <div className="flex items-center justify-center gap-1.5 text-primary">
+                        <svg className="w-4 h-4 transform -rotate-90">
+                          <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" fill="none" className="text-slate-200 dark:text-neutral-700" />
                           <circle
                             cx="8"
                             cy="8"
@@ -948,22 +981,23 @@ export default function ProgressPage() {
                             fill="none"
                             strokeDasharray={2 * Math.PI * 6}
                             strokeDashoffset={2 * Math.PI * 6 - (ach.current! / ach.max!) * (2 * Math.PI * 6)}
-                            className="transition-all duration-300 stroke-[#248DCE]"
+                            className="transition-all duration-500 stroke-primary"
                           />
                         </svg>
-                        <span className="text-[9.5px] font-extrabold text-slate-750 dark:text-slate-350 font-mono leading-none">
+                        <span className="text-[10px] font-extrabold font-mono text-slate-700 dark:text-slate-300">
                           {ach.current}/{ach.max}
                         </span>
                       </div>
                     )}
 
                     {isLocked && (
-                      <div className="flex items-center justify-center h-6">
-                        <div className="w-5.5 h-5.5 rounded-full bg-slate-50 border border-slate-200 dark:bg-neutral-800 dark:border-neutral-700 text-muted-foreground/80 flex items-center justify-center shadow-inner">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <div className="flex items-center justify-center gap-1 text-muted-foreground/60">
+                        <div className="w-5 h-5 rounded-full bg-slate-200/70 dark:bg-neutral-800 border border-slate-300/50 dark:border-neutral-700 flex items-center justify-center">
+                          <svg className="w-2.5 h-2.5 text-muted-foreground/70" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                           </svg>
                         </div>
+                        <span className="text-[10px] font-medium">Locked</span>
                       </div>
                     )}
                   </div>
