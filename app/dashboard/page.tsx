@@ -8,7 +8,6 @@ import { useProfile } from '@/app/components/ProfileProvider';
 import StatsHeader from '@/app/components/StatsHeader';
 import type { Theory, AttemptWithQuestion, UserProgress, Journey } from '@/lib/types';
 import {
-  BookOpen,
   ArrowRight,
   ChevronUp
 } from 'lucide-react';
@@ -339,7 +338,6 @@ export default function DashboardPage() {
               </div>
             ) : theories.length === 0 ? (
               <div className="text-center py-12 border border-dashed border-border rounded-2xl bg-card">
-                <BookOpen className="w-12 h-12 mx-auto mb-2 text-muted-foreground/30" />
                 <p className="font-semibold font-serif text-muted-foreground text-sm">No theories available right now.</p>
               </div>
             ) : (
@@ -412,7 +410,8 @@ export default function DashboardPage() {
             {/* Due for Review Card */}
             {reviewDueCount > 0 && (
               <div 
-                className={`p-4 border border-[#e0e7ff] bg-[#f5f8ff] rounded-[1rem] shadow-[0_8px_30px_rgb(0,0,0,0.01)] relative overflow-hidden group hover:border-[#cbd5e1] hover:shadow-md transition-all space-y-4 ${
+                onClick={() => handleCardClick('due-for-review', '/review', true)} 
+                className={`p-4 border border-[#e0e7ff] bg-[#f5f8ff] rounded-[1rem] shadow-[0_8px_30px_rgb(0,0,0,0.01)] relative overflow-hidden group hover:border-[#cbd5e1] hover:shadow-md transition-all space-y-4 cursor-pointer ${
                   openingCardId === 'due-for-review' ? 'animate-card-app-open' : 'animate-scale-in'
                 }`}
               >
@@ -432,7 +431,6 @@ export default function DashboardPage() {
                   <div className="space-y-2">
                     <p className="text-[11px] font-serif text-slate-500">Strengthen your due concepts</p>
                     <button 
-                      onClick={() => handleCardClick('due-for-review', '/review', true)} 
                       className="py-2.5 px-4 rounded-sm bg-[#264D8E] font-serif dark:bg-primary/70 text-white font-extrabold hover:bg-[#1f3e73] active:scale-[0.98] transition-all text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-blue-900/10 whitespace-nowrap"
                     >
                       <span>Start Review</span>

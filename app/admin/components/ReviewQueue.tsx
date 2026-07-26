@@ -390,8 +390,8 @@ export default function ReviewQueue({
                 }`}>
               {inlineEditingId === q.id ? (
                 <div className="space-y-4 text-xs">
-                  <div className="flex justify-between items-center border-b border-border/40 pb-0.5">
-                    <span className="text-[10px] font-bold text-primary uppercase">Edit</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-bold font-inria text-primary">Edit</span>
                     <span className="text-[10px] text-muted-foreground">ID: {q.id.substring(0, 8)}…</span>
                   </div>
 
@@ -429,7 +429,7 @@ export default function ReviewQueue({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold font-inria text-primary mb-1">Explanation</label>
+                    <label className="text-sm font-bold font-inria text-primary mb-1">Explanation</label>
                     <textarea
                       value={inlineExplanation}
                       onChange={(e) => setInlineExplanation(e.target.value)}
@@ -443,7 +443,7 @@ export default function ReviewQueue({
                       <select
                         value={inlineDifficulty}
                         onChange={(e) => setInlineDifficulty(Number(e.target.value) as 1 | 2 | 3)}
-                        className="w-max px-2 py-1.5 border border-border bg-background rounded-xl text-xs">
+                        className="w-max px-2 py-1.5 font-serif border border-border bg-background rounded-xl text-xs">
                         <option value={1}>L1 (Easy)</option>
                         <option value={2}>L2 (Medium)</option>
                         <option value={3}>L3 (Hard)</option>
@@ -454,7 +454,7 @@ export default function ReviewQueue({
                       <select
                         value={inlineBloomLevel}
                         onChange={(e) => setInlineBloomLevel(e.target.value as BloomLevel)}
-                        className="w-max px-2 py-1.5 border border-border bg-background rounded-xl text-xs">
+                        className="w-max px-2 py-1.5 font-serif border border-border bg-background rounded-xl text-xs">
                         <option value="remember">Remember</option>
                         <option value="understand">Understand</option>
                         <option value="apply">Apply</option>
@@ -469,11 +469,11 @@ export default function ReviewQueue({
                     <button
                       type="button"
                       onClick={() => setInlineEditingId(null)}
-                      className="flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80 transition-all cursor-pointer">Cancel</button>
+                      className="flex-1 py-2 px-3 rounded-xl text-xs font-serif font-bold bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80 transition-all cursor-pointer">Cancel</button>
                     <button
                       type="button"
                       onClick={() => handleSaveInlineEdit(q.id)}
-                      className="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-white bg-primary hover:opacity-95 transition-all cursor-pointer flex items-center justify-center gap-1.5">
+                      className="flex-1 py-2 px-3 rounded-xl text-xs font-serif font-bold text-white bg-primary hover:opacity-95 transition-all cursor-pointer flex items-center justify-center gap-1.5">
                       <Save className="w-3.5 h-3.5" />
                       Save Changes
                     </button>

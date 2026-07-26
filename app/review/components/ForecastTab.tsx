@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Flame, ChevronRight, ArrowRight, History } from 'lucide-react';
@@ -35,6 +36,15 @@ export default function ForecastTab({
   thisWeekCount,
   nextWeekCount
 }: ForecastTabProps) {
+  const [isOpening, setIsOpening] = React.useState(false);
+
+  const handleStartReview = () => {
+    if (dueItems.length === 0 || isOpening) return;
+    setIsOpening(true);
+    setTimeout(() => {
+      onStartPractice();
+    }, 350);
+  };
 
   // Group due items by theory
   const theoryGroups: Record<string, { title: string; count: number }> = {};
@@ -60,6 +70,24 @@ export default function ForecastTab({
 
   return (
     <div className="space-y-6 w-full relative">
+      {/* Launch Backdrop overlay */}
+      {isOpening && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-gradient-to-br from-[#1E3A8A] via-primary to-[#3b82f6] animate-app-expand-fullscreen flex items-center justify-center text-white pointer-events-none shadow-2xl">
+          <div className="flex flex-col items-center gap-3 animate-fade-in">
+            <Image 
+              src="/icons/deck.svg"
+              alt="Review Icon"
+              width={64}
+              height={64}
+              className="w-16 h-16 drop-shadow-xl select-none"
+              unoptimized
+            />
+            <span className="text-sm font-bold font-serif tracking-wide text-white">Starting Practice Session...</span>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {/* ─── ROW 1: Hero spaced review banner ─── */}
       <div className="p-4 rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/10 via-primary/20 to-transparent dark:from-indigo-950/20 dark:via-neutral-900/10 dark:to-transparent flex flex-col md:flex-row justify-between items-center gap-6 shadow-[0_8px_30px_rgb(0,0,0,0.01)]">
         {/* Left Side Info */}
@@ -108,9 +136,11 @@ export default function ForecastTab({
           {/* CTA Action Button */}
           <div className="pt-2">
             <button
-              onClick={onStartPractice}
+              onClick={handleStartReview}
               disabled={dueItems.length === 0}
-              className="py-3 px-6 rounded-xl bg-primary text-white font-bold text-xs hover:bg-primary/95 hover:shadow-lg hover:shadow-primary/10 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed select-none"
+              className={`py-3 px-6 rounded-xl bg-primary text-white font-bold text-xs hover:bg-primary/95 hover:shadow-lg hover:shadow-primary/10 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed select-none relative z-50 ${
+                isOpening ? 'animate-card-app-open' : ''
+              }`}
             >
               <span>Start Review</span>
               <ArrowRight className="w-4 h-4" />

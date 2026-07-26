@@ -736,8 +736,14 @@ function PracticeContent() {
         description="Your progress in this session will not be saved. Are you sure you want to leave?"
         confirmLabel="Exit"
         cancelLabel="Stay"
-        variant="danger"
-        onConfirm={() => router.push('/dashboard')}
+        onConfirm={() => {
+          setShowExitConfirm(false);
+          if (window.history.length > 1) {
+            router.back();
+          } else {
+            router.push('/dashboard');
+          }
+        }}
         onCancel={() => setShowExitConfirm(false)}
       />
 

@@ -147,7 +147,7 @@ function JourneysContent() {
               placeholder="Search journeys..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 bg-card border border-border rounded-xl text-xs outline-none focus:ring-2 focus:ring-primary text-foreground placeholder:text-muted-foreground/60 transition-all shadow-xs"
+              className="w-full pl-8 pr-3 py-1.5 font-serif bg-card border border-border rounded-xl text-xs outline-none focus:ring-3 focus:ring-primary text-foreground placeholder:text-muted-foreground/60 transition-all shadow-xs"
             />
           </div>
         </div>
@@ -193,9 +193,7 @@ function JourneysContent() {
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
                   <div className="space-y-3 relative z-10">
-                    <h3 className="text-sm font-bold font-inria text-foreground group-hover:text-primary transition-colors">
-                      {journey.title}
-                    </h3>
+                    <h3 className="text-sm font-bold font-inria text-foreground group-hover:text-primary transition-colors">{journey.title}</h3>
                   </div>
 
                   <div className="mt-3 pt-3 flex items-center justify-between gap-2 relative z-10 border-t border-border/60">

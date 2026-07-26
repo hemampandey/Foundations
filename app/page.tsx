@@ -178,9 +178,7 @@ export default function Home() {
 
               <div className="space-y-1.5">
                 <span className="px-2 py-1 rounded-xl bg-primary/80 text-secondary text-[8px] font-extrabold uppercase font-serif">Foundations</span>
-                <h4 className="text-sm pt-1.5 font-bold text-foreground leading-snug">
-                  Why does Foundations schedule some questions to appear again after a few days?
-                </h4>
+                <h4 className="text-sm pt-1.5 font-bold text-foreground leading-snug">Why does Foundations schedule some questions to appear again after a few days?</h4>
               </div>
 
               {/* Options list */}
@@ -268,52 +266,52 @@ export default function Home() {
       </section>
 
       {/* ─── VALUE PROPOSITION CARDS ─── */}
-      <section id="features" className="py-30 px-6 bg-secondary">
-        <div className="max-w-7xl mx-auto space-y-12">
-          <div className="text-center space-y-3">
-            <h2 className="text-2xl sm:text-4xl font-extrabold font-inria leading-tight text-primary">
-              Learn Smarter. Remember Longer.
+      <section id="features" className="py-24 px-6 bg-secondary dark:from-neutral-950 dark:via-neutral-900/80 dark:to-background relative overflow-hidden text-center">
+
+        <div className="max-w-6xl mx-auto space-y-12 relative z-10">
+          {/* Header Block */}
+          <div className="space-y-3 pt-18">
+            <h2 className="text-3xl sm:text-5xl font-extrabold font-display tracking-tight text-slate-900 dark:text-white leading-tight">
+              Learn <span className="text-[#264D8E] dark:text-blue-400">Smarter.</span> Remember <span className="text-[#5B5FC7] dark:text-indigo-400">Longer.</span>
             </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed font-inria font-medium pt-1">
               Foundations transforms your study material into quizzes and personalized review sessions, helping you build lasting knowledge instead of cramming.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Recall engine card */}
-            <div className="glass-card premium-card hover-glow-sweep p-6 rounded-2xl flex flex-col justify-between space-y-4">
-              <div className="space-y-2">
-                <div className="h-10 w-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center text-lg select-none">
-                  🧠
-                </div>
-                <h3 className="text-sm font-bold">SM-2 Spaced Algorithm</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
+          {/* 3 Feature Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-10xl mx-auto pt-8">
+            {/* Card 1: SM-2 Spaced Algorithm */}
+            <div className="group bg-[#FAF6EB] dark:bg-neutral-900/90 backdrop-blur-sm border hover:border-primary/80 ring-6 hover:ring-8 dark:border-pink-950/40 rounded-3xl p-7 flex flex-col justify-between space-y-6 shadow-sm hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 transition-all duration-300 text-left relative overflow-hidden">
+              <div className="space-y-4 items-center">
+                <h3 className="text-md font-sans font-bold text-primary dark:text-white font-display">
+                  SM-2 Spaced Algorithm
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-inria font-medium">
                   Questions are scheduled precisely using difficulty curves to trigger just before your memory decays, maximizing retention.
                 </p>
               </div>
             </div>
 
-            {/* AI Diagnostics card */}
-            <div className="glass-card premium-card hover-glow-sweep p-6 rounded-2xl flex flex-col justify-between space-y-4">
-              <div className="space-y-2">
-                <div className="h-10 w-10 bg-violet-500/10 text-violet-500 rounded-xl flex items-center justify-center text-lg select-none">
-                  ⚡
-                </div>
-                <h3 className="text-sm font-bold">Generative Assessment Creation</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
+            {/* Card 2: Generative Assessment Creation */}
+            <div className="group bg-[#FAF6EB] dark:bg-neutral-900/90 backdrop-blur-sm border hover:border-primary/60 ring-6 hover:ring-8 dark:border-purple-950/40 rounded-3xl p-7 flex flex-col justify-between space-y-6 shadow-sm hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 transition-all duration-300 text-left relative overflow-hidden">
+              <div className="space-y-4">
+                <h3 className="text-md font-sans font-bold text-primary dark:text-white font-display">
+                  Generative Assessment Creation
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-inria font-medium">
                   Transform reading notes, case excerpts, or counseling theories into high-fidelity assessments automatically.
                 </p>
               </div>
             </div>
 
-            {/* Analytics card */}
-            <div className="glass-card premium-card hover-glow-sweep p-6 rounded-2xl flex flex-col justify-between space-y-4">
-              <div className="space-y-2">
-                <div className="h-10 w-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center text-lg select-none">
-                  🎯
-                </div>
-                <h3 className="text-sm font-bold">Study Timelines</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
+            {/* Card 3: Study Timelines */}
+            <div className="group bg-[#FAF6EB] dark:bg-neutral-900/90 backdrop-blur-sm border hover:border-primary/80 ring-6 hover:ring-8 dark:border-emerald-950/40 rounded-3xl p-7 flex flex-col justify-between space-y-6 shadow-sm hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 transition-all duration-300 text-left relative overflow-hidden">
+              <div className="space-y-4">
+                <h3 className="text-md font-sans font-bold text-primary dark:text-white font-display">
+                  Study Timelines
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-inria font-medium">
                   Track accuracy curves, daily streak streaks, experience milestones (XP), and forecast upcoming study intervals.
                 </p>
               </div>
@@ -374,14 +372,14 @@ export default function Home() {
                 {/* Visual simulation of calendar schedules */}
                 <div className="lg:col-span-7 bg-secondary border border-border/60 rounded-xl p-5 space-y-4">
                   <div className="flex justify-between items-center">
-                    <h4 className="text-[10px] font-extrabold uppercase text-muted-foreground tracking-wider">Simulated Rescheduling Timeline</h4>
+                    <h4 className="text-xs font-serif font-extrabold text-primary">Study Scheduling</h4>
                   </div>
 
                   <div className="space-y-3">
                     <div className={`flex items-center justify-between p-2.5 bg-card border rounded-xl text-xs font-semibold transition-all duration-300 ${spacedActiveStep === 0 ? 'border-rose-500 scale-[1.01] shadow-sm' : 'border-border/80 opacity-55'
                       }`}>
                       <div className="flex items-center gap-2">
-                        <span className="p-1 rounded bg-rose-500/10 text-rose-500 text-[10px] font-bold">Incorrect</span>
+                        <span className="p-1 rounded font-serif bg-rose-500/10 text-rose-500 text-[10px] font-bold">Incorrect</span>
                         <span className="truncate max-w-[150px] sm:max-w-xs font-medium">Transference and defense mechanisms...</span>
                       </div>
                       <span className="text-[10px] font-bold text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-full shrink-0">Due in 1 Day (Reset)</span>
@@ -390,7 +388,7 @@ export default function Home() {
                     <div className={`flex items-center justify-between p-2.5 bg-card border rounded-xl text-xs font-semibold transition-all duration-300 ${spacedActiveStep === 1 ? 'border-emerald-500 scale-[1.01] shadow-sm' : 'border-border/80 opacity-55'
                       }`}>
                       <div className="flex items-center gap-2">
-                        <span className="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[10px] font-bold">Correct</span>
+                        <span className="p-1 rounded font-serif bg-emerald-500/10 text-emerald-500 text-[10px] font-bold">Correct</span>
                         <span className="truncate max-w-[150px] sm:max-w-xs font-medium">Gestalt contact boundaries...</span>
                       </div>
                       <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">Due in 8 Days (+7d)</span>
@@ -399,7 +397,7 @@ export default function Home() {
                     <div className={`flex items-center justify-between p-2.5 bg-card border rounded-xl text-xs font-semibold transition-all duration-300 ${spacedActiveStep === 2 ? 'border-violet-500 scale-[1.01] shadow-sm' : 'border-border/80 opacity-55'
                       }`}>
                       <div className="flex items-center gap-2">
-                        <span className="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[10px] font-bold">Mastered</span>
+                        <span className="p-1 rounded font-serif bg-emerald-500/10 text-emerald-500 text-[10px] font-bold">Mastered</span>
                         <span className="truncate max-w-[150px] sm:max-w-xs font-medium">Cognitive triad and beliefs...</span>
                       </div>
                       <span className="text-[10px] font-bold text-violet-500 bg-violet-500/10 px-2 py-0.5 rounded-full shrink-0">Due in 24 Days (+16d)</span>
@@ -437,7 +435,6 @@ export default function Home() {
             {activeFeatureTab === 'ai' && (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center flex-1 animate-scale-in text-left relative z-10">
                 <div className="lg:col-span-5 space-y-4">
-                  <span className="px-2 py-0.5 rounded bg-violet-500/10 text-violet-600 text-[9px] font-extrabold uppercase">Assessment</span>
                   <h3 className="text-xl font-bold font-display leading-snug">Generative AI MCQ Creator</h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     Generate multiple choice questions from any reading passage, PDF material, or conceptual descriptions.
@@ -456,36 +453,36 @@ export default function Home() {
 
                 {/* Live simulator wrapper */}
                 <div className="lg:col-span-7 bg-card border border-border/60 rounded-xl p-5 space-y-4 text-foreground shadow-md">
-                  <h4 className="text-[10px] font-extrabold uppercase text-muted-foreground tracking-wider">AI Question Generator Input</h4>
+                  <h4 className="text-xs font-bold font-serif text-primary">AI Question Generator Input</h4>
                   <div className="space-y-3">
                     <textarea
                       value={simText}
                       onChange={(e) => setSimText(e.target.value)}
-                      className="w-full bg-secondary/15 border border-border rounded-xl p-3 text-xs outline-none text-foreground placeholder-muted-foreground/60 resize-none h-16"
+                      className="w-full bg-secondary/15 border border-border font-inria rounded-xl p-3 text-xs outline-none text-foreground placeholder-muted-foreground/60 resize-none h-16"
                       placeholder="Enter notes or passage..."
                     />
                     <button
                       onClick={handleSimulateAi}
                       disabled={simGenerating}
-                      className="w-full py-2 px-4 rounded-xl bg-primary text-secondary font-bold text-xs hover:opacity-95 transition-all cursor-pointer flex items-center justify-center gap-1 shadow-md shadow-violet-500/10"
+                      className="w-full py-2 px-4 rounded-xl bg-primary text-secondary font-serif font-bold text-xs hover:opacity-95 transition-all cursor-pointer flex items-center justify-center gap-1 shadow-md shadow-violet-500/10"
                     >
-                      {simGenerating ? 'AI Agent Working...' : 'Simulate MCQ Generation'}
+                      {simGenerating ? 'Generating...' : 'Generate'}
                     </button>
 
                     {/* Render simulated process console or final output */}
                     {simGenerating && aiStep < 4 && (
-                      <div className="space-y-2.5 font-mono text-[9px] text-violet-600 text-left bg-violet-500/5 p-4 rounded-xl border border-violet-500/20 animate-fade-in font-semibold">
+                      <div className="space-y-2.5 font-mono text-[9px] text-primary text-left bg-primary/5 p-4 rounded-xl border border-primary/20 animate-fade-in font-semibold">
                         <p className="flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-ping shrink-0" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping shrink-0" />
                           <span className="truncate">
                             {aiStep === 1 ? '> Analyzing passage context keywords...' :
                               aiStep === 2 ? '> Extracting taxonomy levels and stems...' :
                                 '> Generating correct and distractor answers...'}
                           </span>
                         </p>
-                        <div className="w-full bg-violet-500/10 h-1 rounded-full overflow-hidden">
+                        <div className="w-full bg-primary/10 h-1 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-violet-500 transition-all duration-500 ease-out"
+                            className="h-full bg-primary transition-all duration-500 ease-out"
                             style={{ width: aiStep === 1 ? '33%' : aiStep === 2 ? '66%' : '95%' }}
                           />
                         </div>
@@ -494,7 +491,6 @@ export default function Home() {
 
                     {!simGenerating && simQuestion && (
                       <div className="border border-border bg-secondary/15 rounded-xl p-4 space-y-2.5 animate-scale-in text-xs">
-                        <span className="text-[8px] font-extrabold text-violet-600 uppercase tracking-wider">AI Generated Assessment</span>
                         <p className="font-bold text-foreground">{simQuestion.stem}</p>
                         <div className="space-y-1">
                           {simQuestion.options.map((opt: string, i: number) => (
@@ -514,7 +510,6 @@ export default function Home() {
             {activeFeatureTab === 'analytics' && (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center flex-1 animate-scale-in text-left relative z-10">
                 <div className="lg:col-span-5 space-y-4">
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 text-[9px] font-extrabold uppercase">Habit Loops</span>
                   <h3 className="text-xl font-bold font-display leading-snug">Streaks & XP Gamification</h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     Stay consistent with XP leveling systems, daily streak chimes, accuracy records, and comprehensive progress scorecards.
@@ -533,13 +528,17 @@ export default function Home() {
 
                 {/* Progress visual mock */}
                 <div className="lg:col-span-7 bg-card border border-border/60 rounded-xl p-5 space-y-4 text-foreground flex flex-col justify-between min-h-[220px] shadow-md">
-                  <h4 className="text-[10px] font-extrabold uppercase text-muted-foreground tracking-wider">Simulated Progress Deck</h4>
+                  <h4 className="text-xs font-serif font-bold text-primary tracking-wider">Analytics</h4>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-secondary/15 border border-border/60 p-4 rounded-xl flex items-center gap-3">
-                      <div className="w-10 h-10 bg-orange-500/10 text-orange-500 rounded-lg flex items-center justify-center text-lg select-none">
-                        🔥
-                      </div>
+                      <Image
+                        src="/icons/bonfire.svg"
+                        alt="Bonfire Icon"
+                        width={30}
+                        height={30}
+                        className="w-7 h-7 "
+                      />
                       <div>
                         <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Streak</p>
                         <p className="text-base font-bold text-foreground">12 Days Active</p>
@@ -547,9 +546,13 @@ export default function Home() {
                     </div>
 
                     <div className="bg-secondary/15 border border-border/60 p-4 rounded-xl flex items-center gap-3">
-                      <div className="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-lg flex items-center justify-center text-lg select-none">
-                        🎯
-                      </div>
+                      <Image
+                        src="/icons/accuracy.svg"
+                        alt="Accuracy Icon"
+                        width={30}
+                        height={30}
+                        className="w-7 h-7"
+                      />
                       <div>
                         <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Accuracy</p>
                         <p className="text-base font-bold text-emerald-500">84% Correct</p>
@@ -560,7 +563,7 @@ export default function Home() {
                   {/* Level status progress bar */}
                   <div className="space-y-1 bg-secondary/15 border border-border/60 p-4 rounded-xl relative overflow-hidden">
                     {xpFloater && (
-                      <span className="absolute right-4 top-2 text-[10px] font-extrabold text-indigo-500 animate-float-xp select-none">
+                      <span className="absolute right-4 top-2 text-[14px] font-extrabold text-primary-500 animate-float-xp select-none">
                         +15 XP
                       </span>
                     )}
@@ -569,7 +572,7 @@ export default function Home() {
                       <span className="text-[10px] text-muted-foreground font-mono">420/500 XP</span>
                     </div>
                     <div className="w-full h-2.5 bg-secondary border border-border rounded-full overflow-hidden mt-1">
-                      <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 w-[84%] animate-pulse" />
+                      <div className="h-full bg-gradient-to-r from-slate-400/50 via-slate-500/50 to-primary transition-all duration-300 ease-out w-[84%] " />
                     </div>
                   </div>
                 </div>
@@ -580,16 +583,12 @@ export default function Home() {
       </section>
 
       {/* ─── FROM THEORY TO MASTERY WORKFLOW & CTA ─── */}
-      <section className="w-full py-24 px-6 bg-background relative overflow-hidden text-center border-b border-border/20">
+      <section className="w-full py-24 px-6 bg-secondary relative overflow-hidden text-center border-b border-border/20">
         <div className="max-w-7xl mx-auto space-y-16">
           {/* Header */}
           <div className="space-y-3">
-            <h2 className="text-3xl sm:text-5xl font-extrabold font-serif text-primary tracking-tight">
-              From Theory to Mastery
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground font-inria max-w-md mx-auto">
-              A complete ecosystem for admins and learners.
-            </p>
+            <h2 className="text-3xl sm:text-5xl font-extrabold font-inria text-primary tracking-tight">From Theory to Mastery</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground font-inria max-w-md mx-auto">A complete ecosystem for admins and learners.</p>
           </div>
 
           {/* 6 Step Horizontal Process Flow */}
@@ -668,14 +667,8 @@ export default function Home() {
             <div className="absolute -left-10 -top-10 w-60 h-60 bg-indigo-400/10 rounded-full blur-3xl pointer-events-none" />
 
             <div className="flex items-center gap-5 relative z-10">
-              {/* Hexagon style icon container */}
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-indigo-500/30 border border-indigo-300/30 flex items-center justify-center text-amber-300 shadow-xl shadow-indigo-950/50 shrink-0 backdrop-blur-md">
-                <Star className="w-7 h-7 fill-amber-300 text-amber-400" />
-              </div>
               <div className="space-y-1">
-                <h3 className="text-xl sm:text-2xl font-bold font-serif text-white tracking-tight">
-                  Ready to transform the way you learn?
-                </h3>
+                <h3 className="text-xl sm:text-2xl font-bold font-serif text-white tracking-tight">Ready to transform the way you learn?</h3>
                 <p className="text-xs sm:text-sm text-blue-100/80 font-inria">
                   Join learners who are building lasting knowledge with Foundations.
                 </p>
@@ -687,7 +680,7 @@ export default function Home() {
                 href="/auth"
                 className="w-full md:w-auto py-3.5 px-8 rounded-full bg-white text-[#173063] font-bold text-xs sm:text-sm hover:bg-blue-50 active:scale-95 transition-all shadow-xl shadow-black/20 flex items-center justify-center gap-2 group cursor-pointer"
               >
-                <span>Get Started Free</span>
+                <span>Get Started</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>

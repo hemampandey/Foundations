@@ -349,9 +349,16 @@ function ReviewContent() {
     if (actionParam === 'start' && !loading && dueItems.length > 0 && !started) {
       Promise.resolve().then(() => {
         setStarted(true);
+        router.replace('/review');
       });
     }
-  }, [actionParam, loading, dueItems, started]);
+  }, [actionParam, loading, dueItems, started, router]);
+
+  const handleExitReview = useCallback(() => {
+    setStarted(false);
+    setCompletedAttempts(null);
+    router.replace('/review');
+  }, [router]);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -459,7 +466,7 @@ function ReviewContent() {
       <ReviewSession
         profile={profile}
         dueItems={dueItems}
-        onExit={() => setStarted(false)}
+        onExit={handleExitReview}
         onCompleteSession={(attempts) => setCompletedAttempts(attempts)}
       />
     );

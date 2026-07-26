@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
@@ -83,7 +84,18 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
   const [draftCount, setDraftCount] = useState(0);
   const [reviewDueCount, setReviewDueCount] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isDeckOpening, setIsDeckOpening] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
+
+  const handleDeckClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isDeckOpening) return;
+    setIsDeckOpening(true);
+    setTimeout(() => {
+      router.push('/review?action=start');
+      setTimeout(() => setIsDeckOpening(false), 600);
+    }, 350);
+  };
 
   // Close sub-menus / popovers when clicking outside the sidebar (only when collapsed)
   useEffect(() => {
@@ -439,15 +451,34 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
 
           {/* Practice Button */}
           <div className="relative group shrink-0">
+            {isDeckOpening && typeof document !== 'undefined' && createPortal(
+              <div className="fixed inset-0 z-[9999] bg-gradient-to-br from-[#1E3A8A] via-primary to-[#3b82f6] animate-app-expand-fullscreen flex items-center justify-center text-white pointer-events-none shadow-2xl">
+                <div className="flex flex-col items-center gap-3 animate-fade-in">
+                  <Image 
+                    src="/icons/deck.svg"
+                    alt="Deck Icon"
+                    width={64}
+                    height={64}
+                    className="w-16 h-16 drop-shadow-xl select-none"
+                    unoptimized
+                  />
+                  <span className="text-sm font-bold font-serif tracking-wide text-white">Daily Practice Deck</span>
+                </div>
+              </div>,
+              document.body
+            )}
             <Link
               href="/review?action=start"
-              className={`flex items-center justify-center gap-2.5 bg-gradient-to-r from-primary to-[#3b82f6] text-white rounded-2xl text-xs font-bold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-md ${collapsed ? 'w-10 h-10 mx-auto p-0' : 'w-full px-4 py-3'
-                } ${reviewDueCount > 0 ? 'animate-practice-btn-glow' : ''}`}
+              onClick={handleDeckClick}
+              className={`flex items-center justify-center gap-2.5 bg-gradient-to-r from-primary to-[#3b82f6] text-white rounded-2xl text-xs font-bold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-md relative z-50 ${collapsed ? 'w-10 h-10 mx-auto p-0' : 'w-full px-4 py-3'
+                } ${reviewDueCount > 0 ? 'animate-practice-btn-glow' : ''} ${
+                  isDeckOpening ? 'scale-105 opacity-90' : ''
+                }`}
             >
               {collapsed ? (
                 <Image 
                   src="/icons/deck.svg"
-                  alt="Brain Icon"
+                  alt="Deck Icon"
                   width={20}
                   height={20}
                   className="w-5 h-5 shrink-0"

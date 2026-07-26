@@ -600,6 +600,22 @@ html, body {
   animation: app-launch-backdrop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Full-Screen Button Color App Expansion */
+@keyframes app-expand-fullscreen {
+  0% {
+    clip-path: circle(4% at 50% 50%);
+    opacity: 0.85;
+  }
+  100% {
+    clip-path: circle(140% at 50% 50%);
+    opacity: 1;
+  }
+}
+
+.animate-app-expand-fullscreen {
+  animation: app-expand-fullscreen 1.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 @keyframes chart-sweep {
   from {
     width: 0;
