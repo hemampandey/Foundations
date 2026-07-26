@@ -564,6 +564,55 @@ html, body {
   animation: practice-btn-glow 2.5s infinite ease-in-out;
 }
 
+/* Phone App Opening Spring Animations */
+@keyframes card-app-opening {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(0.96);
+  }
+  100% {
+    transform: scale(1.08) translateY(-8px);
+    opacity: 0.95;
+    box-shadow: 0 25px 60px -10px rgba(38, 77, 142, 0.35), 0 0 0 3px rgba(38, 77, 142, 0.6);
+  }
+}
+
+.animate-card-app-open {
+  animation: card-app-opening 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  z-index: 50 !important;
+}
+
+@keyframes app-launch-backdrop {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(6px);
+  }
+}
+
+.animate-app-launch-backdrop {
+  animation: app-launch-backdrop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes chart-sweep {
+  from {
+    width: 0;
+  }
+  to {
+    width: 500px;
+  }
+}
+
+.animate-chart-sweep {
+  animation: chart-sweep 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 
 
 

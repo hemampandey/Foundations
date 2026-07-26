@@ -623,6 +623,9 @@ export default function ProgressPage() {
                     <stop offset="0%" stopColor="#248DCE" stopOpacity="0.25" />
                     <stop offset="100%" stopColor="#248DCE" stopOpacity="0.0" />
                   </linearGradient>
+                  <clipPath id="accClip">
+                    <rect x="0" y="0" width="0" height="140" className="animate-chart-sweep" />
+                  </clipPath>
                 </defs>
 
                 {[0, 25, 50, 75, 100].map((val) => {
@@ -635,23 +638,25 @@ export default function ProgressPage() {
                   );
                 })}
 
-                {accAreaPath && <path d={accAreaPath} fill="url(#accGrad)" />}
-                {accPoints.length > 0 && (
-                  <path d={accBezier} fill="none" stroke="#248DCE" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                )}
+                <g clipPath="url(#accClip)">
+                  {accAreaPath && <path d={accAreaPath} fill="url(#accGrad)" />}
+                  {accPoints.length > 0 && (
+                    <path d={accBezier} fill="none" stroke="#248DCE" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  )}
 
-                {accPoints.map((p, idx) => (
-                  <g key={idx} className="group cursor-pointer">
-                    <circle cx={p.x} cy={p.y} r="4" className="fill-white stroke-[#248DCE]" strokeWidth="3" />
-                    <circle cx={p.x} cy={p.y} r="8" className="fill-[#248DCE]/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <foreignObject x={p.x - 55} y={p.y - 36} width="110" height="30" className="overflow-visible pointer-events-none hidden group-hover:block z-30">
-                      <div className="bg-popover border border-border text-popover-foreground text-[9px] font-bold py-1 px-2 rounded-lg shadow-lg text-center leading-tight">
-                        <p>{trendData[idx].rollingAccuracy}% Accuracy</p>
-                        <p className="text-[8px] text-muted-foreground truncate">{trendData[idx].theoryTitle}</p>
-                      </div>
-                    </foreignObject>
-                  </g>
-                ))}
+                  {accPoints.map((p, idx) => (
+                    <g key={idx} className="group cursor-pointer">
+                      <circle cx={p.x} cy={p.y} r="4" className="fill-white stroke-[#248DCE]" strokeWidth="3" />
+                      <circle cx={p.x} cy={p.y} r="8" className="fill-[#248DCE]/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <foreignObject x={p.x - 55} y={p.y - 36} width="110" height="30" className="overflow-visible pointer-events-none hidden group-hover:block z-30">
+                        <div className="bg-popover border border-border text-popover-foreground text-[9px] font-bold py-1 px-2 rounded-lg shadow-lg text-center leading-tight">
+                          <p>{trendData[idx].rollingAccuracy}% Accuracy</p>
+                          <p className="text-[8px] text-muted-foreground truncate">{trendData[idx].theoryTitle}</p>
+                        </div>
+                      </foreignObject>
+                    </g>
+                  ))}
+                </g>
               </svg>
             ) : (
               <div className="text-center py-8 text-xs text-muted-foreground italic border border-dashed border-border/60 rounded-xl w-full my-auto">
@@ -691,6 +696,9 @@ export default function ProgressPage() {
                       <stop offset="0%" stopColor="#248DCE" stopOpacity="0.25" />
                       <stop offset="100%" stopColor="#248DCE" stopOpacity="0.0" />
                     </linearGradient>
+                    <clipPath id="speedClip">
+                      <rect x="0" y="0" width="0" height="140" className="animate-chart-sweep" />
+                    </clipPath>
                   </defs>
 
                   {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
@@ -704,52 +712,54 @@ export default function ProgressPage() {
                     );
                   })}
 
-                  {speedAreaPath && <path d={speedAreaPath} fill="url(#speedGrad)" />}
-                  {speedPoints.length > 0 && (
-                    <path d={speedBezier} fill="none" stroke="#248DCE" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                  )}
+                  <g clipPath="url(#speedClip)">
+                    {speedAreaPath && <path d={speedAreaPath} fill="url(#speedGrad)" />}
+                    {speedPoints.length > 0 && (
+                      <path d={speedBezier} fill="none" stroke="#248DCE" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    )}
 
-                  {speedPoints.map((p, idx) => {
-                    const isPeak = idx === peakIdx;
-                    return (
-                      <g key={idx} className="group cursor-pointer">
-                        <circle
-                          cx={p.x}
-                          cy={p.y}
-                          r={isPeak ? "5" : "4"}
-                          className={isPeak ? "fill-white stroke-[#248DCE]" : "fill-background stroke-[#248DCE]"}
-                          strokeWidth={isPeak ? "3" : "2.5"}
-                        />
-                        {isPeak && (
-                          <g>
-                            <rect
-                              x={p.x - 16}
-                              y={p.y - 25}
-                              width="32"
-                              height="16"
-                              rx="6"
-                              className="fill-primary stroke-white stroke-1 shadow-sm"
-                            />
-                            <text
-                              x={p.x}
-                              y={p.y - 14}
-                              className="text-[9px] font-extrabold fill-white"
-                              textAnchor="middle"
-                            >
-                              {trendData[idx].speedSeconds}s
-                            </text>
-                          </g>
-                        )}
-                        <circle cx={p.x} cy={p.y} r="8" className="fill-[#248DCE]/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <foreignObject x={p.x - 55} y={p.y - 36} width="110" height="30" className="overflow-visible pointer-events-none hidden group-hover:block z-30">
-                          <div className="bg-popover border border-border text-popover-foreground text-[9px] font-bold py-1 px-2 rounded-lg shadow-lg text-center leading-tight">
-                            <p>{trendData[idx].speedSeconds}s Response</p>
-                            <p className="text-[8px] text-muted-foreground truncate">{trendData[idx].theoryTitle}</p>
-                          </div>
-                        </foreignObject>
-                      </g>
-                    );
-                  })}
+                    {speedPoints.map((p, idx) => {
+                      const isPeak = idx === peakIdx;
+                      return (
+                        <g key={idx} className="group cursor-pointer">
+                          <circle
+                            cx={p.x}
+                            cy={p.y}
+                            r={isPeak ? "5" : "4"}
+                            className={isPeak ? "fill-white stroke-[#248DCE]" : "fill-background stroke-[#248DCE]"}
+                            strokeWidth={isPeak ? "3" : "2.5"}
+                          />
+                          {isPeak && (
+                            <g>
+                              <rect
+                                x={p.x - 16}
+                                y={p.y - 25}
+                                width="32"
+                                height="16"
+                                rx="6"
+                                className="fill-primary stroke-white stroke-1 shadow-sm"
+                              />
+                              <text
+                                x={p.x}
+                                y={p.y - 14}
+                                className="text-[9px] font-extrabold fill-white"
+                                textAnchor="middle"
+                              >
+                                {trendData[idx].speedSeconds}s
+                              </text>
+                            </g>
+                          )}
+                          <circle cx={p.x} cy={p.y} r="8" className="fill-[#248DCE]/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <foreignObject x={p.x - 55} y={p.y - 36} width="110" height="30" className="overflow-visible pointer-events-none hidden group-hover:block z-30">
+                            <div className="bg-popover border border-border text-popover-foreground text-[9px] font-bold py-1 px-2 rounded-lg shadow-lg text-center leading-tight">
+                              <p>{trendData[idx].speedSeconds}s Response</p>
+                              <p className="text-[8px] text-muted-foreground truncate">{trendData[idx].theoryTitle}</p>
+                            </div>
+                          </foreignObject>
+                        </g>
+                      );
+                    })}
+                  </g>
                 </svg>
               );
             })() : (
@@ -877,7 +887,7 @@ export default function ProgressPage() {
           
           <div className="flex items-center gap-3">
             <span className="text-[11px] font-extrabold px-3.5 py-1 rounded-full bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700/60 text-slate-900 dark:text-slate-100 select-none shadow-sm">
-              {unlockedCount} / {achievements.filter(a => a.type === 'badge').length} Unlocked
+              {unlockedCount} / 11 Unlocked
             </span>
           </div>
         </div>
@@ -892,12 +902,12 @@ export default function ProgressPage() {
 
               // Icon layout
               let achIcon = null;
-              if (ach.id === 'first-step') achIcon = <Image src="/icons/first-step.svg" alt="First Step Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
-              else if (ach.id === 'scholar') achIcon = <Image src="/icons/scholar.svg" alt="Scholar Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
-              else if (ach.id === 'perfect-score') achIcon = <Image src="/icons/precision.svg" alt="Precision Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
-              else if (ach.id === 'speed-demon') achIcon = <Image src="/icons/speed.svg" alt="Speed Demon Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
-              else if (ach.id === 'streak-builder') achIcon = <Image src="/icons/unstoppable.svg" alt="Streak Builder Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
-              else if (ach.id === 'theory-explorer') achIcon = <Image src="/icons/theory-explorer.svg" alt="Theory Explorer Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
+              if (ach.id === 'first-step') achIcon = <Image src="/icons/first-step.svg" alt="First Step Icon" width={40} height={40} className="w-10 h-10 shrink-0" unoptimized />;
+              else if (ach.id === 'scholar') achIcon = <Image src="/icons/scholar.svg" alt="Scholar Icon" width={40} height={40} className="w-10 h-10 shrink-0" unoptimized />;
+              else if (ach.id === 'perfect-score') achIcon = <Image src="/icons/precision.svg" alt="Precision Icon" width={40} height={40} className="w-10 h-10 shrink-0" unoptimized />;
+              else if (ach.id === 'speed-demon') achIcon = <Image src="/icons/speed.svg" alt="Speed Demon Icon" width={40} height={40} className="w-10 h-10 shrink-0" unoptimized />;
+              else if (ach.id === 'streak-builder') achIcon = <Image src="/icons/unstoppable.svg" alt="Streak Builder Icon" width={40} height={40} className="w-10 h-10 shrink-0" unoptimized />;
+              else if (ach.id === 'theory-explorer') achIcon = <Image src="/icons/theory-explorer.svg" alt="Theory Explorer Icon" width={40} height={40} className="w-10 h-10 shrink-0" unoptimized />;
               else if (ach.id === 'domain-streaks') achIcon = <Image src="/icons/domain-streak.svg" alt="Domain Streaks Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
               else if (ach.id === 'mastermind') achIcon = <Image src="/icons/mastermind.svg" alt="Mastermind Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
               else if (ach.id === 'perfectionist') achIcon = <Image src="/icons/perfectionist.svg" alt="Perfectionist Icon" width={32} height={32} className="w-9 h-9 shrink-0" unoptimized />;
@@ -908,14 +918,14 @@ export default function ProgressPage() {
               return (
                 <div
                   key={ach.id}
-                  className={`flex flex-col items-center justify-between p-3 bg-white dark:bg-neutral-800 border border-slate-100 dark:border-neutral-700/50 rounded-2xl w-[130px] h-[195px] shrink-0 snap-start text-center shadow-sm hover:shadow-md transition-all duration-300 select-none`}
+                  className={`flex flex-col items-center justify-between p-2 bg-white dark:bg-neutral-800 border border-slate-100 dark:border-neutral-700/50 rounded-2xl w-[140px] h-[180px] shrink-0 snap-start text-center shadow-sm hover:shadow-md transition-all duration-300 select-none`}
                 >
                   {achIcon}
-                  <div className="flex-1 pt-4 flex flex-col justify-start">
-                    <h4 className="text-[11px] font-extrabold font-serif text-slate-800 dark:text-slate-100 tracking-tight leading-snug">{ach.title}</h4>
-                    <p className="text-[8.5px] text-muted-foreground mt-0.5 leading-tight line-clamp-2 max-w-[110px] mx-auto font-medium">{ach.desc}</p>
+                  <div className="flex-1 pt-3 flex flex-col justify-start">
+                    <h4 className="text-xs font-extrabold font-serif text-slate-800 dark:text-slate-100 tracking-tight leading-snug">{ach.title}</h4>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight line-clamp-4 max-w-[140px] mx-auto font-inria">{ach.desc}</p>
                   </div>
-                  <div className="w-full mt-auto pt-1.5 border-t border-border/20 flex items-center justify-center">
+                  <div className="w-full mt-auto flex items-center justify-center">
                     {unlocked && (
                       <div className="flex items-center justify-center h-6">
                         <div className="w-5.5 h-5.5 rounded-full bg-[#10B981] text-white flex items-center justify-center shadow-sm">
@@ -927,7 +937,7 @@ export default function ProgressPage() {
                     )}
 
                     {isProgress && (
-                      <div className="flex items-center justify-center gap-1 h-6">
+                      <div className="flex items-center justify-center gap-1">
                         <svg className="w-[16px] h-[16px] transform -rotate-90">
                           <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" fill="none" className="text-slate-100 dark:text-neutral-700/60" />
                           <circle

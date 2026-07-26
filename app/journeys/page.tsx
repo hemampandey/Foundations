@@ -18,6 +18,7 @@ function JourneysContent() {
   const [overallAccuracy, setOverallAccuracy] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [openingCardId, setOpeningCardId] = useState<string | null>(null);
   // Redirect if not logged in
   useEffect(() => {
     if (!authLoading && !profile) {
@@ -95,12 +96,25 @@ function JourneysContent() {
     );
   }
 
+  const handleCardClick = (id: string, targetUrl: string, isPlayable: boolean) => {
+    if (!isPlayable || openingCardId) return;
+    setOpeningCardId(id);
+    setTimeout(() => {
+      router.push(targetUrl);
+    }, 320);
+  };
+
   const filteredJourneys = journeys.filter((j) =>
     j.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="w-full space-y-5 animate-fade-in">
+    <div className="w-full space-y-5 animate-fade-in relative">
+      {/* App Launch Screen Overlay */}
+      {openingCardId && (
+        <div className="fixed inset-0 bg-background/50 backdrop-blur-sm z-40 animate-app-launch-backdrop pointer-events-none" />
+      )}
+
       {/* Top Header Banner */}
       <StatsHeader
         role={profile?.role as 'admin' | 'learner'}
@@ -165,13 +179,16 @@ function JourneysContent() {
             {filteredJourneys.map((journey, idx) => {
               const qCount = journeyQuestionCounts[journey.id] || 0;
               const isPlayable = qCount > 0;
+              const isOpening = openingCardId === journey.id;
               const staggerClass = `stagger-${Math.min(12, idx + 1)}`;
 
               return (
                 <div
                   key={journey.id}
-                  onClick={() => isPlayable && router.push(`/practice?journeyId=${journey.id}`)}
-                  className={`group premium-card p-4 flex flex-col justify-between cursor-pointer overflow-hidden animate-fade-in ${staggerClass}`}
+                  onClick={() => handleCardClick(journey.id, `/practice?journeyId=${journey.id}`, isPlayable)}
+                  className={`group premium-card p-4 flex flex-col justify-between cursor-pointer overflow-hidden transition-all duration-300 active:scale-95 hover:-translate-y-1 hover:shadow-lg ${
+                    isOpening ? 'animate-card-app-open' : 'animate-fade-in'
+                  } ${staggerClass}`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 

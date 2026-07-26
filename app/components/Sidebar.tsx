@@ -558,7 +558,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                         <span className="flex items-center gap-2">
                           Review
                           {reviewDueCount > 0 && (
-                            <span className="text-[10px] font-bold font-serif text-white bg-primary/90 px-2 py-1 rounded-xs animate-scale-in">{reviewDueCount}</span>
+                            <span className="text-[10px] font-bold font-serif text-white bg-primary/90 px-2.5 py-1 rounded-sm animate-scale-in">{reviewDueCount}</span>
                           )}
                         </span>
                       )}
@@ -742,7 +742,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                         <div className="flex items-center gap-1.5">
                           <span>Review Queue</span>
                           {draftCount > 0 && (
-                            <span className="px-1.5 py-0.5 rounded-xs text-[10px] font-bold bg-primary/90 text-white">{draftCount}</span>
+                            <span className="px-2 py-0.5 rounded-sm text-[9px] font-bold bg-primary/90 text-white">{draftCount}</span>
                           )}
                         </div>
                       </Link>

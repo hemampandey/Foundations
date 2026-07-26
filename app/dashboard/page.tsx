@@ -40,6 +40,7 @@ export default function DashboardPage() {
   const [progress, setProgress] = useState<UserProgress | null>(null);
   const [reviewDueCount, setReviewDueCount] = useState(0);
   const [loadingData, setLoadingData] = useState(true);
+  const [openingCardId, setOpeningCardId] = useState<string | null>(null);
 
   const fetchDashboardData = useCallback(async () => {
     if (!profile) return;
@@ -242,8 +243,21 @@ export default function DashboardPage() {
 
   const hasRightColumn = reviewDueCount > 0;
 
+  const handleCardClick = (id: string, targetUrl: string, isPlayable: boolean) => {
+    if (!isPlayable || openingCardId) return;
+    setOpeningCardId(id);
+    setTimeout(() => {
+      router.push(targetUrl);
+    }, 320);
+  };
+
   return (
-    <div className="w-full space-y-5 animate-fade-in">
+    <div className="w-full space-y-5 animate-fade-in relative">
+      {/* App Launch Screen Overlay */}
+      {openingCardId && (
+        <div className="fixed inset-0 bg-background/50 backdrop-blur-sm z-40 animate-app-launch-backdrop pointer-events-none" />
+      )}
+
       <StatsHeader
         role={profile?.role}
         streak={streak}
@@ -277,20 +291,23 @@ export default function DashboardPage() {
                 {journeys.map((journey, idx) => {
                   const qCount = journeyQuestionCounts[journey.id] || 0;
                   const isPlayable = qCount > 0;
+                  const isOpening = openingCardId === journey.id;
                   const staggerClass = `stagger-${Math.min(12, idx + 1)}`;
 
                   return (
                     <div
                       key={journey.id}
-                      onClick={() => isPlayable && router.push(`/practice?journeyId=${journey.id}`)}
-                      className={`group premium-card p-4 flex flex-col justify-between cursor-pointer overflow-hidden animate-fade-in ${staggerClass}`}>
+                      onClick={() => handleCardClick(journey.id, `/practice?journeyId=${journey.id}`, isPlayable)}
+                      className={`group premium-card p-4 flex flex-col justify-between cursor-pointer overflow-hidden transition-all duration-700 active:scale-95 hover:-translate-y-1 hover:shadow-lg ${
+                        isOpening ? 'animate-card-app-open' : 'animate-fade-in'
+                      } ${staggerClass}`}>
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
                       <div className="space-y-3 relative z-10">
                         <h3 className="text-sm font-bold font-inria text-foreground group-hover:text-primary transition-colors">{journey.title}</h3>
                       </div>
 
-                      <div className="mt-3 pt-3  flex items-center justify-between gap-2 relative z-10">
+                      <div className="mt-3 pt-3 flex items-center justify-between gap-2 relative z-10 border-t border-border/60">
                         <div className="flex items-center gap-1.5 overflow-hidden">
                           <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-full whitespace-nowrap">{qCount} {qCount === 1 ? 'Question' : 'Questions'}</span>
                           {isPlayable && (
@@ -330,6 +347,7 @@ export default function DashboardPage() {
                 {theories.map((theory, idx) => {
                   const qCount = theoryQuestionCounts[theory.id] || 0;
                   const isPlayable = qCount > 0;
+                  const isOpening = openingCardId === theory.id;
                   const stats = theoryStats[theory.id];
                   const attemptsCount = stats?.total || 0;
                   const accuracyVal = stats?.accuracy || 0;
@@ -352,8 +370,10 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={theory.id}
-                      onClick={() => isPlayable && router.push(`/practice?theoryId=${theory.id}`)}
-                      className={`group premium-card p-4 flex flex-col justify-between cursor-pointer overflow-hidden animate-fade-in ${staggerClass}`}
+                      onClick={() => handleCardClick(theory.id, `/practice?theoryId=${theory.id}`, isPlayable)}
+                      className={`group premium-card p-4 flex flex-col justify-between cursor-pointer overflow-hidden transition-all duration-700 active:scale-95 hover:-translate-y-1 hover:shadow-lg ${
+                        isOpening ? 'animate-card-app-open' : 'animate-fade-in'
+                      } ${staggerClass}`}
                     >
                       <div className={`absolute inset-0 bg-gradient-to-br ${glowClass} via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none`} />
 
@@ -391,7 +411,11 @@ export default function DashboardPage() {
           <div className="space-y-3">
             {/* Due for Review Card */}
             {reviewDueCount > 0 && (
-              <div className="p-4 border border-[#e0e7ff] bg-[#f5f8ff] rounded-[1rem] shadow-[0_8px_30px_rgb(0,0,0,0.01)] relative overflow-hidden group hover:border-[#cbd5e1] hover:shadow-md transition-all space-y-4 animate-scale-in">
+              <div 
+                className={`p-4 border border-[#e0e7ff] bg-[#f5f8ff] rounded-[1rem] shadow-[0_8px_30px_rgb(0,0,0,0.01)] relative overflow-hidden group hover:border-[#cbd5e1] hover:shadow-md transition-all space-y-4 ${
+                  openingCardId === 'due-for-review' ? 'animate-card-app-open' : 'animate-scale-in'
+                }`}
+              >
                 {/* Header */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
@@ -407,7 +431,10 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between gap-3 pt-1">
                   <div className="space-y-2">
                     <p className="text-[11px] font-serif text-slate-500">Strengthen your due concepts</p>
-                    <button onClick={() => router.push('/review')} className="py-2.5 px-4 rounded-sm bg-[#264D8E] font-serif dark:bg-primary/70 text-white font-extrabold hover:bg-[#1f3e73] active:scale-[0.98] transition-all text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-blue-900/10 whitespace-nowrap">
+                    <button 
+                      onClick={() => handleCardClick('due-for-review', '/review', true)} 
+                      className="py-2.5 px-4 rounded-sm bg-[#264D8E] font-serif dark:bg-primary/70 text-white font-extrabold hover:bg-[#1f3e73] active:scale-[0.98] transition-all text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-blue-900/10 whitespace-nowrap"
+                    >
                       <span>Start Review</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
