@@ -304,8 +304,20 @@ export default function HistoryTab() {
 
       {/* ─── Grouped Cards Lists ─── */}
       {loadingHistory ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+        <div className="space-y-4 animate-fade-in">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-2xl border border-border/40 p-4 space-y-3 bg-card">
+              <div className="flex justify-between items-center">
+                <div className="skeleton h-4 w-1/4" />
+                <div className="skeleton h-5 w-20 rounded-full" />
+              </div>
+              <div className="skeleton h-3.5 w-3/4" />
+              <div className="flex justify-between items-center pt-1 border-t border-border/20">
+                <div className="skeleton h-3.5 w-16" />
+                <div className="skeleton h-3.5 w-24" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : totalItems === 0 ? (
         <div className="bg-card border border-border rounded-2xl py-12 text-center text-muted-foreground font-serif">

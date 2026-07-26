@@ -120,7 +120,7 @@ export default function AuthPage() {
           <div className="space-y-4 animate-fade-in stagger-2">
             <h1 className="text-4xl font-extrabold font-display leading-[1.15] text-white tracking-tight">
               Build Durable Mastery of <br />
-              <span className="bg-gradient-to-r from-white via-indigo-100 to-indigo-200 bg-clip-text text-transparent">Counselling Theories</span>
+              <span className="bg-gradient-to-r from-white via-indigo-100 to-indigo-200 bg-clip-text text-transparent">Theories</span>
             </h1>
             <p className="text-sm text-indigo-100/90 leading-relaxed max-w-md">A premium, spacing-optimized training platform designed to concrete conceptual foundations and decision making.</p>
           </div>

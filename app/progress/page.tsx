@@ -439,13 +439,6 @@ export default function ProgressPage() {
   const speedBezier = getBezierPath(speedPoints);
   const speedAreaPath = speedPoints.length > 0 ? `${speedBezier} L ${speedPoints[speedPoints.length - 1].x} ${paddingTop + chartH} L ${speedPoints[0].x} ${paddingTop + chartH} Z` : '';
 
-  // Summary metrics for heatmap panel
-  const activeDaysCount = attempts.reduce((acc, att) => {
-    const dStr = formatLocalDateString(new Date(att.created_at));
-    acc.add(dStr);
-    return acc;
-  }, new Set<string>()).size;
-
   const unlockedCount = achievements.filter((a) => a.unlocked).length;
 
   return (
@@ -465,7 +458,7 @@ export default function ProgressPage() {
         <div className="lg:col-span-2 p-4 premium-card space-y-5 flex flex-col justify-between">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <Image 
+              <Image
                 src="/icons/calendar.svg"
                 alt="Calendar Icon"
                 width={36}
@@ -478,29 +471,25 @@ export default function ProgressPage() {
                 <p className="text-[11px] font-inria text-muted-foreground mt-0.5">Practice attempts recorded over the last 12 months</p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2.5 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 rounded-xl p-2 px-3.5">
-                <div className="text-left select-none">
-                  <p className="text-[9px] text-muted-foreground font-bold uppercase leading-none">Active Days</p>
-                  <p className="text-xs font-extrabold text-foreground leading-tight mt-1">{activeDaysCount}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2.5 bg-violet-50/50 dark:bg-violet-950/20 border border-violet-100 dark:border-violet-900/30 rounded-xl p-2 px-3.5">
-                <div className="text-left select-none">
-                  <p className="text-[9px] text-muted-foreground font-bold uppercase leading-none">Total MCQs</p>
-                  <p className="text-xs font-extrabold text-foreground leading-tight mt-1">{totalAttempts}</p>
-                </div>
+              <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground/80 shrink-0 select-none pl-4">
+                <span>Less</span>
+                <div className="w-2.5 h-2.5 rounded-xs bg-secondary/60 border border-border/30" />
+                <div className="w-2.5 h-2.5 rounded-xs bg-primary/25 border border-primary/30" />
+                <div className="w-2.5 h-2.5 rounded-xs bg-primary/60 border border-primary/70" />
+                <div className="w-2.5 h-2.5 rounded-xs bg-primary border border-primary" />
+                <span>More</span>
               </div>
             </div>
           </div>
 
           {/* Heatmap Area */}
-          <div className="w-full pt-1 pb-1">
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2 items-center">
+          <div className="w-full overflow-x-auto scrollbar-none pt-9 pb-6 -mt-8 -mb-4">
+            <div className="flex flex-col gap-2 min-w-[650px] w-full">
+              <div className="flex gap-0 items-center">
                 {/* Weekday Labels (Sun to Sat) */}
-                <div className="flex flex-col justify-between text-[10px] font-bold text-muted-foreground/70 pr-1.5 h-[98px] py-0.5 shrink-0 select-none">
+                <div className="flex flex-col justify-between text-[8px] font-bold text-muted-foreground/60 w-[24px] pr-1.5 h-[89px] shrink-0 select-none">
                   <span>Sun</span>
                   <span>Mon</span>
                   <span>Tue</span>
@@ -511,9 +500,9 @@ export default function ProgressPage() {
                 </div>
 
                 {/* Heatmap Grid */}
-                <div className="flex gap-[3px] sm:gap-[4px] flex-1 justify-between">
+                <div className="flex flex-1 justify-between shrink-0">
                   {heatmapData.map((week, wIdx) => (
-                    <div key={wIdx} className="flex flex-col gap-[3px] sm:gap-[4px]">
+                    <div key={wIdx} className="flex flex-col gap-[2px] w-[11px] shrink-0">
                       {week.map((day) => {
                         let colorClass = 'bg-secondary/60 dark:bg-neutral-800/40 border border-border/30';
                         if (day.count > 0 && day.count <= 2) {
@@ -536,7 +525,28 @@ export default function ProgressPage() {
                           // Safe fallback
                         }
 
+                        const todayStr = formatLocalDateString(new Date());
+                        const isFuture = day.dateStr > todayStr;
+
+                        if (isFuture) {
+                          return (
+                            <div
+                              key={day.dateStr}
+                              className="w-[11px] h-[11px] rounded-xs opacity-0 pointer-events-none"
+                            />
+                          );
+                        }
+
                         const isTopRow = day.dayOfWeek <= 1;
+                        let alignClass = 'left-1/2 -translate-x-1/2';
+                        let arrowClass = 'self-center';
+                        if (wIdx < 4) {
+                          alignClass = 'left-0 translate-x-0';
+                          arrowClass = 'self-start ml-1.5';
+                        } else if (wIdx > 47) {
+                          alignClass = 'right-0 left-auto translate-x-0';
+                          arrowClass = 'self-end mr-1.5';
+                        }
 
                         return (
                           <div
@@ -544,13 +554,13 @@ export default function ProgressPage() {
                             className={`w-[11px] h-[11px] rounded-xs transition-all duration-200 relative group cursor-pointer hover:scale-125 hover:z-30 ${colorClass}`}
                           >
                             {/* Hover Tooltip Popover */}
-                            <div className={`absolute left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col items-center z-50 pointer-events-none animate-fade-in ${isTopRow ? 'top-full mt-1.5' : 'bottom-full mb-1.5'}`}>
+                            <div className={`absolute hidden group-hover:flex flex-col items-center z-50 pointer-events-none animate-fade-in ${alignClass} ${isTopRow ? 'top-full mt-1.5' : 'bottom-full mb-1.5'}`}>
                               {!isTopRow && (
                                 <div className="bg-popover border border-border text-popover-foreground text-[8px] font-bold py-1 px-2.5 rounded-lg shadow-xl whitespace-nowrap leading-tight">
                                   {day.count === 0 ? 'No' : day.count} practice {day.count === 1 ? 'attempt' : 'attempts'} on {formattedDate}
                                 </div>
                               )}
-                              <div className={`w-1.5 h-1.5 bg-popover border-border rotate-45 ${isTopRow ? 'border-l border-t -mb-1' : 'border-r border-b -mt-1'}`} />
+                              <div className={`w-1.5 h-1.5 bg-popover border-border rotate-45 ${isTopRow ? 'border-l border-t -mb-1' : 'border-r border-b -mt-1'} ${arrowClass}`} />
                               {isTopRow && (
                                 <div className="bg-popover border border-border text-popover-foreground text-[8px] font-bold py-1 px-2.5 rounded-lg shadow-xl whitespace-nowrap leading-tight">
                                   {day.count === 0 ? 'No' : day.count} practice {day.count === 1 ? 'attempt' : 'attempts'} on {formattedDate}
@@ -565,33 +575,23 @@ export default function ProgressPage() {
                 </div>
               </div>
 
-              {/* Bottom Row: Month Labels on Left, Legend on Bottom Right */}
-              <div className="flex items-center justify-between pt-1 select-none pl-[32px] pr-1">
-                <div className="flex gap-[3px] sm:gap-[4px] text-[10px] font-bold text-muted-foreground/70 relative h-4 flex-1">
+              {/* Bottom Row: Month Labels on Left */}
+              <div className="flex items-center pt-2 select-none pl-[24px]">
+                <div className="flex flex-1 justify-between text-[8px] font-bold text-muted-foreground/60 relative h-4 shrink-0">
                   {heatmapData.map((week, wIdx) => {
                     const dayObj = parseLocalDate(week[0].dateStr);
                     const isFirstWeekOfMonth = dayObj.getDate() <= 7;
                     if (isFirstWeekOfMonth) {
                       return (
-                        <div key={wIdx} className="w-[11px] relative">
+                        <div key={wIdx} className="w-[11px] relative shrink-0">
                           <span className="absolute left-0 top-0 whitespace-nowrap">
                             {dayObj.toLocaleString('default', { month: 'short' })}
                           </span>
                         </div>
                       );
                     }
-                    return <div key={wIdx} className="w-[11px]" />;
+                    return <div key={wIdx} className="w-[11px] shrink-0" />;
                   })}
-                </div>
-
-                {/* Legend in bottom right corner */}
-                <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground/80 shrink-0 select-none pl-4 pt-6">
-                  <span>Less</span>
-                  <div className="w-2.5 h-2.5 rounded-xs bg-secondary/60 border border-border/30" />
-                  <div className="w-2.5 h-2.5 rounded-xs bg-primary/25 border border-primary/30" />
-                  <div className="w-2.5 h-2.5 rounded-xs bg-primary/60 border border-primary/70" />
-                  <div className="w-2.5 h-2.5 rounded-xs bg-primary border border-primary" />
-                  <span>More</span>
                 </div>
               </div>
             </div>
@@ -601,7 +601,7 @@ export default function ProgressPage() {
         {/* Mastery Progression (Accuracy Chart) ─── (takes 1/3 width) */}
         <div className="lg:col-span-1 p-4 premium-card flex flex-col justify-between gap-4">
           <div className="flex items-center gap-2.5 border-b border-border/40 pb-3">
-            <Image 
+            <Image
               src="/icons/mastery.svg"
               alt="Mastery Icon"
               width={36}
@@ -672,14 +672,14 @@ export default function ProgressPage() {
         {/* Average Response Time Chart (1/3 width) */}
         <div className="p-4 premium-card flex flex-col justify-between gap-4">
           <div className="flex items-center gap-2.5 border-b border-border/40 ">
-              <Image 
-                src="/icons/time.svg"
-                alt="Time Icon"
-                width={32}
-                height={32}
-                className="w-9 h-9 shrink-0"
-                unoptimized
-              />
+            <Image
+              src="/icons/time.svg"
+              alt="Time Icon"
+              width={32}
+              height={32}
+              className="w-9 h-9 shrink-0"
+              unoptimized
+            />
             <div>
               <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Average Response Time</h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">Time elapsed per question (last 15 attempts)</p>
@@ -773,21 +773,21 @@ export default function ProgressPage() {
         {/* Weekly Practice Activity (1/3 width) */}
         <div className="p-4 premium-card flex flex-col justify-between gap-4">
           <div className="flex items-center gap-2.5 border-b border-border/40 pb-3">
-              <Image 
-                src="/icons/time.svg"
-                alt="Brain Icon"
-                width={32}
-                height={32}
-                className="w-9 h-9 shrink-0"
-                unoptimized
-              />
+            <Image
+              src="/icons/time.svg"
+              alt="Brain Icon"
+              width={32}
+              height={32}
+              className="w-9 h-9 shrink-0"
+              unoptimized
+            />
 
             <div>
               <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Weekly Practice Activity</h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">MCQ attempts in the last 7 days</p>
             </div>
           </div>
-          
+
           <div className="flex justify-between items-end h-[140px] px-2 my-auto">
             {(() => {
               const maxCountIdx = weeklyAttempts.indexOf(maxWeekly);
@@ -801,9 +801,8 @@ export default function ProgressPage() {
                         <span className="text-sm font-extrabold font-inria text-primary/95 bg-primary/20 border border-primary/20 rounded-[6px] px-3 py-0.5 mb-1 block">{count}</span>
                       )}
                       <div
-                        className={`w-8 rounded-t-[4px] transition-all duration-300 relative group cursor-pointer ${
-                          isHighest ? 'bg-primary shadow-md shadow-primary/20' : 'bg-primary/40 hover:bg-primary/60'
-                        }`}
+                        className={`w-8 rounded-t-[4px] transition-all duration-300 relative group cursor-pointer ${isHighest ? 'bg-primary shadow-md shadow-primary/20' : 'bg-primary/40 hover:bg-primary/60'
+                          }`}
                         style={{ height: `${percent}%` }}
                       >
                         <span className="absolute left-1/2 top-0 -translate-x-1/2 bg-popover text-popover-foreground text-[11px] font-serif italic px-2 py-0.5 rounded-[6px] opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity font-serif shadow-md border border-border z-30">{count} attempts</span>
@@ -820,7 +819,7 @@ export default function ProgressPage() {
         {/* Domain Mastery (1/3 width) */}
         <div className="p-4 premium-card flex flex-col justify-between gap-4">
           <div className="flex items-center gap-2.5 border-b border-border/40 pb-3">
-            <Image 
+            <Image
               src="/icons/book.svg"
               alt="Book Icon"
               width={32}
@@ -836,33 +835,33 @@ export default function ProgressPage() {
           {theoryMastery.length === 0 ? (
             <div className="text-center py-8 text-xs text-muted-foreground italic border border-dashed border-border/60 rounded-xl my-auto">Complete practice questions to view domain accuracy breakdowns.</div>
           ) : (<div className="space-y-2.5 overflow-y-auto max-h-[145px] pr-1 scrollbar-none my-auto">
-              {theoryMastery.slice(0, 3).map((tm) => {
-                let badgeClass = 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
-                if (tm.accuracy >= 90) {
-                  badgeClass = 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
-                } else if (tm.accuracy >= 70) {
-                  badgeClass = 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20';
-                }
-                return (
-                  <div key={tm.id} className="flex items-center gap-2.5 rounded-xl hover:bg-secondary/40 transition-all cursor-pointer">
-                    <div className="flex-1 min-w-0 space-y-1">
-                      <div className="flex justify-between items-center text-[10px] gap-1">
-                        <span className="font-bold text-foreground truncate max-w-[110px]" title={tm.title}>{tm.title}</span>
-                        <span className="text-[9px] text-muted-foreground font-mono font-bold shrink-0">{tm.correct}/{tm.total}</span>
-                      </div>
-                      <div className="w-full h-2 bg-secondary rounded-full overflow-hidden border border-border/40">
-                        <div
-                          className="h-full bg-primary rounded-full transition-all duration-500"
-                          style={{ width: `${tm.accuracy}%` }}
-                        />
-                      </div>
-                    </div>     
-                    <div className={`px-2 py-0.5 text-[10px] font-extrabold rounded-full border shrink-0 select-none ${badgeClass}`}>{tm.accuracy}%</div>
-                    <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60 shrink-0" />
+            {theoryMastery.slice(0, 3).map((tm) => {
+              let badgeClass = 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
+              if (tm.accuracy >= 90) {
+                badgeClass = 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
+              } else if (tm.accuracy >= 70) {
+                badgeClass = 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20';
+              }
+              return (
+                <div key={tm.id} className="flex items-center gap-2.5 rounded-xl hover:bg-secondary/40 transition-all cursor-pointer">
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex justify-between items-center text-[10px] gap-1">
+                      <span className="font-bold text-foreground truncate max-w-[110px]" title={tm.title}>{tm.title}</span>
+                      <span className="text-[9px] text-muted-foreground font-mono font-bold shrink-0">{tm.correct}/{tm.total}</span>
+                    </div>
+                    <div className="w-full h-2 bg-secondary rounded-full overflow-hidden border border-border/40">
+                      <div
+                        className="h-full bg-primary rounded-full transition-all duration-500"
+                        style={{ width: `${tm.accuracy}%` }}
+                      />
+                    </div>
                   </div>
-                );
-              })}
-            </div>
+                  <div className={`px-2 py-0.5 text-[10px] font-extrabold rounded-full border shrink-0 select-none ${badgeClass}`}>{tm.accuracy}%</div>
+                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60 shrink-0" />
+                </div>
+              );
+            })}
+          </div>
           )}
         </div>
       </div>
@@ -871,20 +870,20 @@ export default function ProgressPage() {
       <div className="p-4 rounded-3xl bg-gradient-to-br from-[#F4F9FD] to-[#FAFDFE] dark:from-neutral-900/60 dark:to-neutral-900/20 border border-[#D9EAF5] dark:border-neutral-800 space-y-5 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/40 pb-3">
           <div className="flex items-center gap-2.5">
-              <Image 
-                src="/icons/accomplishments.svg"
-                alt="Accomplishments Icon"
-                width={36}
-                height={36}
-                className="w-9 h-9 shrink-0"
-                unoptimized
-              />
+            <Image
+              src="/icons/accomplishments.svg"
+              alt="Accomplishments Icon"
+              width={36}
+              height={36}
+              className="w-9 h-9 shrink-0"
+              unoptimized
+            />
             <div>
               <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Accomplishments</h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">Badges unlocked through active learning</p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3">
             <span className="text-[11px] font-extrabold px-3.5 py-1 rounded-full bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700/60 text-slate-900 dark:text-slate-100 select-none shadow-sm">
               {unlockedCount} / 11 Unlocked

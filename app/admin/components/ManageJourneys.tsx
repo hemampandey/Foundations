@@ -395,8 +395,13 @@ export default function ManageJourneys({
         <h3 className="text-xl font-bold text-primary font-inria mb-4">Existing Journeys ({journeys.length})</h3>
 
         {loadingLists ? (
-          <div className="flex justify-center py-12">
-            <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+          <div className="space-y-4 animate-fade-in">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="rounded-2xl border border-border/40 p-4 space-y-2 bg-card">
+                <div className="skeleton h-4 w-1/2" />
+                <div className="skeleton h-3 w-1/3" />
+              </div>
+            ))}
           </div>
         ) : journeys.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">

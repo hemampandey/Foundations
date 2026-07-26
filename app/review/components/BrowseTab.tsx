@@ -470,8 +470,20 @@ export default function BrowseTab() {
 
       {/* ─── Cards Grid ─── */}
       {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+        <div className="space-y-4 animate-fade-in">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-2xl border border-border/40 p-4 space-y-3 bg-card">
+              <div className="flex justify-between items-center">
+                <div className="skeleton h-4 w-1/3" />
+                <div className="skeleton h-5 w-16 rounded-full" />
+              </div>
+              <div className="skeleton h-3.5 w-2/3" />
+              <div className="flex gap-2">
+                <div className="skeleton h-5 w-20 rounded-full" />
+                <div className="skeleton h-5 w-24 rounded-full" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : schedules.length === 0 ? (
         <div className="bg-card border border-border rounded-2xl py-12 text-center text-muted-foreground font-serif">

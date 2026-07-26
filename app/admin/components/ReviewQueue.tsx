@@ -291,8 +291,18 @@ export default function ReviewQueue({
       </div>
 
       {loadingLists ? (
-        <div className="flex justify-center py-12">
-          <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+        <div className="space-y-4 animate-fade-in">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-2xl border border-border/40 p-5 space-y-4 bg-card">
+              <div className="flex justify-between items-center">
+                <div className="skeleton h-4 w-1/4" />
+                <div className="skeleton h-5 w-20 rounded-full" />
+              </div>
+              <div className="skeleton h-4 w-3/4" />
+              <div className="skeleton h-3 w-full" />
+              <div className="skeleton h-3 w-5/6" />
+            </div>
+          ))}
         </div>
       ) : draftQuestions.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground border border-dashed border-border rounded-2xl">
