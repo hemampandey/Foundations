@@ -243,11 +243,14 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
   const fetchReviewDueCount = useCallback(async () => {
     if (!contextProfile) return;
     try {
+      const endOfToday = new Date();
+      endOfToday.setHours(23, 59, 59, 999);
+
       const { count, error } = await supabase
         .from('review_schedule')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', contextProfile.id)
-        .lte('due_at', new Date().toISOString());
+        .lte('due_at', endOfToday.toISOString());
 
       if (!error && count !== null) {
         setReviewDueCount(count);

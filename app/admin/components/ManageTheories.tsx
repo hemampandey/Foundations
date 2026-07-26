@@ -371,6 +371,7 @@ export default function ManageTheories({
               id="theory-title"
               type="text"
               required
+              autoComplete="off"
               value={theoryTitle}
               onChange={(e) => setTheoryTitle(e.target.value)}
               className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"/>
@@ -383,6 +384,7 @@ export default function ManageTheories({
                 id="theory-domain"
                 type="text"
                 required
+                autoComplete="off"
                 value={theoryDomain}
                 onChange={(e) => setTheoryDomain(e.target.value)}
                 className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"/>
@@ -496,6 +498,7 @@ export default function ManageTheories({
                         <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Theory Title</label>
                         <input
                           type="text"
+                          autoComplete="off"
                           value={inlineTheoryTitle}
                           onChange={(e) => setInlineTheoryTitle(e.target.value)}
                           className="w-full px-2.5 py-1.5 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"/>
@@ -504,6 +507,7 @@ export default function ManageTheories({
                         <label className="block text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Domain / Tag</label>
                         <input
                           type="text"
+                          autoComplete="off"
                           value={inlineTheoryDomain}
                           onChange={(e) => setInlineTheoryDomain(e.target.value)}
                           className="w-full px-2.5 py-1.5 border border-border bg-background rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary"/>

@@ -45,6 +45,9 @@ export default function DashboardPage() {
 
     setLoadingData(true);
     try {
+      const endOfToday = new Date();
+      endOfToday.setHours(23, 59, 59, 999);
+
       const [
         theoriesRes,
         questionsRes,
@@ -86,7 +89,7 @@ export default function DashboardPage() {
           .from('review_schedule')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', profile.id)
-          .lte('due_at', new Date().toISOString())
+          .lte('due_at', endOfToday.toISOString())
       ]);
 
       if (theoriesRes.error) throw theoriesRes.error;
@@ -161,36 +164,7 @@ export default function DashboardPage() {
     return stats;
   })();
 
-  const dailySuggestion = (() => {
-    if (theories.length === 0) return null;
 
-    // Find theories with 0 attempts first
-    const unattempted = theories.filter(t => !theoryStats[t.id] || theoryStats[t.id].total === 0);
-    if (unattempted.length > 0) {
-      return {
-        theory: unattempted[0],
-        reason: "You haven't practiced this domain yet! Start a session to build baseline mastery.",
-      };
-    }
-
-    // Otherwise, find the one with the lowest accuracy
-    const statsArray = theories
-      .map(t => ({ theory: t, stats: theoryStats[t.id] }))
-      .filter(item => item.stats)
-      .sort((a, b) => a.stats.accuracy - b.stats.accuracy);
-
-    if (statsArray.length > 0) {
-      return {
-        theory: statsArray[0].theory,
-        reason: `Your current accuracy is ${statsArray[0].stats.accuracy}%. Focus here to raise your mastery level!`,
-      };
-    }
-
-    return {
-      theory: theories[0],
-      reason: 'Perfect baseline cleared! Keep practicing to secure your clinical streak.',
-    };
-  })();
 
   // Redirect if not logged in
   useEffect(() => {
@@ -263,6 +237,8 @@ export default function DashboardPage() {
   const estMinutes = Math.max(1, Math.round(reviewDueCount * 1.2));
   const xpReward = reviewDueCount * 10;
 
+  const hasRightColumn = reviewDueCount > 0;
+
   return (
     <div className="w-full space-y-5 animate-fade-in">
       <StatsHeader
@@ -274,21 +250,21 @@ export default function DashboardPage() {
       />
 
       {/* ─── Two Column Layout ─── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className={hasRightColumn ? "grid grid-cols-1 lg:grid-cols-4 gap-6" : "w-full"}>
 
         {/* Left Column (2/3 width) - Journeys and Theories */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className={hasRightColumn ? "lg:col-span-3 space-y-6" : "w-full space-y-6"}>
 
           {/* CURATED JOURNEYS */}
           {loadingData ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 gap-6">
               <CardSkeleton />
               <CardSkeleton />
             </div>
           ) : journeys.length > 0 ? (
             <div className="space-y-4">
               <h2 className="text-lg italic font-serif text-foreground flex items-center gap-2 border-b border-border pb-2">Journeys</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 {journeys.map((journey, idx) => {
                   const qCount = journeyQuestionCounts[journey.id] || 0;
                   const isPlayable = qCount > 0;
@@ -298,7 +274,7 @@ export default function DashboardPage() {
                     <div
                       key={journey.id}
                       onClick={() => isPlayable && router.push(`/practice?journeyId=${journey.id}`)}
-                      className={`group premium-card p-6 flex flex-col justify-between cursor-pointer overflow-hidden animate-fade-in ${staggerClass}`}>
+                      className={`group premium-card p-4 flex flex-col justify-between cursor-pointer overflow-hidden animate-fade-in ${staggerClass}`}>
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
                       <div className="space-y-3 relative z-10">
@@ -307,14 +283,14 @@ export default function DashboardPage() {
                         </div>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between relative z-10">
-                        <div className="flex items-center gap-1.5">
+                      <div className="mt-4 pt-3 border-t border-border/60 flex flex-wrap items-center justify-between gap-2 relative z-10">
+                        <div className="flex flex-wrap items-center gap-1.5">
                           <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-full">{qCount} {qCount === 1 ? 'Question' : 'Questions'}</span>
                           {isPlayable && (
                             <span className="text-[10px] font-bold text-primary dark:text-violet-400 bg-[#DCF1FF] dark:bg-violet-500/10 px-2 py-0.5 rounded-full">+{qCount * 2} to +{qCount * 10} XP</span>
                           )}
                         </div>
-                        <span className="text-[10px] font-bold text-primary group-hover:text-primary transition-colors flex items-center gap-0.5">Start Pathway →</span>
+                        <span className="text-[10px] font-bold text-primary group-hover:text-primary transition-colors flex items-center gap-0.5 whitespace-nowrap">Start Pathway →</span>
                       </div>
                     </div>
                   );
@@ -334,7 +310,7 @@ export default function DashboardPage() {
             ) : theories.length === 0 ? (
               <div className="text-center py-12 border border-dashed border-border rounded-2xl bg-card">
                 <BookOpen className="w-12 h-12 mx-auto mb-2 text-muted-foreground/30" />
-                <p className="font-semibold font-inria text-muted-foreground text-sm">No theories available right now.</p>
+                <p className="font-semibold font-serif text-muted-foreground text-sm">No theories available right now.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -364,23 +340,23 @@ export default function DashboardPage() {
                     <div
                       key={theory.id}
                       onClick={() => isPlayable && router.push(`/practice?theoryId=${theory.id}`)}
-                      className={`group premium-card p-6 flex flex-col justify-between cursor-pointer overflow-hidden animate-fade-in ${staggerClass}`}
+                      className={`group premium-card p-4 flex flex-col justify-between cursor-pointer overflow-hidden animate-fade-in ${staggerClass}`}
                     >
                       <div className={`absolute inset-0 bg-gradient-to-br ${glowClass} via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none`} />
 
-                      <div className="space-y-3.5 relative z-10 flex-1 flex flex-col justify-between">
+                      <div className="space-y-3 relative z-10 flex-1 flex flex-col justify-between">
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
-                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase border ${pillClass}`}>{theory.domain}</span>
+                            <span className={`px-2 py-0.5 rounded-sm text-[9px] font-bold uppercase border ${pillClass}`}>{theory.domain}</span>
                             {attemptsCount > 0 && (
-                              <span className="text-[9px] font-bold text-muted-foreground">{attemptsCount} attempts • {accuracyVal}% acc</span>
+                              <span className="text-[10px] font-serif italic font-bold text-muted-foreground">{attemptsCount} attempts • {accuracyVal}% acc</span>
                             )}
                           </div>
-                          <h3 className="text-sm font-bold font-inria text-foreground group-hover:text-primary transition-colors leading-snug">{theory.title}</h3>
+                          <h3 className="text-sm font-bold font-inria text-foreground group-hover:text-primary transition-colors">{theory.title}</h3>
                           <p className="text-[11px] font-inria text-muted-foreground line-clamp-3">{theory.body_text}</p>
                         </div>
 
-                        <div className="pt-3 border-t border-border/60 flex items-center justify-between">
+                        <div className="pt-2 border-t border-border/60 flex items-center justify-between">
                           <div className="flex items-center gap-1.5">
                             <span className="text-[10px] font-bold text-muted-foreground">{qCount} {qCount === 1 ? 'Question' : 'Questions'} available</span>
                             {isPlayable && (
@@ -393,73 +369,59 @@ export default function DashboardPage() {
                     </div>
                   );
                 })}
-              </div>)}
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="space-y-3">
-          {/* Due for Review Card */}
-          {reviewDueCount > 0 && (
-            <div className="p-4 border border-[#e0e7ff] bg-[#f5f8ff] rounded-[1rem] shadow-[0_8px_30px_rgb(0,0,0,0.01)] relative overflow-hidden group hover:border-[#cbd5e1] hover:shadow-md transition-all space-y-5 animate-scale-in">
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 flex items-center justify-center rounded-sm bg-primary/10 text-primary">
-                    <span className="text-2xl font-extrabold text-primary">{reviewDueCount}</span>
+        {hasRightColumn && (
+          <div className="space-y-3">
+            {/* Due for Review Card */}
+            {reviewDueCount > 0 && (
+              <div className="p-4 border border-[#e0e7ff] bg-[#f5f8ff] rounded-[1rem] shadow-[0_8px_30px_rgb(0,0,0,0.01)] relative overflow-hidden group hover:border-[#cbd5e1] hover:shadow-md transition-all space-y-5 animate-scale-in">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 flex items-center justify-center rounded-sm bg-primary/10 text-primary">
+                      <span className="text-2xl font-extrabold text-primary">{reviewDueCount}</span>
+                    </div>
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-primary font-serif">Questions Due for Review</span>
                   </div>
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-primary font-serif">Questions Due for Review</span>
-                </div>
-                <ChevronUp className="w-4 h-4 text-primary font-bold" />
-              </div>
-
-              {/* Grid Content */}
-              <div className="grid grid-cols-10 gap-4 items-center">
-                <div className="col-span-5 space-y-2">
-                  <p className="text-xs font-serif text-slate-500">Strengthen your due concepts</p>
-                  <button onClick={() => router.push('/review')} className="w-fit py-3 px-8 rounded-sm bg-[#264D8E] font-serif dark:bg-primary/70 text-white font-extrabold hover:bg-[#1f3e73] active:scale-[0.98] transition-all text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-blue-900/10">
-                    <span>Start Review</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
+                  <ChevronUp className="w-4 h-4 text-primary font-bold" />
                 </div>
 
-                {/* Vertical Divider */}
-                <div className="col-span-1 flex justify-center">
-                  <div className="border-l border-slate-200 h-12" />
-                </div>
-
-                {/* Right metrics */}
-                <div className="col-span-3 space-y-3 pl-1">
-                  <div className="space-y-0.5">
-                    <p className="text-xs font-extrabold text-slate-800 whitespace-nowrap">≈ {estMinutes} min</p>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Est. time</p>
+                {/* Grid Content */}
+                <div className="grid grid-cols-10 gap-4 items-center">
+                  <div className="col-span-5 space-y-2">
+                    <p className="text-xs font-serif text-slate-500">Strengthen your due concepts</p>
+                    <button onClick={() => router.push('/review')} className="w-fit py-3 px-8 rounded-sm bg-[#264D8E] font-serif dark:bg-primary/70 text-white font-extrabold hover:bg-[#1f3e73] active:scale-[0.98] transition-all text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-blue-900/10">
+                      <span>Start Review</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
                   </div>
-                  <div className="space-y-0.5">
-                    <p className="text-xs font-extrabold text-primary font-serif">+{xpReward} XP</p>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Reward</p>
+
+                  {/* Vertical Divider */}
+                  <div className="col-span-1 flex justify-center">
+                    <div className="border-l border-slate-200 h-12" />
+                  </div>
+
+                  {/* Right metrics */}
+                  <div className="col-span-3 space-y-3 pl-1">
+                    <div className="space-y-0.5">
+                      <p className="text-xs font-extrabold text-slate-800 whitespace-nowrap">≈ {estMinutes} min</p>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Est. time</p>
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-xs font-extrabold text-primary font-serif">+{xpReward} XP</p>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Reward</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Dynamic Suggestion Card */}
-          {dailySuggestion && (
-            <div className="p-4 border border-primary/10 bg-[#f5f8ff] rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.01)] space-y-4 relative overflow-hidden hover:border-primary/10 hover:shadow-md transition-all animate-fade-in">
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-serif italic font-bold text-primary uppercase tracking-wider select-none">Today&apos;s Challenge</h3>
-              </div>
-
-              <div className="space-y-2">
-                <h4 className="text-sm font-inria font-bold text-primary dark:text-primary">{dailySuggestion.theory.title}</h4>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">{dailySuggestion.reason}</p>
-              </div>
-
-              <button
-                onClick={() => router.push(`/practice?theoryId=${dailySuggestion.theory.id}`)}
-                className="w-full py-2.5 px-4 rounded-xl bg-primary text-secondary font-bold text-xs hover:opacity-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-indigo-500/15">Accept Challenge</button>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

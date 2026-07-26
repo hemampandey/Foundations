@@ -82,6 +82,9 @@ function ReviewContent() {
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       sevenDaysAgo.setHours(0, 0, 0, 0);
 
+      const endOfToday = new Date();
+      endOfToday.setHours(23, 59, 59, 999);
+
       const [
         dueRes,
         forecastRes,
@@ -110,7 +113,7 @@ function ReviewContent() {
             )
           `)
           .eq('user_id', profile.id)
-          .lte('due_at', new Date().toISOString())
+          .lte('due_at', endOfToday.toISOString())
           .order('due_at', { ascending: true }),
         supabase
           .from('review_schedule')

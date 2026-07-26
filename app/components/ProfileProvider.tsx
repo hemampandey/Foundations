@@ -58,22 +58,30 @@ export default function ProfileProvider({ children }: { children: React.ReactNod
         setUserEmail(null);
       }
 
-      if (p) {
-        // Fetch user progress
-        const { data: progressData } = await supabase
-          .from('user_progress')
-          .select('*')
-          .eq('user_id', p.id)
-          .maybeSingle();
-        setProgress(progressData as UserProgress | null);
+      // Unblock the main loading state immediately so landing page/dashboard actions render instantly
+      setLoading(false);
 
-        // Fetch attempts for accuracy calculation
-        const { data: attemptsData } = await supabase
-          .from('attempts')
-          .select('is_correct')
-          .eq('user_id', p.id);
-        
-        const atts = attemptsData || [];
+      if (p) {
+        // Fetch progress and attempts in parallel (non-blocking)
+        const [progressRes, attemptsRes] = await Promise.all([
+          supabase
+            .from('user_progress')
+            .select('*')
+            .eq('user_id', p.id)
+            .maybeSingle(),
+          supabase
+            .from('attempts')
+            .select('is_correct')
+            .eq('user_id', p.id)
+        ]);
+
+        if (progressRes.data) {
+          setProgress(progressRes.data as UserProgress | null);
+        } else {
+          setProgress(null);
+        }
+
+        const atts = attemptsRes.data || [];
         const correct = atts.filter((a) => a.is_correct).length;
         const acc = atts.length > 0 ? Math.round((correct / atts.length) * 100) : 0;
         setAccuracy(acc);
@@ -87,7 +95,6 @@ export default function ProfileProvider({ children }: { children: React.ReactNod
       setUserEmail(null);
       setProgress(null);
       setAccuracy(0);
-    } finally {
       setLoading(false);
     }
   }, []);

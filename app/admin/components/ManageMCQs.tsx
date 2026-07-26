@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Save, Layers, Trash2, Search, ChevronDown, ChevronUp, MoreVertical, Check, Edit, GripVertical } from 'lucide-react';
+import { Plus, Save, Layers, Trash2, Search, ChevronDown, ChevronUp, MoreVertical, Edit } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { Theory, QuestionWithTheory, BloomLevel } from '@/lib/types';
 

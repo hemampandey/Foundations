@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useProfile } from '@/app/components/ProfileProvider';
 import {
-  CheckCircle2, Clock, Zap, Star
+  CheckCircle2, Clock, Zap, Star, CloudUpload, Sparkles, ShieldCheck, BookOpen, Calendar, Trophy, ArrowRight
 } from 'lucide-react';
 
 export default function Home() {
@@ -137,31 +137,22 @@ export default function Home() {
       <div className="absolute top-[25%] right-[5%] w-80 h-80 rounded-full bg-purple-500/10 blur-[130px] pointer-events-none animate-blob-drift-2 z-0" />
 
       {/* ─── HERO SECTION ─── */}
-      <section className="relative pt-12 pb-20 px-6 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center flex-1 z-10 ">
+      <section className="relative pt-12 pb-20 px-6 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-20 items-center flex-1 z-10 ">
 
         {/* Left text panel */}
         <div className="lg:col-span-6 space-y-6 text-left">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-sans leading-[1.08] tracking-tight text-secondary">
-            <span className="reveal-stagger-word" style={{ animationDelay: '0.25s' }}>Lock</span>{' '}
-            <span className="reveal-stagger-word" style={{ animationDelay: '0.3s' }}>in</span>{' '}
-            <span className="reveal-stagger-word" style={{ animationDelay: '0.35s' }}>Learning</span> <br />
-            <span className="text-secondary reveal-stagger-word" style={{ animationDelay: '0.4s' }}>Theories and Methods</span>
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold font-sans leading-[1.08] tracking-tight text-secondary">
+            <span className="reveal-stagger-word" style={{ animationDelay: '0.25s' }}>Master</span>{' '}
+            <span className="reveal-stagger-word" style={{ animationDelay: '0.35s' }}>Theories</span>{' '}
+            <span className="reveal-stagger-word" style={{ animationDelay: '0.4s' }}>That</span> <br />
+            <span className="text-[#dcf1ff] text-8xl dark:text-indigo-300 relative inline-block underline decoration-[#77b0cc]/60 decoration-2 underline-offset-8 reveal-stagger-word" style={{ animationDelay: '0.45s' }}>
+              Actually Stick.
+            </span>
           </h1>
 
-          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-xl animate-fade-in stagger-2">
-            A premium, spaced-repetition quiz platform using customized SM-2 retention algorithms to build durable, clinical decision-making mastery.
+          <p className="text-sm font-serif italic sm:text-base text-secondary/85 leading-relaxed max-w-xl animate-fade-in stagger-2">
+            Foundations turns your study material into adaptive quizzes that build durable knowledge using SM-2 spaced repetition.
           </p>
-
-          <div className="flex items-center gap-6 pt-4 text-xs text-muted-foreground font-semibold animate-fade-in stagger-3">
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-              <span>Adaptive Learning</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-              <span>Long-Term Retention</span>
-            </div>
-          </div>
         </div>
 
         {/* Right mockup panel (Interactive Quiz sandbox) */}
@@ -584,6 +575,122 @@ export default function Home() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── FROM THEORY TO MASTERY WORKFLOW & CTA ─── */}
+      <section className="w-full py-24 px-6 bg-background relative overflow-hidden text-center border-b border-border/20">
+        <div className="max-w-7xl mx-auto space-y-16">
+          {/* Header */}
+          <div className="space-y-3">
+            <h2 className="text-3xl sm:text-5xl font-extrabold font-serif text-primary tracking-tight">
+              From Theory to Mastery
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground font-inria max-w-md mx-auto">
+              A complete ecosystem for admins and learners.
+            </p>
+          </div>
+
+          {/* 6 Step Horizontal Process Flow */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-4 items-start relative max-w-7xl mx-auto">
+            {/* Step 1 */}
+            <div className="flex flex-col items-center text-center space-y-3 group relative">
+              <div className="w-14 h-14 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center shadow-md shadow-sky-500/10 transition-transform group-hover:scale-110">
+                <CloudUpload className="w-6 h-6" />
+              </div>
+              <h3 className="text-xs sm:text-sm font-bold text-foreground">1. Upload Theory</h3>
+              <p className="text-[11px] text-muted-foreground leading-relaxed max-w-[170px]">
+                Admins upload notes, PDFs or documents.
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="flex flex-col items-center text-center space-y-3 group relative">
+              <div className="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center shadow-md shadow-purple-500/10 transition-transform group-hover:scale-110">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <h3 className="text-xs sm:text-sm font-bold text-foreground">2. Generate Questions</h3>
+              <p className="text-[11px] text-muted-foreground leading-relaxed max-w-[170px]">
+                AI creates high-quality MCQs in seconds.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="flex flex-col items-center text-center space-y-3 group relative">
+              <div className="w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-md shadow-emerald-500/10 transition-transform group-hover:scale-110">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <h3 className="text-xs sm:text-sm font-bold text-foreground">3. Review & Approve</h3>
+              <p className="text-[11px] text-muted-foreground leading-relaxed max-w-[170px]">
+                Admins review, edit and approve the questions.
+              </p>
+            </div>
+
+            {/* Step 4 */}
+            <div className="flex flex-col items-center text-center space-y-3 group relative">
+              <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shadow-md shadow-blue-500/10 transition-transform group-hover:scale-110">
+                <BookOpen className="w-6 h-6" />
+              </div>
+              <h3 className="text-xs sm:text-sm font-bold text-foreground">4. Learner Practices</h3>
+              <p className="text-[11px] text-muted-foreground leading-relaxed max-w-[170px]">
+                Learners attempt questions in adaptive sessions.
+              </p>
+            </div>
+
+            {/* Step 5 */}
+            <div className="flex flex-col items-center text-center space-y-3 group relative">
+              <div className="w-14 h-14 rounded-full bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center shadow-md shadow-orange-500/10 transition-transform group-hover:scale-110">
+                <Calendar className="w-6 h-6" />
+              </div>
+              <h3 className="text-xs sm:text-sm font-bold text-foreground">5. SM-2 Schedules</h3>
+              <p className="text-[11px] text-muted-foreground leading-relaxed max-w-[170px]">
+                Smart algorithm plans optimal review times.
+              </p>
+            </div>
+
+            {/* Step 6 */}
+            <div className="flex flex-col items-center text-center space-y-3 group relative">
+              <div className="w-14 h-14 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-md shadow-indigo-500/10 transition-transform group-hover:scale-110">
+                <Trophy className="w-6 h-6" />
+              </div>
+              <h3 className="text-xs sm:text-sm font-bold text-foreground">6. Mastery Achieved</h3>
+              <p className="text-[11px] text-muted-foreground leading-relaxed max-w-[170px]">
+                Long-term retention and true understanding.
+              </p>
+            </div>
+          </div>
+
+          {/* CTA Banner Card */}
+          <div className="max-w-6xl mx-auto rounded-3xl p-8 sm:p-10 bg-gradient-to-r from-[#173063] via-[#244985] to-[#1A377B] text-white shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 text-left border border-white/10">
+            {/* Ambient inner glow decoration */}
+            <div className="absolute -right-10 -bottom-10 w-60 h-60 bg-blue-400/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -left-10 -top-10 w-60 h-60 bg-indigo-400/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="flex items-center gap-5 relative z-10">
+              {/* Hexagon style icon container */}
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-indigo-500/30 border border-indigo-300/30 flex items-center justify-center text-amber-300 shadow-xl shadow-indigo-950/50 shrink-0 backdrop-blur-md">
+                <Star className="w-7 h-7 fill-amber-300 text-amber-400" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-xl sm:text-2xl font-bold font-serif text-white tracking-tight">
+                  Ready to transform the way you learn?
+                </h3>
+                <p className="text-xs sm:text-sm text-blue-100/80 font-inria">
+                  Join learners who are building lasting knowledge with Foundations.
+                </p>
+              </div>
+            </div>
+
+            <div className="relative z-10 w-full md:w-auto">
+              <Link
+                href="/auth"
+                className="w-full md:w-auto py-3.5 px-8 rounded-full bg-white text-[#173063] font-bold text-xs sm:text-sm hover:bg-blue-50 active:scale-95 transition-all shadow-xl shadow-black/20 flex items-center justify-center gap-2 group cursor-pointer"
+              >
+                <span>Get Started Free</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>

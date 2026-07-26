@@ -24,6 +24,21 @@ const getBezierPath = (points: { x: number; y: number }[]) => {
   return path;
 };
 
+const formatLocalDateString = (d: Date) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const parseLocalDate = (dateStr: string) => {
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+  }
+  return new Date(dateStr);
+};
+
 export default function ProgressPage() {
   const router = useRouter();
   const { profile, loading: authLoading } = useProfile();
@@ -333,7 +348,7 @@ export default function ProgressPage() {
     const dates: Record<string, number> = {};
     attempts.forEach((att) => {
       try {
-        const dateStr = new Date(att.created_at).toISOString().split('T')[0];
+        const dateStr = formatLocalDateString(new Date(att.created_at));
         dates[dateStr] = (dates[dateStr] || 0) + 1;
       } catch {
         // Safe fallback
@@ -342,7 +357,7 @@ export default function ProgressPage() {
 
     const now = new Date();
     const startDate = new Date();
-    startDate.setDate(now.getDate() - 180);
+    startDate.setDate(now.getDate() - 364);
     // Align to Sunday
     const startDay = startDate.getDay();
     startDate.setDate(startDate.getDate() - startDay);
@@ -352,7 +367,7 @@ export default function ProgressPage() {
 
     const temp = new Date(startDate);
     while (temp <= now) {
-      const dateStr = temp.toISOString().split('T')[0];
+      const dateStr = formatLocalDateString(temp);
       const count = dates[dateStr] || 0;
       currentWeek.push({
         dateStr,
@@ -368,7 +383,7 @@ export default function ProgressPage() {
     }
     if (currentWeek.length > 0) {
       while (currentWeek.length < 7) {
-        const dateStr = temp.toISOString().split('T')[0];
+        const dateStr = formatLocalDateString(temp);
         currentWeek.push({
           dateStr,
           count: 0,
@@ -426,7 +441,7 @@ export default function ProgressPage() {
 
   // Summary metrics for heatmap panel
   const activeDaysCount = attempts.reduce((acc, att) => {
-    const dStr = new Date(att.created_at).toISOString().split('T')[0];
+    const dStr = formatLocalDateString(new Date(att.created_at));
     acc.add(dStr);
     return acc;
   }, new Set<string>()).size;
@@ -448,7 +463,7 @@ export default function ProgressPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
         {/* ─── Daily Activity Heatmap ─── (takes 2/3 width) */}
         <div className="lg:col-span-2 p-4 premium-card space-y-5 flex flex-col justify-between">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/40 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p">
             <div className="flex items-center gap-2.5">
               <Image 
                 src="/icons/calendar.svg"
@@ -459,8 +474,8 @@ export default function ProgressPage() {
                 unoptimized
               />
               <div>
-                <h3 className="text-md font-extrabold font-inria text-foreground leading-tight">Learning Activity</h3>
-                <p className="text-[11px] text-muted-foreground mt-0.5">Practice attempts recorded over the last 6 months</p>
+                <h3 className="text-md font-extrabold font-inria text-foreground leading-tight mb-0">Learning Activity</h3>
+                <p className="text-[11px] font-inria text-muted-foreground mt-0.5">Practice attempts recorded over the last 12 months</p>
               </div>
             </div>
             
@@ -481,8 +496,8 @@ export default function ProgressPage() {
           </div>
 
           <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
-            {/* Heatmap Area */}
-            <div className="flex-1 overflow-x-auto scrollbar-none">
+            {/* Heatmap Area with top padding for tooltips */}
+            <div className="flex-1 overflow-x-auto scrollbar-none pt-10 pb-2 px-1">
               <div className="flex flex-col gap-2 min-w-[620px]">
                 <div className="flex gap-2">
                   {/* Weekday Labels (Sun to Sat) */}
@@ -512,7 +527,7 @@ export default function ProgressPage() {
 
                           let formattedDate = day.dateStr;
                           try {
-                            const dateObj = new Date(day.dateStr);
+                            const dateObj = parseLocalDate(day.dateStr);
                             formattedDate = dateObj.toLocaleDateString('en-US', {
                               month: 'short',
                               day: 'numeric',
@@ -525,13 +540,14 @@ export default function ProgressPage() {
                           return (
                             <div
                               key={day.dateStr}
-                              className={`w-[11px] h-[11px] rounded-[3px] transition-all duration-200 relative group cursor-pointer hover:scale-125 hover:z-20 ${colorClass}`}
+                              className={`w-[11px] h-[11px] rounded-xs transition-all duration-200 relative group cursor-pointer hover:scale-125 hover:z-30 ${colorClass}`}
                             >
-                              {/* Tooltip */}
-                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-30 pointer-events-none">
-                                <div className="bg-popover border border-border text-popover-foreground text-[10px] font-bold py-1 px-2 rounded-lg shadow-lg whitespace-nowrap leading-tight">
+                              {/* Hover Tooltip Popover */}
+                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:flex flex-col items-center z-50 pointer-events-none animate-fade-in">
+                                <div className="bg-popover border border-border text-popover-foreground text-[8px] font-bold py-1 px-2.5 rounded-lg shadow-xl whitespace-nowrap leading-tight">
                                   {day.count === 0 ? 'No' : day.count} practice {day.count === 1 ? 'attempt' : 'attempts'} on {formattedDate}
                                 </div>
+                                <div className="w-1.5 h-1.5 bg-popover border-r border-b border-border rotate-45 -mt-1" />
                               </div>
                             </div>
                           );
@@ -542,9 +558,9 @@ export default function ProgressPage() {
                 </div>
 
                 {/* Month Labels */}
-                <div className="flex gap-[4px] text-[10px] font-bold text-muted-foreground/70 pt-1 select-none ml-[32px] relative h-4">
+                <div className="flex gap-[4px] text-[10px] font-bold text-muted-foreground/70 select-none ml-[32px] relative h-6 pt-2">
                   {heatmapData.map((week, wIdx) => {
-                    const dayObj = new Date(week[0].dateStr);
+                    const dayObj = parseLocalDate(week[0].dateStr);
                     const isFirstWeekOfMonth = dayObj.getDate() <= 7;
                     if (isFirstWeekOfMonth) {
                       return (
