@@ -39,7 +39,7 @@ export default function StatsHeader({
   const greetingText = `${getGreeting()}, ${role === 'admin' ? 'Admin' : 'Learner'}! 👋`;
 
   return (
-    <div className="flex flex-col lg:flex-row lg:items-center justify-between border-b border-border/80 pb-6 gap-6">
+    <div className="flex flex-col lg:flex-row lg:items-center justify-between pb-3 gap-6">
       <div className="space-y-1">
         <h1 className="text-xl sm:text-3xl font-extrabold font-inria text-primary flex items-center gap-2">{greetingText}</h1>
         <p className="text-sm font-inria text-foreground">{description}</p>

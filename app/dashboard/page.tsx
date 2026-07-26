@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { useProfile } from '@/app/components/ProfileProvider';
 import StatsHeader from '@/app/components/StatsHeader';
@@ -61,7 +62,8 @@ export default function DashboardPage() {
           .from('theories')
           .select('*')
           .eq('status', 'published')
-          .order('created_at', { ascending: true }),
+          .order('created_at', { ascending: false })
+          .limit(8),
         supabase
           .from('questions')
           .select('id, theory_id')
@@ -70,7 +72,8 @@ export default function DashboardPage() {
           .from('journeys')
           .select('*')
           .eq('published', true)
-          .order('created_at', { ascending: true }),
+          .order('created_at', { ascending: false })
+          .limit(6),
         supabase
           .from('journey_questions')
           .select('journey_id'),
@@ -252,7 +255,7 @@ export default function DashboardPage() {
       {/* ─── Two Column Layout ─── */}
       <div className={hasRightColumn ? "grid grid-cols-1 lg:grid-cols-4 gap-6" : "w-full"}>
 
-        {/* Left Column (2/3 width) - Journeys and Theories */}
+        {/* Left Column (3/4 width) - Journeys and Theories */}
         <div className={hasRightColumn ? "lg:col-span-3 space-y-6" : "w-full space-y-6"}>
 
           {/* CURATED JOURNEYS */}
@@ -263,8 +266,14 @@ export default function DashboardPage() {
             </div>
           ) : journeys.length > 0 ? (
             <div className="space-y-4">
-              <h2 className="text-lg italic font-serif text-foreground flex items-center gap-2 border-b border-border pb-2">Journeys</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              <div className="flex justify-between items-center border-b border-border pb-2">
+                <h2 className="text-lg italic font-serif text-foreground flex items-center gap-2">Journeys</h2>
+                <Link href="/journeys" className="text-xs font-bold text-primary hover:underline flex items-center gap-1 transition-colors">
+                  <span>View All</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {journeys.map((journey, idx) => {
                   const qCount = journeyQuestionCounts[journey.id] || 0;
                   const isPlayable = qCount > 0;
@@ -278,19 +287,17 @@ export default function DashboardPage() {
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
                       <div className="space-y-3 relative z-10">
-                        <div className="flex justify-between items-start">
-                          <h3 className="text-sm font-bold font-inria text-foreground group-hover:text-primary transition-colors">{journey.title}</h3>
-                        </div>
+                        <h3 className="text-sm font-bold font-inria text-foreground group-hover:text-primary transition-colors">{journey.title}</h3>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-border/60 flex flex-wrap items-center justify-between gap-2 relative z-10">
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-full">{qCount} {qCount === 1 ? 'Question' : 'Questions'}</span>
+                      <div className="mt-3 pt-3  flex items-center justify-between gap-2 relative z-10">
+                        <div className="flex items-center gap-1.5 overflow-hidden">
+                          <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-full whitespace-nowrap">{qCount} {qCount === 1 ? 'Question' : 'Questions'}</span>
                           {isPlayable && (
-                            <span className="text-[10px] font-bold text-primary dark:text-violet-400 bg-[#DCF1FF] dark:bg-violet-500/10 px-2 py-0.5 rounded-full">+{qCount * 2} to +{qCount * 10} XP</span>
+                            <span className="text-[9px] font-bold text-primary dark:text-violet-400 bg-[#DCF1FF] dark:bg-violet-500/10 px-2 py-0.5 rounded-full whitespace-nowrap">+{qCount * 2} to +{qCount * 10} XP</span>
                           )}
                         </div>
-                        <span className="text-[10px] font-bold text-primary group-hover:text-primary transition-colors flex items-center gap-0.5 whitespace-nowrap">Start Pathway →</span>
+                        <span className="text-[10px] font-bold text-primary group-hover:text-primary transition-colors flex items-center gap-0.5 whitespace-nowrap shrink-0">Start →</span>
                       </div>
                     </div>
                   );
@@ -301,7 +308,13 @@ export default function DashboardPage() {
 
           {/* PRACTICE BY DOMAIN */}
           <div className="space-y-4">
-            <h2 className="text-lg italic font-serif text-foreground flex items-center gap-2 border-b border-border pb-2">Practice by Theory</h2>
+            <div className="flex justify-between items-center border-b border-border pb-2">
+              <h2 className="text-lg italic font-serif text-foreground flex items-center gap-2">Practice by Theory</h2>
+              <Link href="/theories" className="text-xs font-bold text-primary hover:underline flex items-center gap-1 transition-colors">
+                <span>View All</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
             {loadingData ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <CardSkeleton />
@@ -378,42 +391,40 @@ export default function DashboardPage() {
           <div className="space-y-3">
             {/* Due for Review Card */}
             {reviewDueCount > 0 && (
-              <div className="p-4 border border-[#e0e7ff] bg-[#f5f8ff] rounded-[1rem] shadow-[0_8px_30px_rgb(0,0,0,0.01)] relative overflow-hidden group hover:border-[#cbd5e1] hover:shadow-md transition-all space-y-5 animate-scale-in">
+              <div className="p-4 border border-[#e0e7ff] bg-[#f5f8ff] rounded-[1rem] shadow-[0_8px_30px_rgb(0,0,0,0.01)] relative overflow-hidden group hover:border-[#cbd5e1] hover:shadow-md transition-all space-y-4 animate-scale-in">
                 {/* Header */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 flex items-center justify-center rounded-sm bg-primary/10 text-primary">
-                      <span className="text-2xl font-extrabold text-primary">{reviewDueCount}</span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 flex items-center justify-center rounded-sm bg-primary/10 text-primary">
+                      <span className="text-xl font-extrabold text-primary">{reviewDueCount}</span>
                     </div>
                     <span className="text-xs font-extrabold uppercase tracking-wider text-primary font-serif">Questions Due for Review</span>
                   </div>
                   <ChevronUp className="w-4 h-4 text-primary font-bold" />
                 </div>
 
-                {/* Grid Content */}
-                <div className="grid grid-cols-10 gap-4 items-center">
-                  <div className="col-span-5 space-y-2">
-                    <p className="text-xs font-serif text-slate-500">Strengthen your due concepts</p>
-                    <button onClick={() => router.push('/review')} className="w-fit py-3 px-8 rounded-sm bg-[#264D8E] font-serif dark:bg-primary/70 text-white font-extrabold hover:bg-[#1f3e73] active:scale-[0.98] transition-all text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-blue-900/10">
+                {/* Compact Content */}
+                <div className="flex items-center justify-between gap-3 pt-1">
+                  <div className="space-y-2">
+                    <p className="text-[11px] font-serif text-slate-500">Strengthen your due concepts</p>
+                    <button onClick={() => router.push('/review')} className="py-2.5 px-4 rounded-sm bg-[#264D8E] font-serif dark:bg-primary/70 text-white font-extrabold hover:bg-[#1f3e73] active:scale-[0.98] transition-all text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-blue-900/10 whitespace-nowrap">
                       <span>Start Review</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
 
                   {/* Vertical Divider */}
-                  <div className="col-span-1 flex justify-center">
-                    <div className="border-l border-slate-200 h-12" />
-                  </div>
+                  <div className="border-l border-slate-200 h-10 shrink-0" />
 
                   {/* Right metrics */}
-                  <div className="col-span-3 space-y-3 pl-1">
-                    <div className="space-y-0.5">
+                  <div className="space-y-2 shrink-0">
+                    <div>
                       <p className="text-xs font-extrabold text-slate-800 whitespace-nowrap">≈ {estMinutes} min</p>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Est. time</p>
+                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">Est. time</p>
                     </div>
-                    <div className="space-y-0.5">
-                      <p className="text-xs font-extrabold text-primary font-serif">+{xpReward} XP</p>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Reward</p>
+                    <div>
+                      <p className="text-xs font-extrabold text-primary font-serif whitespace-nowrap">+{xpReward} XP</p>
+                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">Reward</p>
                     </div>
                   </div>
                 </div>

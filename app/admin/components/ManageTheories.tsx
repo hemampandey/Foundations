@@ -358,15 +358,12 @@ export default function ManageTheories({
   return (
     <>
       {/* Create Theory Form */}
-      <div className="lg:col-span-5 bg-card border border-border rounded-2xl p-6 h-fit shadow-sm">
-        <h3 className="text-lg text-primary font-bold font-inria mb-4 flex items-center gap-2">
-          <Plus className="w-5 h-5 text-primary" />
-          Add New Theory
-        </h3>
+      <div className="lg:col-span-5 bg-card border border-border rounded-2xl p-4 h-fit shadow-sm">
+        <h3 className="text-lg text-primary font-bold font-inria mb-4 flex items-center gap-2">Add New Theory</h3>
 
         <form onSubmit={handleCreateTheory} className="space-y-4">
           <div>
-            <label htmlFor="theory-title" className="block text-xs font-inria text-primary uppercase tracking-wider mb-1.5">Theory Title</label>
+            <label htmlFor="theory-title" className="block text-sm font-bold font-inria text-primary mb-1.5">Theory Title</label>
             <input
               id="theory-title"
               type="text"
@@ -379,7 +376,7 @@ export default function ManageTheories({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="theory-domain" className="block text-xs font-inria text-primary uppercase tracking-wider mb-1.5">Domain / Tag</label>
+              <label htmlFor="theory-domain" className="block text-sm font-bold font-inria text-primary mb-1.5">Domain / Tag</label>
               <input
                 id="theory-domain"
                 type="text"
@@ -390,12 +387,12 @@ export default function ManageTheories({
                 className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"/>
             </div>
             <div>
-              <label htmlFor="theory-status" className="block text-xs font-inria text-primary uppercase tracking-wider mb-1.5">Status</label>
+              <label htmlFor="theory-status" className="block text-sm font-bold font-inria text-primary mb-1.5">Status</label>
               <select
                 id="theory-status"
                 value={theoryStatus}
                 onChange={(e) => setTheoryStatus(e.target.value as 'draft' | 'published')}
-                className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
+                className="w-full px-3 py-2.5 font-serif border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
                 <option value="published">Published</option>
                 <option value="draft">Draft</option>
               </select>
@@ -403,7 +400,7 @@ export default function ManageTheories({
           </div>
 
           <div>
-            <label htmlFor="theory-body" className="block text-xs font-inria text-primary uppercase tracking-wider mb-1.5 flex items-center justify-between">
+            <label htmlFor="theory-body" className="block text-sm font-bold font-inria text-primary mb-1.5 flex items-center justify-between">
               <span>Theory Text/Notes</span>
               <span className="text-[10px] text-muted-foreground font-sans normal-case">Or upload a PDF, DOCX, or TXT file</span>
             </label>
@@ -413,7 +410,7 @@ export default function ManageTheories({
               rows={6}
               value={theoryBody}
               onChange={(e) => setTheoryBody(e.target.value)}
-              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm font-sans resize-y"/>
+              className="w-full px-3 py-2.5 border border-border bg-background rounded-xl focus:outline-none focus:ring-3 focus:ring-primary focus:border-transparent text-sm font-sans resize-y"/>
           </div>
 
           {/* Drag/Drop File Upload Zone */}

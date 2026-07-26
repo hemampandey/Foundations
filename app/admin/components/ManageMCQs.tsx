@@ -197,7 +197,6 @@ export default function ManageMCQs({
       {/* Create MCQ Form */}
       <div className="lg:col-span-6 bg-card border border-border rounded-2xl p-4 h-fit shadow-sm">
         <h3 className="text-lg text-primary font-bold font-inria mb-2.5 flex items-center gap-2">
-          <Plus className="w-5 h-5 text-primary" />
           Write MCQ Manually
         </h3>
 

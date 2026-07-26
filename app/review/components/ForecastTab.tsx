@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Clock, Flame, Calendar, ChevronRight, ArrowRight, Target, History, BarChart3 } from 'lucide-react';
+import { Clock, Flame, ChevronRight, ArrowRight, History } from 'lucide-react';
 import type { ReviewScheduleWithQuestion } from '@/lib/types';
 
 interface ForecastTabProps {
@@ -164,20 +164,18 @@ export default function ForecastTab({
       {/* ─── ROW 2: Topics Needing Attention & Upcoming Reviews ─── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Column: Topics Needing Attention */}
-        <div className="p-6 bg-card border border-border rounded-2xl flex flex-col justify-between space-y-4 shadow-sm text-left">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-primary">
-              <Target className="w-4 h-4 text-primary/80" />
+        <div className="p-4 bg-card border border-border rounded-2xl flex flex-col justify-between space-y-4 shadow-sm text-left">
+          <div>
+            <div className="flex items-center text-primary">
               <h3 className="text-sm font-bold font-inria text-foreground">Topics Needing Attention</h3>
             </div>
-            <p className="text-[11px] font-serif text-muted-foreground mt-0.5">Focus more on these areas to improve your mastery.</p>
+            <p className="text-xs font-inria text-muted-foreground mt-0.5">Focus more on these areas to improve your mastery.</p>
           </div>
 
           {/* Weak Topics Lists */}
           <div className="flex-1 flex flex-col justify-center space-y-4 py-2">
             {weakTheories.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground font-serif">
-                <span className="text-xl mb-1 select-none">🎯</span>
                 <p className="text-xs font-bold text-emerald-500 uppercase tracking-wider font-inria">All Metrics Strong</p>
                 <p className="text-[10px] text-muted-foreground">Keep maintaining your accuracy scores above 80%!</p>
               </div>
@@ -229,13 +227,12 @@ export default function ForecastTab({
         </div>
 
         {/* Right Column: Upcoming Reviews */}
-        <div className="p-6 bg-card border border-border rounded-2xl flex flex-col justify-between space-y-4 shadow-sm text-left">
+        <div className="p-4 bg-card border border-border rounded-2xl flex flex-col justify-between space-y-4 shadow-sm text-left">
           <div className="space-y-1">
-            <div className="flex items-center gap-2 text-primary">
-              <Calendar className="w-4 h-4 text-primary/80" />
+            <div className="flex items-center text-primary">
               <h3 className="text-sm font-bold font-inria text-foreground">Upcoming Reviews</h3>
             </div>
-            <p className="text-[11px] font-serif text-muted-foreground mt-0.5">Here&apos;s what&apos;s coming up next.</p>
+            <p className="text-xs font-inria text-muted-foreground mt-0.5">Here&apos;s what&apos;s coming up next.</p>
           </div>
 
           {/* Grid row timeline */}
@@ -286,11 +283,10 @@ export default function ForecastTab({
         {/* Left Column: Your Review Progress */}
         <div className="lg:col-span-8 p-6 bg-card border border-border rounded-2xl flex flex-col justify-between space-y-4 shadow-sm text-left">
           <div className="space-y-1">
-            <div className="flex items-center gap-2 text-primary">
-              <BarChart3 className="w-4 h-4 text-primary/80" />
+            <div className="flex items-center text-primary">
               <h3 className="text-sm font-bold font-inria text-foreground">Your Review Progress</h3>
             </div>
-            <p className="text-[11px] font-serif text-muted-foreground mt-0.5">Stay consistent and watch your mastery grow.</p>
+            <p className="text-xs font-inria text-muted-foreground mt-0.5">Stay consistent and watch your mastery grow.</p>
           </div>
 
           {/* Progress Columns and Bars */}

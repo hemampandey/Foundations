@@ -13,7 +13,7 @@ export default function ResponsiveLayout({ children }: { children: React.ReactNo
   const pathname = usePathname();
   const isPublicPage = pathname === '/' || pathname?.startsWith('/auth');
   const isPracticePage = pathname === '/practice';
-  const validPaths = ['/', '/auth', '/dashboard', '/progress', '/practice', '/admin', '/review'];
+  const validPaths = ['/', '/auth', '/dashboard', '/progress', '/practice', '/admin', '/review', '/journeys', '/theories'];
   const is404 = pathname ? !validPaths.some(p => pathname === p || pathname.startsWith(p + '/')) : false;
   const hideSidebar = isPublicPage || is404 || isPracticePage;
   const { profile, progress, accuracy } = useProfile();

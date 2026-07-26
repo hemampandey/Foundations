@@ -463,7 +463,7 @@ export default function ProgressPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
         {/* ─── Daily Activity Heatmap ─── (takes 2/3 width) */}
         <div className="lg:col-span-2 p-4 premium-card space-y-5 flex flex-col justify-between">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <Image 
                 src="/icons/calendar.svg"
@@ -495,70 +495,79 @@ export default function ProgressPage() {
             </div>
           </div>
 
-          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
-            {/* Heatmap Area with top padding for tooltips */}
-            <div className="flex-1 overflow-x-auto scrollbar-none pt-10 pb-2 px-1">
-              <div className="flex flex-col gap-2 min-w-[620px]">
-                <div className="flex gap-2">
-                  {/* Weekday Labels (Sun to Sat) */}
-                  <div className="flex flex-col justify-between text-[10px] font-bold text-muted-foreground/70 pr-1.5 h-[98px] py-0.5 shrink-0 select-none">
-                    <span>Sun</span>
-                    <span>Mon</span>
-                    <span>Tue</span>
-                    <span>Wed</span>
-                    <span>Thu</span>
-                    <span>Fri</span>
-                    <span>Sat</span>
-                  </div>
+          {/* Heatmap Area */}
+          <div className="w-full pt-1 pb-1">
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2 items-center">
+                {/* Weekday Labels (Sun to Sat) */}
+                <div className="flex flex-col justify-between text-[10px] font-bold text-muted-foreground/70 pr-1.5 h-[98px] py-0.5 shrink-0 select-none">
+                  <span>Sun</span>
+                  <span>Mon</span>
+                  <span>Tue</span>
+                  <span>Wed</span>
+                  <span>Thu</span>
+                  <span>Fri</span>
+                  <span>Sat</span>
+                </div>
 
-                  {/* Heatmap Grid */}
-                  <div className="flex gap-[4px]">
-                    {heatmapData.map((week, wIdx) => (
-                      <div key={wIdx} className="flex flex-col gap-[4px]">
-                        {week.map((day) => {
-                          let colorClass = 'bg-secondary/60 dark:bg-neutral-800/40 border border-border/30';
-                          if (day.count > 0 && day.count <= 2) {
-                            colorClass = 'bg-primary/25 border border-primary/30 text-primary';
-                          } else if (day.count > 2 && day.count <= 5) {
-                            colorClass = 'bg-primary/60 border border-primary/70 text-primary-foreground';
-                          } else if (day.count > 5) {
-                            colorClass = 'bg-primary border border-primary text-primary-foreground shadow-sm shadow-primary/20';
-                          }
+                {/* Heatmap Grid */}
+                <div className="flex gap-[3px] sm:gap-[4px] flex-1 justify-between">
+                  {heatmapData.map((week, wIdx) => (
+                    <div key={wIdx} className="flex flex-col gap-[3px] sm:gap-[4px]">
+                      {week.map((day) => {
+                        let colorClass = 'bg-secondary/60 dark:bg-neutral-800/40 border border-border/30';
+                        if (day.count > 0 && day.count <= 2) {
+                          colorClass = 'bg-primary/25 border border-primary/30 text-primary';
+                        } else if (day.count > 2 && day.count <= 5) {
+                          colorClass = 'bg-primary/60 border border-primary/70 text-primary-foreground';
+                        } else if (day.count > 5) {
+                          colorClass = 'bg-primary border border-primary text-primary-foreground shadow-sm shadow-primary/20';
+                        }
 
-                          let formattedDate = day.dateStr;
-                          try {
-                            const dateObj = parseLocalDate(day.dateStr);
-                            formattedDate = dateObj.toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric',
-                            });
-                          } catch {
-                            // Safe fallback
-                          }
+                        let formattedDate = day.dateStr;
+                        try {
+                          const dateObj = parseLocalDate(day.dateStr);
+                          formattedDate = dateObj.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          });
+                        } catch {
+                          // Safe fallback
+                        }
 
-                          return (
-                            <div
-                              key={day.dateStr}
-                              className={`w-[11px] h-[11px] rounded-xs transition-all duration-200 relative group cursor-pointer hover:scale-125 hover:z-30 ${colorClass}`}
-                            >
-                              {/* Hover Tooltip Popover */}
-                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:flex flex-col items-center z-50 pointer-events-none animate-fade-in">
+                        const isTopRow = day.dayOfWeek <= 1;
+
+                        return (
+                          <div
+                            key={day.dateStr}
+                            className={`w-[11px] h-[11px] rounded-xs transition-all duration-200 relative group cursor-pointer hover:scale-125 hover:z-30 ${colorClass}`}
+                          >
+                            {/* Hover Tooltip Popover */}
+                            <div className={`absolute left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col items-center z-50 pointer-events-none animate-fade-in ${isTopRow ? 'top-full mt-1.5' : 'bottom-full mb-1.5'}`}>
+                              {!isTopRow && (
                                 <div className="bg-popover border border-border text-popover-foreground text-[8px] font-bold py-1 px-2.5 rounded-lg shadow-xl whitespace-nowrap leading-tight">
                                   {day.count === 0 ? 'No' : day.count} practice {day.count === 1 ? 'attempt' : 'attempts'} on {formattedDate}
                                 </div>
-                                <div className="w-1.5 h-1.5 bg-popover border-r border-b border-border rotate-45 -mt-1" />
-                              </div>
+                              )}
+                              <div className={`w-1.5 h-1.5 bg-popover border-border rotate-45 ${isTopRow ? 'border-l border-t -mb-1' : 'border-r border-b -mt-1'}`} />
+                              {isTopRow && (
+                                <div className="bg-popover border border-border text-popover-foreground text-[8px] font-bold py-1 px-2.5 rounded-lg shadow-xl whitespace-nowrap leading-tight">
+                                  {day.count === 0 ? 'No' : day.count} practice {day.count === 1 ? 'attempt' : 'attempts'} on {formattedDate}
+                                </div>
+                              )}
                             </div>
-                          );
-                        })}
-                      </div>
-                    ))}
-                  </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))}
                 </div>
+              </div>
 
-                {/* Month Labels */}
-                <div className="flex gap-[4px] text-[10px] font-bold text-muted-foreground/70 select-none ml-[32px] relative h-6 pt-2">
+              {/* Bottom Row: Month Labels on Left, Legend on Bottom Right */}
+              <div className="flex items-center justify-between pt-1 select-none pl-[32px] pr-1">
+                <div className="flex gap-[3px] sm:gap-[4px] text-[10px] font-bold text-muted-foreground/70 relative h-4 flex-1">
                   {heatmapData.map((week, wIdx) => {
                     const dayObj = parseLocalDate(week[0].dateStr);
                     const isFirstWeekOfMonth = dayObj.getDate() <= 7;
@@ -574,17 +583,17 @@ export default function ProgressPage() {
                     return <div key={wIdx} className="w-[11px]" />;
                   })}
                 </div>
-              </div>
-            </div>
 
-            {/* Legend */}
-            <div className="flex items-center justify-end lg:justify-center gap-2 text-[10px] font-bold text-muted-foreground/80 shrink-0 select-none pt-2 lg:pt-0 lg:border-l lg:border-border/40 lg:pl-6">
-              <span>Less</span>
-              <div className="w-3 h-3 rounded-[3px] bg-secondary/60 border border-border/30" />
-              <div className="w-3 h-3 rounded-[3px] bg-primary/25 border border-primary/30" />
-              <div className="w-3 h-3 rounded-[3px] bg-primary/60 border border-primary/70" />
-              <div className="w-3 h-3 rounded-[3px] bg-primary border border-primary" />
-              <span>More</span>
+                {/* Legend in bottom right corner */}
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground/80 shrink-0 select-none pl-4 pt-6">
+                  <span>Less</span>
+                  <div className="w-2.5 h-2.5 rounded-xs bg-secondary/60 border border-border/30" />
+                  <div className="w-2.5 h-2.5 rounded-xs bg-primary/25 border border-primary/30" />
+                  <div className="w-2.5 h-2.5 rounded-xs bg-primary/60 border border-primary/70" />
+                  <div className="w-2.5 h-2.5 rounded-xs bg-primary border border-primary" />
+                  <span>More</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

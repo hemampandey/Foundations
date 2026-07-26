@@ -155,7 +155,7 @@ export default function ManageJourneys({
   return (
     <>
       {/* Create/Edit Journey Form */}
-      <div className="lg:col-span-5 bg-card border border-border rounded-2xl p-6 h-fit shadow-sm space-y-5">
+      <div className="lg:col-span-5 bg-card border border-border rounded-2xl p-4 h-fit shadow-sm space-y-5">
         <h3 className="text-xl font-bold font-inria text-primary">
           {editingJourney ? 'Edit Journey' : 'Create New Journey'}
         </h3>
@@ -172,11 +172,12 @@ export default function ManageJourneys({
 
         <form onSubmit={handleSaveJourney} className="space-y-2">
           <div className="py-1">
-            <label className="block text-sm font-bold font-inria text-muted-foreground">Journey Title</label>
+            <label className="block text-sm font-bold text-primary font-inria text-muted-foreground pb-1">Journey Title</label>
             <input
               id="j-title"
               type="text"
               required
+              autoComplete='off'
               value={journeyTitle}
               onChange={(e) => setJourneyTitle(e.target.value)}
               className="w-full px-3 py-2 font-inria border border-border bg-background rounded-xl focus:outline-none focus:ring-3 focus:ring-primary focus:border-transparent text-sm" />
@@ -189,7 +190,7 @@ export default function ManageJourneys({
               checked={journeyPublished}
               onChange={(e) => setJourneyPublished(e.target.checked)}
               className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
-            <label htmlFor="j-published" className="text-xs font-semibold font-inria text-muted-foreground cursor-pointer">Publish Journey (Make visible to learners)</label>
+            <label htmlFor="j-published" className="text-xs font-semibold font-inria italic text-muted-foreground cursor-pointer">Publish Journey (Make visible to learners)</label>
           </div>
 
           {/* Selected Questions (Ordered List) */}
