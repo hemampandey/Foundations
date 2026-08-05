@@ -30,14 +30,12 @@ The platform combines a **learner-facing Spaced Repetition Engine (SM-2)** with 
 * **Admin Review & Moderation Queue**: AI-generated questions enter a `draft` status for inline editing, distractor testing, and single-click bulk approvals.
 
 ### 📊 3. Analytics & Gamification
-* **52-Week GitHub-Style Activity Heatmap**: Visualizes study consistency with edge-aware custom tooltips.
+* **Activity Heatmap**: Visualizes study consistency.
 * **XP & Level Progression**: Earn XP based on accuracy, response speed, difficulty, and consecutive daily streak bonuses.
-* **11 Unlockable Achievement Badges**: Dynamic rewards system tracking milestones like *Speed Demon*, *Perfectionist*, and *Cross-Domain Mastery*.
+* **Achievement Badges**: Dynamic rewards system tracking milestones like *Speed Demon*, *Perfectionist*, and *Cross-Domain Mastery*.
 
 ### 🎨 4. Premium Modern UX
-* **iOS-Inspired App Launch Expansion**: Smooth spring-physics full-screen transitions (`cubic-bezier(0.16, 1, 0.3, 1)`).
 * **Distraction-Free Practice Interface**: Full-screen quiz mode with warning exit confirmation dialogs and glassmorphism backdrop blur.
-* **Cross-Browser Global Scrollbar Suppression**: Clean, borderless interface with invisible scrollbars across Chrome, Safari, Firefox, and Edge.
 
 ---
 
