@@ -1,4 +1,4 @@
-# 🎓 Foundations
+#  Foundations
 
 > **An adaptive spaced-repetition learning platform paired with an AI-driven question generation and document ingestion pipeline.**
 
@@ -9,7 +9,7 @@
 
 ---
 
-## 🌟 Executive Overview
+## Overview
 
 **Foundations** is built to bridge learning science with modern AI-driven educational operations. Designed for students, clinicians, and professionals mastering complex theoretical frameworks (such as psychological counselling theories, medical concepts, or certification exams), Foundations flattens the *Ebbinghaus Forgetting Curve* through personalized active recall.
 
@@ -17,24 +17,24 @@ The platform combines a **learner-facing Spaced Repetition Engine (SM-2)** with 
 
 ---
 
-## ✨ Key Features
+##  Key Features
 
-### 🧠 1. Learning Science & Spaced Repetition (SM-2)
+###  1. Learning Science & Spaced Repetition (SM-2)
 * **SuperMemo-2 (SM-2) Algorithm**: Calculates cognitive recall quality (ratings 0 to 5) after every attempt to update the question's **Easiness Factor (EF)** and schedule exact review dates.
 * **Bloom's Taxonomy Alignment**: Questions target specific cognitive levels (*Remember*, *Understand*, *Apply*, *Analyze*, *Evaluate*).
 * **Daily Spaced Review Decks**: Automated review queues prioritize overdue items chronologically without penalizing learners who miss a day.
 
-### 🤖 2. AI Question Generation & Document Ingestion
+###  2. AI Question Generation & Document Ingestion
 * **Zero-Dependency Client-Side Parsing**: Drag-and-drop raw **PDF** (`pdf.js`), **Word** (`mammoth.js`), or **Plain Text** files to extract text instantly with 0ms server latency.
 * **AI Distractor Validation**: Generates high-quality MCQs with detailed explanations, distractor options, and difficulty scoring (L1–L5).
 * **Admin Review & Moderation Queue**: AI-generated questions enter a `draft` status for inline editing, distractor testing, and single-click bulk approvals.
 
-### 📊 3. Analytics & Gamification
+###  3. Analytics & Gamification
 * **Activity Heatmap**: Visualizes study consistency.
 * **XP & Level Progression**: Earn XP based on accuracy, response speed, difficulty, and consecutive daily streak bonuses.
 * **Achievement Badges**: Dynamic rewards system tracking milestones like *Speed Demon*, *Perfectionist*, and *Cross-Domain Mastery*.
 
-### 🎨 4. Premium Modern UX
+###  4. Premium Modern UX
 * **Distraction-Free Practice Interface**: Full-screen quiz mode with warning exit confirmation dialogs and glassmorphism backdrop blur.
 
 ---
