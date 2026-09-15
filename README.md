@@ -98,8 +98,9 @@ Create a `.env.local` file in the root directory:
 NEXT_PUBLIC_SUPABASE_URL=https://your-supabase-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 
-# AI Generator Key (Optional for AI question generation)
-OPENAI_API_KEY=your-openai-api-key
+# AI Generator (OpenRouter)
+OPENROUTER_API_KEY=your-openrouter-api-key
+OPENROUTER_MODEL=openai/gpt-4o-mini # Optional, defaults to openai/gpt-4o-mini
 ```
 
 ### 4. Run Development Server

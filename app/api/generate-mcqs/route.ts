@@ -58,10 +58,13 @@ export async function POST(req: Request) {
     }
 
     // ── API Key Check ──
-    const apiKey = process.env.OPENAI_API_KEY;
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    const openAiApiKey = process.env.OPENAI_API_KEY;
+    const apiKey = openRouterApiKey || openAiApiKey;
+
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'OpenAI API key is not configured. Please set OPENAI_API_KEY in .env.local' },
+        { error: 'AI API key is not configured. Please set OPENROUTER_API_KEY in .env.local' },
         { status: 500 }
       );
     }
@@ -122,15 +125,34 @@ Each object in the "questions" array must match this schema EXACTLY:
 Do not include any wrapper text, markdown formatting like \`\`\`json, or explanations outside the JSON structure. Returns ONLY the raw JSON.
 `;
 
-    // ── Call OpenAI ──
-    const openAiResponse = await fetch('https://models.inference.ai.azure.com/chat/completions', {
+    // ── Configure Provider & Endpoint ──
+    const isOpenRouter = Boolean(openRouterApiKey || apiKey.startsWith('sk-or-'));
+    const endpoint = isOpenRouter
+      ? (process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1/chat/completions')
+      : (process.env.OPENAI_BASE_URL
+          ? `${process.env.OPENAI_BASE_URL.replace(/\/$/, '')}/chat/completions`
+          : 'https://api.openai.com/v1/chat/completions');
+
+    const model = isOpenRouter
+      ? (process.env.OPENROUTER_MODEL || 'openai/gpt-4o-mini')
+      : (process.env.OPENAI_MODEL || 'gpt-4o-mini');
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    };
+
+    if (isOpenRouter) {
+      headers['HTTP-Referer'] = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+      headers['X-Title'] = 'Foundations Learning Platform';
+    }
+
+    // ── Call AI Provider ──
+    const aiResponse = await fetch(endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
+      headers,
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model,
         messages: [
           { role: 'system', content: 'You are a helpful assistant that outputs only valid, structured JSON.' },
           { role: 'user', content: prompt }
@@ -140,21 +162,28 @@ Do not include any wrapper text, markdown formatting like \`\`\`json, or explana
       }),
     });
 
-    if (!openAiResponse.ok) {
-      const errorText = await openAiResponse.text();
-      console.error('[OpenAI API Error]:', errorText);
+    if (!aiResponse.ok) {
+      const errorText = await aiResponse.text();
+      console.error('[AI Provider API Error]:', errorText);
+      let errorMsg = aiResponse.statusText;
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMsg = errorJson.error?.message || errorJson.message || errorText;
+      } catch {
+        errorMsg = errorText;
+      }
       return NextResponse.json(
-        { error: `OpenAI API returned an error: ${openAiResponse.statusText}` },
-        { status: openAiResponse.status }
+        { error: `AI Provider returned an error (${aiResponse.status}): ${errorMsg}` },
+        { status: aiResponse.status }
       );
     }
 
-    const data = await openAiResponse.json();
+    const data = await aiResponse.json();
     const rawContent = data.choices?.[0]?.message?.content;
 
     if (!rawContent) {
       return NextResponse.json(
-        { error: 'OpenAI returned an empty completion response.' },
+        { error: 'AI provider returned an empty completion response.' },
         { status: 500 }
       );
     }
@@ -162,12 +191,26 @@ Do not include any wrapper text, markdown formatting like \`\`\`json, or explana
     // ── Parse & Validate Response ──
     let parsed;
     try {
-      parsed = JSON.parse(rawContent);
+      let cleanContent = rawContent.trim();
+      if (cleanContent.startsWith('```')) {
+        cleanContent = cleanContent.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+      }
+      parsed = JSON.parse(cleanContent);
     } catch {
-      return NextResponse.json(
-        { error: 'OpenAI returned malformed JSON. Please try again.' },
-        { status: 520 }
-      );
+      try {
+        const start = rawContent.indexOf('{');
+        const end = rawContent.lastIndexOf('}');
+        if (start !== -1 && end !== -1 && end > start) {
+          parsed = JSON.parse(rawContent.substring(start, end + 1));
+        } else {
+          throw new Error('No JSON object found');
+        }
+      } catch {
+        return NextResponse.json(
+          { error: 'AI provider returned malformed JSON. Please try again.' },
+          { status: 520 }
+        );
+      }
     }
 
     if (!parsed.questions || !Array.isArray(parsed.questions)) {
