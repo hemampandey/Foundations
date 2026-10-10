@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter as useNextRouter, useSearchParams as useNextSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useProfile } from '@/app/components/ProfileProvider';
@@ -14,21 +14,25 @@ import ManageMCQs from './components/ManageMCQs';
 import ReviewQueue from './components/ReviewQueue';
 import ManageJourneys from './components/ManageJourneys';
 
+function AdminSkeleton() {
+  return (
+    <div className="w-full space-y-6 animate-fade-in">
+      <div className="border-b border-border/80 pb-6">
+        <div className="skeleton h-8 w-44 mb-2" />
+        <div className="skeleton h-3 w-72" />
+      </div>
+      <div className="skeleton h-12 w-full rounded-2xl" />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-5 skeleton h-80 rounded-2xl" />
+        <div className="lg:col-span-7 skeleton h-80 rounded-2xl" />
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   return (
-    <Suspense fallback={
-      <div className="w-full space-y-6 animate-fade-in">
-        <div className="border-b border-border/80 pb-6">
-          <div className="skeleton h-8 w-44 mb-2" />
-          <div className="skeleton h-3 w-72" />
-        </div>
-        <div className="skeleton h-12 w-full rounded-2xl" />
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-5 skeleton h-80 rounded-2xl" />
-          <div className="lg:col-span-7 skeleton h-80 rounded-2xl" />
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<AdminSkeleton />}>
       <AdminPageContent />
     </Suspense>
   );
@@ -104,19 +108,7 @@ function AdminPageContent() {
   // ─── Guards ───
 
   if (authLoading) {
-    return (
-      <div className="w-full space-y-6 animate-fade-in">
-        <div className="border-b border-border/80 pb-6">
-          <div className="skeleton h-8 w-44 mb-2" />
-          <div className="skeleton h-3 w-72" />
-        </div>
-        <div className="skeleton h-12 w-full rounded-2xl" />
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-5 skeleton h-80 rounded-2xl" />
-          <div className="lg:col-span-7 skeleton h-80 rounded-2xl" />
-        </div>
-      </div>
-    );
+    return <AdminSkeleton />;
   }
 
   if (!profile) {

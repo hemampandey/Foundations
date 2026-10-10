@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { buildMcqPrompt, parseGeneratedQuestions } from '@/lib/mcq-generation';
+import { acquireGenerationSlot, rateLimitHeaders, requestFingerprint } from '@/lib/generation-guard';
 
 // Server-side Supabase client using the service role key.
 // This bypasses RLS so we can verify the caller's role securely.
@@ -12,6 +14,8 @@ const MAX_QUESTION_COUNT = 10;
 const MAX_THEORY_BODY_LENGTH = 20_000; // characters
 
 export async function POST(req: Request) {
+  let releaseSlot: (() => Promise<void>) | undefined;
+
   try {
     // ── Auth Check ──
     const authHeader = req.headers.get('Authorization');
@@ -72,14 +76,14 @@ export async function POST(req: Request) {
     // ── Input Validation ──
     const { theoryTitle, theoryBody, count: rawCount = 3, customInstructions } = await req.json();
 
-    if (!theoryTitle || !theoryBody) {
+    if (typeof theoryTitle !== 'string' || typeof theoryBody !== 'string' || !theoryTitle || !theoryBody) {
       return NextResponse.json(
         { error: 'Missing theoryTitle or theoryBody in request body' },
         { status: 400 }
       );
     }
 
-    if (typeof theoryBody === 'string' && theoryBody.length > MAX_THEORY_BODY_LENGTH) {
+    if (theoryBody.length > MAX_THEORY_BODY_LENGTH) {
       return NextResponse.json(
         { error: `Theory body is too long (max ${MAX_THEORY_BODY_LENGTH.toLocaleString()} characters).` },
         { status: 400 }
@@ -88,42 +92,26 @@ export async function POST(req: Request) {
 
     const count = Math.min(Math.max(Number(rawCount) || 3, 1), MAX_QUESTION_COUNT);
 
-    // ── Build Prompt ──
-    let prompt = `
-You are an expert educator drafting high-quality multiple choice questions (MCQs) to test a learner's mastery in a theory concept.
-
-Theory Title: ${theoryTitle}
-Theory Body:
-${theoryBody}
-
-Generate exactly ${count} Multiple Choice Questions based on the text above. 
-Each question must test conceptual understanding rather than simple rote memorization.
-
-CRITICAL REQUIREMENT: For each question, you must shuffle the four options randomly. You MUST distribute the correct answers evenly across all possible indices (0, 1, 2, and 3) so there is no bias towards any specific choice (such as option-2/index 1).
-`;
-
-    if (customInstructions && typeof customInstructions === 'string' && customInstructions.trim()) {
-      prompt += `
-Additional Custom Instructions to follow:
-- ${customInstructions.trim().substring(0, 500)}
-`;
+    // ── Cost Controls (Redis) ──
+    const slot = await acquireGenerationSlot(
+      user.id,
+      requestFingerprint([theoryTitle, theoryBody, count, customInstructions ?? ''])
+    );
+    if (!slot.ok) {
+      return NextResponse.json(
+        { error: slot.error },
+        { status: slot.status, headers: rateLimitHeaders(slot.rateLimit, slot.status === 429) }
+      );
     }
+    releaseSlot = slot.release;
 
-    prompt += `
-Your response must be a single, valid JSON object with a key "questions" containing an array of objects. 
-Each object in the "questions" array must match this schema EXACTLY:
-{
-  "stem": "string (the question statement)",
-  "options": ["string", "string", "string", "string"], (exactly 4 options)
-  "correct_index": number (0, 1, 2, or 3 pointing to the correct choice in the options array),
-  "explanation": "string (clear, professional explanation of why the correct option is right and the others are incorrect)",
-  "difficulty": number (1 = Easy, 2 = Medium, 3 = Hard),
-  "bloom_level": "remember" | "understand" | "apply" | "analyze" | "evaluate" | "create",
-  "source_excerpt": "string (the exact sentence or short phrase from the Theory Body that supports the correct answer)"
-}
-
-Do not include any wrapper text, markdown formatting like \`\`\`json, or explanations outside the JSON structure. Returns ONLY the raw JSON.
-`;
+    // ── Build Prompt ──
+    const prompt = buildMcqPrompt({
+      theoryTitle,
+      theoryBody,
+      count,
+      customInstructions: typeof customInstructions === 'string' ? customInstructions : undefined,
+    });
 
     // ── Configure Provider & Endpoint ──
     const isOpenRouter = Boolean(openRouterApiKey || apiKey.startsWith('sk-or-'));
@@ -189,41 +177,36 @@ Do not include any wrapper text, markdown formatting like \`\`\`json, or explana
     }
 
     // ── Parse & Validate Response ──
-    let parsed;
+    let result;
     try {
-      let cleanContent = rawContent.trim();
-      if (cleanContent.startsWith('```')) {
-        cleanContent = cleanContent.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
-      }
-      parsed = JSON.parse(cleanContent);
+      result = parseGeneratedQuestions(rawContent, theoryBody);
     } catch {
-      try {
-        const start = rawContent.indexOf('{');
-        const end = rawContent.lastIndexOf('}');
-        if (start !== -1 && end !== -1 && end > start) {
-          parsed = JSON.parse(rawContent.substring(start, end + 1));
-        } else {
-          throw new Error('No JSON object found');
-        }
-      } catch {
-        return NextResponse.json(
-          { error: 'AI provider returned malformed JSON. Please try again.' },
-          { status: 520 }
-        );
-      }
-    }
-
-    if (!parsed.questions || !Array.isArray(parsed.questions)) {
       return NextResponse.json(
-        { error: 'Invalid response format: "questions" array is missing.' },
-        { status: 520 }
+        { error: 'AI provider returned malformed JSON. Please try again.' },
+        { status: 502 }
       );
     }
 
-    return NextResponse.json({ questions: parsed.questions });
+    if (result.rejected.length > 0) {
+      console.warn('[Generate MCQs] Rejected malformed questions:', result.rejected);
+    }
+
+    if (result.questions.length === 0) {
+      return NextResponse.json(
+        { error: 'AI provider returned no valid questions. Please try again.' },
+        { status: 502 }
+      );
+    }
+
+    return NextResponse.json(
+      { questions: result.questions, rejected: result.rejected },
+      { headers: rateLimitHeaders(slot.rateLimit) }
+    );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('[Generate MCQs Route Error]:', message);
     return NextResponse.json({ error: 'An internal error occurred while generating questions.' }, { status: 500 });
+  } finally {
+    await releaseSlot?.();
   }
 }

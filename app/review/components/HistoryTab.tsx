@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, ChevronDown, ChevronLeft, ChevronRight, Clock, Calendar, ListFilter, CheckCircle2, History } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useProfile } from '@/app/components/ProfileProvider';
+import { getPageNumbers } from '@/lib/utils';
 
 interface HistoryAttemptItem {
   id: string;
@@ -203,26 +204,6 @@ export default function HistoryTab() {
     return dStr;
   }
 
-  // Helper to generate page lists for pagination controls
-  const getPageNumbers = () => {
-    const pages = [];
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      if (currentPage > 3) pages.push('...');
-      
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalPages - 1, currentPage + 1);
-      for (let i = start; i <= end; i++) {
-        if (i > 1 && i < totalPages) pages.push(i);
-      }
-      
-      if (currentPage < totalPages - 2) pages.push('...');
-      pages.push(totalPages);
-    }
-    return pages;
-  };
 
   return (
     <div className="space-y-3 w-full text-left">
@@ -414,7 +395,7 @@ export default function HistoryTab() {
                 <ChevronLeft className="w-4 h-4" />
               </button>
 
-              {getPageNumbers().map((pageNum, idx) => {
+              {getPageNumbers(currentPage, totalPages).map((pageNum, idx) => {
                 if (pageNum === '...') {
                   return (
                     <span key={idx} className="w-8 h-8 flex items-center justify-center text-xs text-muted-foreground font-semibold">

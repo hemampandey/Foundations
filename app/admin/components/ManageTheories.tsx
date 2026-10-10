@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type ChangeEvent, type SubmitEvent } from 'react';
 import { Plus, Save, Edit, Layers, Settings, FileText } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { Theory, Question } from '@/lib/types';
@@ -175,7 +175,7 @@ export default function ManageTheories({
 
   const [fileExtracting, setFileExtracting] = useState(false);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isInline: boolean = false) => {
+  const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>, isInline: boolean = false) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -217,7 +217,7 @@ export default function ManageTheories({
     return () => clearInterval(interval);
   }, [generatingForTheoryId]);
 
-  const handleCreateTheory = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleCreateTheory = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setTheorySubmitLoading(true);
 
@@ -324,7 +324,12 @@ export default function ManageTheories({
 
       setGeneratingForTheoryId(null);
 
-      showToast(`Successfully generated ${generatedQuestions.length} draft questions! Review them in the Review Queue.`, 'success');
+      const unverified = generatedQuestions.filter((q: { excerpt_verified?: boolean }) => q.excerpt_verified === false).length;
+      const notes = [
+        data.rejected?.length ? `${data.rejected.length} malformed discarded` : '',
+        unverified ? `${unverified} with unverified source excerpts` : '',
+      ].filter(Boolean).join(', ');
+      showToast(`Successfully generated ${generatedQuestions.length} draft questions${notes ? ` (${notes})` : ''}! Review them in the Review Queue.`, 'success');
 
       setTheoryConfig((prev) => ({
         ...prev,

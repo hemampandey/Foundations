@@ -43,6 +43,7 @@ export interface Attempt {
   chosen_index: number;
   is_correct: boolean;
   response_ms: number;
+  xp_earned: number;
   created_at: string;
 }
 
@@ -108,8 +109,4 @@ export interface JourneyQuestion {
 }
 
 export type BloomLevel = Question['bloom_level'];
-export type Difficulty = Question['difficulty'];
-export type TheoryStatus = Theory['status'];
-export type QuestionStatus = Question['status'];
-export type UserRole = Profile['role'];
 

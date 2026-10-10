@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useRef, Suspense, useCallback } from 'react';
+import { useState, useEffect, useRef, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useProfile } from '@/app/components/ProfileProvider';
 import type { Theory, Question } from '@/lib/types';
 import ConfirmDialog from '@/app/components/ConfirmDialog';
-import { xpToLevel } from '@/lib/utils';
+import { submitAttempt } from '@/lib/attempts';
 import { getTargetDifficulty, sortByAdaptiveDifficulty } from '@/lib/adaptive';
 import { sm2, gradeFromAttempt, DEFAULT_SM2_STATE } from '@/lib/sm2';
 import {
@@ -31,6 +31,7 @@ function PracticeContent() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [leveledUpTo, setLeveledUpTo] = useState<number | null>(null);
+  const [xpEarned, setXpEarned] = useState<number | null>(null);
   const [showPreview, setShowPreview] = useState(true);
   const [pastAccuracy, setPastAccuracy] = useState<number | null>(null);
   const [pastAttemptsCount, setPastAttemptsCount] = useState<number>(0);
@@ -39,7 +40,7 @@ function PracticeContent() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [sessionAttempts, setSessionAttempts] = useState<{ qId: string; isCorrect: boolean; responseMs: number }[]>([]);
+  const [sessionAttempts, setSessionAttempts] = useState<{ qId: string; isCorrect: boolean; responseMs: number; xpEarned: number }[]>([]);
   const [recommendation, setRecommendation] = useState<{ title: string; accuracy: number } | null>(null);
   const [sessionFinished, setSessionFinished] = useState(false);
 
@@ -234,40 +235,17 @@ function PracticeContent() {
       playSound('incorrect');
     }
 
+    let attemptXp = 0;
     try {
       if (profile) {
-        await supabase.from('attempts').insert({
-          user_id: profile.id,
-          question_id: currentQuestion.id,
-          chosen_index: selectedIdx,
-          is_correct: isCorrect,
-          response_ms: responseMs,
-        });
+        const result = await submitAttempt(currentQuestion.id, selectedIdx, responseMs);
+        attemptXp = result.xpEarned;
+        setXpEarned(result.xpEarned);
 
-        // Update user progress atomically via database RPC
-        const xpEarned = isCorrect ? 10 : 2;
-
-        const { data: progressData } = await supabase
-          .from('user_progress')
-          .select('*')
-          .eq('user_id', profile.id)
-          .maybeSingle();
-
-        const currentXp = progressData?.xp ?? 0;
-        const currentLevel = progressData?.level ?? 1;
-        const newXp = currentXp + xpEarned;
-        const newLevel = xpToLevel(newXp).level;
-
-        if (newLevel > currentLevel) {
-          setLeveledUpTo(newLevel);
+        if (result.leveledUp) {
+          setLeveledUpTo(result.level);
           playSound('level-up');
         }
-
-        await supabase.rpc('increment_xp', {
-          p_user_id: profile.id,
-          p_xp_earned: xpEarned,
-          p_last_active_at: new Date().toISOString(),
-        });
 
         // SM-2 spaced repetition: schedule this question for future review
         try {
@@ -286,24 +264,24 @@ function PracticeContent() {
             } : DEFAULT_SM2_STATE;
 
           const quality = gradeFromAttempt(isCorrect, responseMs);
-          const result = sm2(currentState, quality);
+          const schedule = sm2(currentState, quality);
 
           await supabase
             .from('review_schedule')
             .upsert({
               user_id: profile.id,
               question_id: currentQuestion.id,
-              ease_factor: result.easeFactor,
-              interval_days: result.intervalDays,
-              repetitions: result.repetitions,
-              due_at: result.dueAt.toISOString(),
+              ease_factor: schedule.easeFactor,
+              interval_days: schedule.intervalDays,
+              repetitions: schedule.repetitions,
+              due_at: schedule.dueAt.toISOString(),
             }, { onConflict: 'user_id,question_id' });
         } catch (scheduleErr) {
           console.error('[Foundations] SM-2 schedule update failed:', scheduleErr);
         }
       }
 
-      setSessionAttempts((prev) => [...prev, { qId: currentQuestion.id, isCorrect, responseMs }]);
+      setSessionAttempts((prev) => [...prev, { qId: currentQuestion.id, isCorrect, responseMs, xpEarned: attemptXp }]);
       window.dispatchEvent(new CustomEvent('sync-sidebar-badges'));
     } catch (err: unknown) {
       console.error('[Foundations] Failed to log attempt:', err);
@@ -314,6 +292,7 @@ function PracticeContent() {
     if (currentIdx + 1 < questions.length) {
       setCurrentIdx((prev) => prev + 1);
       setSelectedIdx(null);
+      setXpEarned(null);
       setIsSubmitted(false);
       setElapsedSeconds(0);
       questionStartTime.current = Date.now();
@@ -470,6 +449,7 @@ function PracticeContent() {
   const handleRestart = () => {
     setCurrentIdx(0);
     setSelectedIdx(null);
+    setXpEarned(null);
     setIsSubmitted(false);
     setSessionAttempts([]);
     setSessionFinished(false);
@@ -619,7 +599,7 @@ function PracticeContent() {
     const totalQ = questions.length;
     const correctCount = sessionAttempts.filter((a) => a.isCorrect).length;
     const finalAccuracy = Math.round((correctCount / totalQ) * 100);
-    const totalXpEarned = sessionAttempts.reduce((sum, a) => sum + (a.isCorrect ? 10 : 2), 0);
+    const totalXpEarned = sessionAttempts.reduce((sum, a) => sum + a.xpEarned, 0);
 
     const validTimes = sessionAttempts.filter((a) => a.responseMs !== undefined && a.responseMs > 0);
     const avgTime = validTimes.length > 0
@@ -843,8 +823,8 @@ function PracticeContent() {
                   aria-label={`Option ${optionLetter}: ${option}`}>
                   <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-all ${badgeStyle}`}>{optionLetter}</span>
                   <span>{option}</span>
-                  {isSubmitted && selectedIdx === idx && (
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-xs font-bold text-primary animate-float-xp">+{idx === currentQ.correct_index ? 10 : 2} XP</span>
+                  {isSubmitted && selectedIdx === idx && !!xpEarned && (
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-xs font-bold text-primary animate-float-xp">+{xpEarned} XP</span>
                   )}
                 </button>
               );

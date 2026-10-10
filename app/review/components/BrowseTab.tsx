@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Search, ChevronDown, ChevronUp, Calendar, ListFilter, CheckSquare, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useProfile } from '@/app/components/ProfileProvider';
+import { getPageNumbers } from '@/lib/utils';
 
 interface BrowseScheduleItem {
   user_id: string;
@@ -23,6 +24,23 @@ interface BrowseScheduleItem {
       title: string;
     } | null;
   } | null;
+}
+
+
+/** Boundaries used to bucket review items into Today / Tomorrow / This week / Later. */
+function getDueBoundaries() {
+  const now = new Date();
+  const todayEnd = new Date(now);
+  todayEnd.setHours(23, 59, 59, 999);
+  const tomorrowStart = new Date(now);
+  tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+  tomorrowStart.setHours(0, 0, 0, 0);
+  const tomorrowEnd = new Date(tomorrowStart);
+  tomorrowEnd.setHours(23, 59, 59, 999);
+  const weekEnd = new Date(now);
+  weekEnd.setDate(weekEnd.getDate() + 7);
+  weekEnd.setHours(23, 59, 59, 999);
+  return { now, todayEnd, tomorrowStart, tomorrowEnd, weekEnd };
 }
 
 export default function BrowseTab() {
@@ -55,38 +73,13 @@ export default function BrowseTab() {
     }));
   };
 
-  // Date constants for helpers
-  const now = new Date();
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
-
-  const tomorrowStart = new Date();
-  tomorrowStart.setDate(tomorrowStart.getDate() + 1);
-  tomorrowStart.setHours(0, 0, 0, 0);
-  const tomorrowEnd = new Date(tomorrowStart);
-  tomorrowEnd.setHours(23, 59, 59, 999);
-
-  const weekEnd = new Date();
-  weekEnd.setDate(weekEnd.getDate() + 7);
-  weekEnd.setHours(23, 59, 59, 999);
+  const { now, todayEnd, tomorrowStart, tomorrowEnd, weekEnd } = getDueBoundaries();
 
   // ── Fetch dynamic Category Counts & Theories list ──
   const fetchCountsAndTheories = useCallback(async () => {
     if (!profile) return;
     try {
-      const currentDate = new Date();
-      const currentTodayEnd = new Date();
-      currentTodayEnd.setHours(23, 59, 59, 999);
-
-      const currentTomorrowStart = new Date();
-      currentTomorrowStart.setDate(currentTomorrowStart.getDate() + 1);
-      currentTomorrowStart.setHours(0, 0, 0, 0);
-      const currentTomorrowEnd = new Date(currentTomorrowStart);
-      currentTomorrowEnd.setHours(23, 59, 59, 999);
-
-      const currentWeekEnd = new Date();
-      currentWeekEnd.setDate(currentWeekEnd.getDate() + 7);
-      currentWeekEnd.setHours(23, 59, 59, 999);
+      const { now: currentDate, todayEnd: currentTodayEnd, tomorrowStart: currentTomorrowStart, tomorrowEnd: currentTomorrowEnd, weekEnd: currentWeekEnd } = getDueBoundaries();
 
       const [
         resToday,
@@ -201,19 +194,7 @@ export default function BrowseTab() {
       }
 
       // Apply Status Category matching
-      const currentDate = new Date();
-      const currentTodayEnd = new Date();
-      currentTodayEnd.setHours(23, 59, 59, 999);
-
-      const currentTomorrowStart = new Date();
-      currentTomorrowStart.setDate(currentTomorrowStart.getDate() + 1);
-      currentTomorrowStart.setHours(0, 0, 0, 0);
-      const currentTomorrowEnd = new Date(currentTomorrowStart);
-      currentTomorrowEnd.setHours(23, 59, 59, 999);
-
-      const currentWeekEnd = new Date();
-      currentWeekEnd.setDate(currentWeekEnd.getDate() + 7);
-      currentWeekEnd.setHours(23, 59, 59, 999);
+      const { now: currentDate, todayEnd: currentTodayEnd, tomorrowStart: currentTomorrowStart, tomorrowEnd: currentTomorrowEnd, weekEnd: currentWeekEnd } = getDueBoundaries();
 
       if (activePillFilter === 'today') {
         query = query.lte('due_at', currentTodayEnd.toISOString());
@@ -263,23 +244,6 @@ export default function BrowseTab() {
   // Pagination calculation
   const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
 
-  const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      pages.push(1);
-      if (currentPage > 3) pages.push('...');
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalPages - 1, currentPage + 1);
-      for (let i = start; i <= end; i++) {
-        pages.push(i);
-      }
-      if (currentPage < totalPages - 2) pages.push('...');
-      pages.push(totalPages);
-    }
-    return pages;
-  };
 
   // Safe helper to extract relative last seen time
   const getLastSeenText = (createdAtStr: string, reps: number) => {
@@ -567,7 +531,7 @@ export default function BrowseTab() {
                 <ChevronLeft className="w-4 h-4" />
               </button>
 
-              {getPageNumbers().map((pageNum, idx) => {
+              {getPageNumbers(currentPage, totalPages).map((pageNum, idx) => {
                 if (pageNum === '...') {
                   return (
                     <span key={idx} className="w-8 h-8 flex items-center justify-center text-xs text-muted-foreground font-semibold">
