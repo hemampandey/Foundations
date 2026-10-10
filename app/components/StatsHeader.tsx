@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { xpToLevel } from '@/lib/utils';
 import { useCountUp } from '@/lib/useCountUp';
 import Image from 'next/image';

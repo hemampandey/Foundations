@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { ReviewScheduleWithQuestion } from '@/lib/types';
 import { sm2, gradeFromAttempt } from '@/lib/sm2';
-import { xpToLevel } from '@/lib/utils';
+import { submitAttempt } from '@/lib/attempts';
 import { playSound } from '@/lib/audio';
 import ConfirmDialog from '@/app/components/ConfirmDialog';
 import {
@@ -15,7 +15,7 @@ interface ReviewSessionProps {
   profile: { id: string };
   dueItems: ReviewScheduleWithQuestion[];
   onExit: () => void;
-  onCompleteSession: (attempts: { isCorrect: boolean; responseMs: number }[]) => void;
+  onCompleteSession: (attempts: { isCorrect: boolean; responseMs: number; xpEarned: number }[]) => void;
 }
 
 export default function ReviewSession({
@@ -28,8 +28,9 @@ export default function ReviewSession({
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [sessionAttempts, setSessionAttempts] = useState<{ isCorrect: boolean; responseMs: number }[]>([]);
+  const [sessionAttempts, setSessionAttempts] = useState<{ isCorrect: boolean; responseMs: number; xpEarned: number }[]>([]);
   const [leveledUpTo, setLeveledUpTo] = useState<number | null>(null);
+  const [xpEarned, setXpEarned] = useState<number | null>(null);
 
   // Timer state
   const questionStartTime = useRef<number>(0);
@@ -68,43 +69,17 @@ export default function ReviewSession({
     }
 
     try {
-      // Record attempt
-      await supabase.from('attempts').insert({
-        user_id: profile.id,
-        question_id: question.id,
-        chosen_index: selectedIdx,
-        is_correct: isCorrect,
-        response_ms: responseMs,
-      });
+      const result = await submitAttempt(question.id, selectedIdx, responseMs);
+      setXpEarned(result.xpEarned);
 
-      // XP Calculations
-      const xpEarned = isCorrect ? 10 : 2;
-
-      const { data: progressData } = await supabase
-        .from('user_progress')
-        .select('*')
-        .eq('user_id', profile.id)
-        .maybeSingle();
-
-      const currentXp = progressData?.xp ?? 0;
-      const currentLevel = progressData?.level ?? 1;
-      const newXp = currentXp + xpEarned;
-      const newLevel = xpToLevel(newXp).level;
-
-      if (newLevel > currentLevel) {
-        setLeveledUpTo(newLevel);
+      if (result.leveledUp) {
+        setLeveledUpTo(result.level);
         playSound('level-up');
       }
 
-      await supabase.rpc('increment_xp', {
-        p_user_id: profile.id,
-        p_xp_earned: xpEarned,
-        p_last_active_at: new Date().toISOString(),
-      });
-
       // Update SM-2 schedule
       const quality = gradeFromAttempt(isCorrect, responseMs);
-      const result = sm2(
+      const schedule = sm2(
         {
           easeFactor: item.ease_factor,
           intervalDays: item.interval_days,
@@ -119,15 +94,15 @@ export default function ReviewSession({
           {
             user_id: profile.id,
             question_id: question.id,
-            ease_factor: result.easeFactor,
-            interval_days: result.intervalDays,
-            repetitions: result.repetitions,
-            due_at: result.dueAt.toISOString(),
+            ease_factor: schedule.easeFactor,
+            interval_days: schedule.intervalDays,
+            repetitions: schedule.repetitions,
+            due_at: schedule.dueAt.toISOString(),
           },
           { onConflict: 'user_id,question_id' }
         );
 
-      setSessionAttempts((prev) => [...prev, { isCorrect, responseMs }]);
+      setSessionAttempts((prev) => [...prev, { isCorrect, responseMs, xpEarned: result.xpEarned }]);
       window.dispatchEvent(new CustomEvent('sync-sidebar-badges'));
     } catch (err) {
       console.error('[Foundations] Review answer error:', err);
@@ -158,6 +133,7 @@ export default function ReviewSession({
     if (currentIdx + 1 < dueItems.length) {
       setCurrentIdx((prev) => prev + 1);
       setSelectedIdx(null);
+      setXpEarned(null);
       setIsSubmitted(false);
       setElapsedSeconds(0);
     } else {
@@ -320,9 +296,9 @@ export default function ReviewSession({
                     {optionLetter}
                   </span>
                   <span>{option}</span>
-                  {isSubmitted && selectedIdx === idx && (
+                  {isSubmitted && selectedIdx === idx && !!xpEarned && (
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-xs font-bold text-primary animate-float-xp">
-                      +{idx === currentQ.correct_index ? 10 : 2} XP
+                      +{xpEarned} XP
                     </span>
                   )}
                 </button>

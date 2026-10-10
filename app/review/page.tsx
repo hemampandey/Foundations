@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useProfile } from '@/app/components/ProfileProvider';
@@ -63,7 +63,7 @@ function ReviewContent() {
 
 
   // Completed Session Metrics
-  const [completedAttempts, setCompletedAttempts] = useState<{ isCorrect: boolean; responseMs: number }[] | null>(null);
+  const [completedAttempts, setCompletedAttempts] = useState<{ isCorrect: boolean; responseMs: number; xpEarned: number }[] | null>(null);
 
   // Extra dashboard metrics
   const [streak, setStreak] = useState(0);
@@ -153,7 +153,7 @@ function ReviewContent() {
           .gte('created_at', sevenDaysAgo.toISOString()),
         supabase
           .from('attempts')
-          .select('created_at, is_correct')
+          .select('created_at, is_correct, xp_earned')
           .eq('user_id', profile.id)
           .order('created_at', { ascending: false })
           .limit(150)
@@ -276,7 +276,7 @@ function ReviewContent() {
             dateGroups[dateStr] = { count: 0, xp: 0 };
           }
           dateGroups[dateStr].count += 1;
-          dateGroups[dateStr].xp += att.is_correct ? 10 : 2;
+          dateGroups[dateStr].xp += att.xp_earned ?? 0;
         });
       }
 
@@ -421,7 +421,7 @@ function ReviewContent() {
     const totalQ = completedAttempts.length;
     const correctCount = completedAttempts.filter((a) => a.isCorrect).length;
     const finalAccuracy = totalQ > 0 ? Math.round((correctCount / totalQ) * 100) : 0;
-    const totalXpEarned = completedAttempts.reduce((sum, a) => sum + (a.isCorrect ? 10 : 2), 0);
+    const totalXpEarned = completedAttempts.reduce((sum, a) => sum + a.xpEarned, 0);
 
     return (
       <div className="w-full max-w-md mx-auto py-8 text-center space-y-6 animate-fade-in relative">

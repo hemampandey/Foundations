@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useProfile } from '@/app/components/ProfileProvider';
@@ -70,6 +70,7 @@ export default function ProgressPage() {
           chosen_index,
           is_correct,
           response_ms,
+          xp_earned,
           created_at,
           questions (
             stem,
@@ -92,6 +93,7 @@ export default function ProgressPage() {
             chosen_index: number;
             is_correct: boolean;
             response_ms: number;
+            xp_earned: number;
             created_at: string;
             questions: unknown;
           };
@@ -111,6 +113,7 @@ export default function ProgressPage() {
             chosen_index: att.chosen_index,
             is_correct: att.is_correct,
             response_ms: att.response_ms,
+            xp_earned: att.xp_earned ?? 0,
             created_at: att.created_at,
             question: rawQ ? {
               stem: rawQ.stem ?? '',

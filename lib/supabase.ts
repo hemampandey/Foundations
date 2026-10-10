@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import type { Profile } from './types';
 
 // Supabase Client
 
@@ -14,12 +15,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Re-export types so existing import paths still work.
-export type { Profile, Theory, Question, Attempt, UserProgress } from './types';
-
 // Auth helpers
-
-import type { Profile } from './types';
 
 /** Fetch the profile row for the currently authenticated user. */
 export async function getCurrentProfile(): Promise<Profile | null> {

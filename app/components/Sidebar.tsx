@@ -7,12 +7,12 @@ import Image from 'next/image';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { supabase, devUpdateUserRole } from '@/lib/supabase';
 import { useProfile } from '@/app/components/ProfileProvider';
+import NavSubmenu from '@/app/components/NavSubmenu';
 import { isDevMode, formatDate } from '@/lib/utils';
 import type { Profile } from '@/lib/types';
 import {
   User, LogOut,
-  ShieldAlert, Search, PanelLeft, PanelLeftClose, ChevronDown, ChevronUp, Sun, Moon,
-  Globe, HelpCircle, ArrowUpCircle, Info, ChevronsUpDown, ChevronRight, Settings
+  ShieldAlert, Search, PanelLeft, PanelLeftClose, ChevronDown, ChevronUp, Sun, Moon, ChevronsUpDown,
 } from 'lucide-react';
 
 interface SidebarTheoryPractice {
@@ -170,6 +170,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
         .select(`
           id,
           is_correct,
+          xp_earned,
           created_at,
           questions (
             theories (
@@ -187,12 +188,14 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
           createdDates: string[];
           total: number;
           correct: number;
+          xp: number;
         }> = {};
 
         for (const rawAtt of data as unknown[]) {
           const att = rawAtt as {
             created_at: string;
             is_correct: boolean;
+            xp_earned: number | null;
             questions: {
               theories: { id: string; title: string } | null;
             } | null;
@@ -206,11 +209,13 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                 createdDates: [],
                 total: 0,
                 correct: 0,
+                xp: 0,
               };
             }
             const group = theoryGroups[theory.id];
             group.createdDates.push(att.created_at);
             group.total += 1;
+            group.xp += att.xp_earned ?? 0;
             if (att.is_correct) {
               group.correct += 1;
             }
@@ -220,7 +225,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
         const formatted: SidebarTheoryPractice[] = Object.entries(theoryGroups).map(([id, group]) => {
           const sortedDates = group.createdDates.sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
           const accuracy = group.total > 0 ? Math.round((group.correct / group.total) * 100) : 0;
-          const xpEarned = group.correct * 10 + (group.total - group.correct) * 2;
+          const xpEarned = group.xp;
           return {
             theoryId: id,
             theoryTitle: group.title,
@@ -555,310 +560,51 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
               )}
             </div>
 
-            {(() => {
-              const activeReviewTab = searchParams.get('tab') || 'forecast';
-              return (
-                <div
-                  className="space-y-0.5 relative"
-                  onMouseEnter={() => collapsed && setReviewExpanded(true)}
-                  onMouseLeave={() => collapsed && setReviewExpanded(false)}
-                >
-                  <button
-                    onClick={() => {
-                      const nextVal = !reviewExpanded;
-                      setReviewExpanded(nextVal);
-                      if (nextVal) {
-                        setAdminExpanded(false);
-                      }
-                    }}
-                    className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-150 border cursor-pointer ${collapsed ? 'w-10 h-10 mx-auto justify-center p-0' : 'justify-between w-full px-3 py-2'
-                      } ${pathname.startsWith('/review') && !reviewExpanded
-                        ? 'bg-primary/5 font-serif text-primary border-primary/10'
-                        : 'text-muted-foreground hover:text-foreground font-serif hover:bg-secondary/45 border-transparent'
-                      }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Image
-                        src="/icons/review.svg"
-                        alt="Review Icon"
-                        width={30}
-                        height={30}
-                        className="w-5 h-5 shrink-0"
-                        unoptimized
-                      />
-                      {!collapsed && (
-                        <span className="flex items-center gap-2">
-                          Review
-                          {reviewDueCount > 0 && (
-                            <span className="text-[10px] font-bold font-serif text-white bg-primary/90 px-2.5 py-1 rounded-sm animate-scale-in">{reviewDueCount}</span>
-                          )}
-                        </span>
-                      )}
-                    </div>
-                    {!collapsed && (
-                      reviewExpanded ? <ChevronUp className="w-3.5 h-3.5 font-bold" /> : <ChevronDown className="w-3.5 h-3.5 font-bold" />
-                    )}
-                  </button>
+            <NavSubmenu
+              basePath="/review"
+              iconSrc="/icons/review.svg"
+              label="Review"
+              labelExtra={reviewDueCount > 0 && (
+                <span className="text-[10px] font-bold font-serif text-white bg-primary/90 px-2.5 py-1 rounded-sm animate-scale-in">{reviewDueCount}</span>
+              )}
+              flyoutTitle="Review Menu"
+              items={[
+                { tab: 'forecast', label: 'Forecast & Stats' },
+                { tab: 'browse', label: 'Browse Schedules' },
+                { tab: 'history', label: 'Attempt History' },
+              ]}
+              activeTab={searchParams.get('tab') || 'forecast'}
+              pathname={pathname}
+              collapsed={collapsed}
+              expanded={reviewExpanded}
+              onExpandedChange={(open) => {
+                setReviewExpanded(open);
+                if (open) setAdminExpanded(false);
+              }}
+            />
 
-                  {/* Desktop Expanded sub-menu */}
-                  <div
-                    className={`grid transition-all duration-300 ease-in-out ${reviewExpanded && !collapsed
-                      ? 'grid-rows-[1fr] opacity-100 mt-1'
-                      : 'grid-rows-[0fr] opacity-0 pointer-events-none'
-                      }`}
-                  >
-                    <div className="overflow-hidden pl-4 space-y-0.5 border-l border-border/40 ml-5">
-                      {/* Forecast & Stats */}
-                      <Link
-                        href="/review?tab=forecast"
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'forecast'
-                          ? 'text-primary font-bold font-serif bg-primary/5'
-                          : 'text-muted-foreground font-bold hover:text-foreground font-serif hover:bg-secondary/35'
-                          }`}
-                      >
-                        <span>Forecast & Stats</span>
-                      </Link>
-
-                      {/* Browse Schedules */}
-                      <Link
-                        href="/review?tab=browse"
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'browse'
-                          ? 'text-primary font-bold font-serif bg-primary/5'
-                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
-                          }`}
-                      >
-                        <span>Browse Schedules</span>
-                      </Link>
-
-                      {/* Attempt History */}
-                      <Link
-                        href="/review?tab=history"
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'history'
-                          ? 'text-primary font-bold font-serif bg-primary/5'
-                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
-                          }`}
-                      >
-                        <span>Attempt History</span>
-                      </Link>
-                    </div>
-                  </div>
-
-                  {/* Collapsed flyout popover menu */}
-                  {collapsed && (
-                    <div
-                      className={`absolute left-[54px] top-0 z-50 bg-card border border-border rounded-2xl p-2.5 shadow-xl w-[150px] space-y-0.5 transition-all duration-300 ease-out transform origin-left before:content-[''] before:absolute before:right-full before:top-0 before:bottom-0 before:w-[25px] before:bg-transparent ${reviewExpanded
-                        ? 'translate-x-2 opacity-100 scale-100 pointer-events-auto'
-                        : 'translate-x-0 opacity-0 scale-95 pointer-events-none'
-                        }`}
-                    >
-                      <div className="text-[10px] font-bold font-serif text-primary/80 px-2 pb-1 border-b border-border/40 mb-1">Review Menu</div>
-
-                      {/* Forecast & Stats */}
-                      <Link
-                        href="/review?tab=forecast"
-                        onClick={() => setReviewExpanded(false)}
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'forecast'
-                          ? 'text-primary font-bold font-serif bg-primary/5'
-                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
-                          }`}
-                      >
-                        <span>Forecast &amp; Stats</span>
-                      </Link>
-
-                      {/* Browse Schedules */}
-                      <Link
-                        href="/review?tab=browse"
-                        onClick={() => setReviewExpanded(false)}
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'browse'
-                          ? 'text-primary font-bold font-serif bg-primary/5'
-                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
-                          }`}
-                      >
-                        <span>Browse Schedules</span>
-                      </Link>
-
-                      {/* Attempt History */}
-                      <Link
-                        href="/review?tab=history"
-                        onClick={() => setReviewExpanded(false)}
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/review') && activeReviewTab === 'history'
-                          ? 'text-primary font-bold font-serif bg-primary/5'
-                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
-                          }`}
-                      >
-                        <span>Attempt History</span>
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
-
-            {/* Admin Panel collapsible sub-menu */}
-            {!profileLoading && profile?.role === 'admin' && (() => {
-              const activeTab = searchParams.get('tab') || 'theories';
-              return (
-                <div
-                  className="space-y-0.5 relative"
-                  onMouseEnter={() => collapsed && setAdminExpanded(true)}
-                  onMouseLeave={() => collapsed && setAdminExpanded(false)}
-                >
-                  <button
-                    onClick={() => {
-                      const nextVal = !adminExpanded;
-                      setAdminExpanded(nextVal);
-                      if (nextVal) {
-                        setReviewExpanded(false);
-                      }
-                    }}
-                    className={`flex items-center rounded-xl text-xs font-semibold transition-all duration-150 border cursor-pointer ${collapsed ? 'w-10 h-10 mx-auto justify-center p-0' : 'justify-between w-full px-3 py-2'
-                      } ${pathname.startsWith('/admin') && !adminExpanded
-                        ? 'bg-primary/5 font-serif text-primary border-primary/10'
-                        : 'text-muted-foreground font-serif hover:text-foreground hover:bg-secondary/45 border-transparent'
-                      }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Image
-                        src="/icons/admin.svg"
-                        alt="Admin Icon"
-                        width={30}
-                        height={30}
-                        className="w-5 h-5 shrink-0"
-                        unoptimized
-                      />
-                      {!collapsed && <span>Admin Panel</span>}
-                    </div>
-                    {!collapsed && (
-                      adminExpanded ? <ChevronUp className="w-3.5 h-3.5 font-bold" /> : <ChevronDown className="w-3.5 h-3.5 font-bold" />
-                    )}
-                  </button>
-
-                  {/* Desktop Expanded sub-menu */}
-                  <div
-                    className={`grid transition-all duration-300 ease-in-out ${adminExpanded && !collapsed
-                      ? 'grid-rows-[1fr] opacity-100 mt-1'
-                      : 'grid-rows-[0fr] opacity-0 pointer-events-none'
-                      }`}
-                  >
-                    <div className="overflow-hidden pl-4 space-y-0.5 border-l border-border/40 ml-5">
-                      {/* Manage Theories */}
-                      <Link
-                        href="/admin?tab=theories"
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'theories'
-                          ? 'text-primary font-bold font-serif bg-primary/5'
-                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
-                          }`}
-                      >
-                        <span>Manage Theories</span>
-                      </Link>
-
-                      {/* Manage MCQs */}
-                      <Link
-                        href="/admin?tab=questions"
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'questions'
-                          ? 'text-primary font-bold font-serif bg-primary/5'
-                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
-                          }`}
-                      >
-                        <span>Manage MCQs</span>
-                      </Link>
-
-                      {/* Review Queue */}
-                      <Link
-                        href="/admin?tab=review"
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'review'
-                          ? 'text-primary font-bold font-serif bg-primary/5'
-                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
-                          }`}
-                      >
-                        <div className="flex items-center gap-1.5">
-                          <span>Review Queue</span>
-                          {draftCount > 0 && (
-                            <span className="px-2 py-0.5 rounded-sm text-[9px] font-bold bg-primary/90 text-white">{draftCount}</span>
-                          )}
-                        </div>
-                      </Link>
-
-                      {/* Manage Journeys */}
-                      <Link
-                        href="/admin?tab=journeys"
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'journeys'
-                          ? 'text-primary font-bold font-serif bg-primary/5'
-                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
-                          }`}
-                      >
-                        <span>Manage Journeys</span>
-                      </Link>
-                    </div>
-                  </div>
-
-                  {/* Collapsed flyout popover menu */}
-                  {collapsed && (
-                    <div
-                      className={`absolute left-[54px] top-0 z-50 bg-card border border-border rounded-2xl p-2.5 shadow-xl w-[150px] space-y-0.5 transition-all duration-300 ease-in-out transform origin-left before:content-[''] before:absolute before:right-full before:top-0 before:bottom-0 before:w-[25px] before:bg-transparent ${adminExpanded
-                        ? 'translate-x-2 opacity-100 scale-100 pointer-events-auto'
-                        : 'translate-x-0 opacity-0 scale-95 pointer-events-none'
-                        }`}
-                    >
-                      <div className="text-[10px] font-serif font-bold text-primary/80 px-2 pb-1 border-b border-border/40 mb-1">Admin Menu</div>
-
-                      {/* Manage Theories */}
-                      <Link
-                        href="/admin?tab=theories"
-                        onClick={() => setAdminExpanded(false)}
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'theories'
-                          ? 'text-primary font-bold font-serif bg-primary/5'
-                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
-                          }`}
-                      >
-                        <span>Manage Theories</span>
-                      </Link>
-
-                      {/* Manage MCQs */}
-                      <Link
-                        href="/admin?tab=questions"
-                        onClick={() => setAdminExpanded(false)}
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'questions'
-                          ? 'text-primary font-bold font-serif bg-primary/5'
-                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
-                          }`}
-                      >
-                        <span>Manage MCQs</span>
-                      </Link>
-
-                      {/* Review Queue */}
-                      <Link
-                        href="/admin?tab=review"
-                        onClick={() => setAdminExpanded(false)}
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'review'
-                          ? 'text-primary font-bold font-serif bg-primary/5'
-                          : 'text-muted-foreground font-bold font-serif hover:text-foreground hover:bg-secondary/35'
-                          }`}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <span>Review Queue</span>
-                          {draftCount > 0 && (
-                            <span className="px-1.5 py-0.5 rounded-xs text-[10px] font-bold bg-primary/90 text-white">{draftCount}</span>
-                          )}
-                        </div>
-                      </Link>
-
-                      {/* Manage Journeys */}
-                      <Link
-                        href="/admin?tab=journeys"
-                        onClick={() => setAdminExpanded(false)}
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all ${pathname.startsWith('/admin') && activeTab === 'journeys'
-                          ? 'text-primary font-bold bg-primary/5'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/35'
-                          }`}
-                      >
-                        <span>Manage Journeys</span>
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
+            {!profileLoading && profile?.role === 'admin' && (
+              <NavSubmenu
+                basePath="/admin"
+                iconSrc="/icons/admin.svg"
+                label="Admin Panel"
+                flyoutTitle="Admin Menu"
+                items={[
+                  { tab: 'theories', label: 'Manage Theories' },
+                  { tab: 'questions', label: 'Manage MCQs' },
+                  { tab: 'review', label: 'Review Queue', badge: draftCount },
+                  { tab: 'journeys', label: 'Manage Journeys' },
+                ]}
+                activeTab={searchParams.get('tab') || 'theories'}
+                pathname={pathname}
+                collapsed={collapsed}
+                expanded={adminExpanded}
+                onExpandedChange={(open) => {
+                  setAdminExpanded(open);
+                  if (open) setReviewExpanded(false);
+                }}
+              />
+            )}
           </nav>
 
           {/* Collapsible Recent Attempts List */}
@@ -956,7 +702,6 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
               {/* Header Email */}
               <div className="px-3 py-2 text-[10px] text-muted-foreground truncate border-b border-border/40 pb-2 mb-1.5 font-bold tracking-wider">{userEmail ?? 'Guest Session'}</div>
 
-              {/* Settings */}
               <button
                 onClick={() => {
                   setDropdownOpen(false);
@@ -964,44 +709,10 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
                 }}
                 className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-xl text-left hover:bg-secondary/50 transition-all cursor-pointer group">
                 <div className="flex items-center gap-2.5 font-medium">
-                  <Settings className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                  <span>Settings</span>
+                  <Search className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  <span>Search</span>
                 </div>
-                <span className="text-[9px] text-muted-foreground/60 tracking-wider">⇧⌘,</span>
-              </button>
-
-              {/* Language */}
-              <button
-                className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-xl text-left hover:bg-secondary/50 transition-all cursor-pointer group">
-                <div className="flex items-center gap-2.5 font-medium">
-                  <Globe className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                  <span>Language</span>
-                </div>
-                <ChevronRight className="w-3 h-3 text-muted-foreground/60" />
-              </button>
-              {/* Get Help */}
-              <button
-                className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-xl text-left hover:bg-secondary/50 transition-all cursor-pointer group font-medium">
-                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                <span>Get help</span>
-              </button>
-              <div className="border-t border-border/40 my-1"></div>
-
-              {/* Upgrade Plan */}
-              <button
-                className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-xl text-left hover:bg-secondary/50 transition-all cursor-pointer group font-medium">
-                <ArrowUpCircle className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                <span>Upgrade plan</span>
-              </button>
-
-              {/* Learn more */}
-              <button
-                className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-xl text-left hover:bg-secondary/50 transition-all cursor-pointer group">
-                <div className="flex items-center gap-2.5 font-medium">
-                  <Info className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                  <span>Learn more</span>
-                </div>
-                <ChevronRight className="w-3 h-3 text-muted-foreground/60" />
+                <span className="text-[9px] text-muted-foreground/60 tracking-wider">⌘K</span>
               </button>
               <div className="border-t border-border/40 my-1"></div>
 
