@@ -1,6 +1,6 @@
 #  Foundations
 
-> **An adaptive spaced-repetition learning platform with an AI question-generation pipeline, server-authoritative grading, and Redis-backed cost controls.**
+> **An adaptive spaced-repetition learning platform with document ingestion, an AI question-generation pipeline, server-authoritative grading, and Redis-backed cost controls.**
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.2-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
@@ -15,7 +15,7 @@
 
 **Foundations** is built to bridge learning science with modern AI-driven educational operations. Designed for students, clinicians, and professionals mastering complex theoretical frameworks (such as psychological counselling theories, medical concepts, or certification exams), Foundations flattens the *Ebbinghaus Forgetting Curve* through personalized active recall.
 
-The platform combines a **learner-facing Spaced Repetition Engine (SM-2)** with an **Admin Operations Console** that turns theory text into schema-validated Multiple Choice Questions (MCQs) via an LLM, with a human review queue before anything reaches learners.
+The platform combines a **learner-facing Spaced Repetition Engine (SM-2)** with an **Admin Operations Console** that turns study documents (PDF, DOCX, TXT) or pasted text into schema-validated Multiple Choice Questions (MCQs) via an LLM, with a human review queue before anything reaches learners.
 
 ---
 
@@ -26,7 +26,8 @@ The platform combines a **learner-facing Spaced Repetition Engine (SM-2)** with 
 * **Bloom's Taxonomy Alignment**: Questions target specific cognitive levels (*Remember*, *Understand*, *Apply*, *Analyze*, *Evaluate*).
 * **Daily Spaced Review Decks**: Automated review queues prioritize overdue items chronologically without penalizing learners who miss a day.
 
-### 2. AI Question Generation Pipeline
+### 2. Document Ingestion & AI Question Generation
+* **Client-Side Document Parsing**: Upload **PDF**, **DOCX** or **TXT** files and the text is extracted in the browser. `pdf.js` and `mammoth.js` are lazy-loaded from a CDN only when needed, so they add nothing to the main bundle and no file ever touches the server.
 * **Schema-Validated LLM Output**: Every generated question is validated with [Zod](https://zod.dev/) (exactly 4 distinct options, valid answer index, difficulty 1–3, Bloom level). Malformed questions are dropped individually instead of failing the batch.
 * **Hallucination Check**: Each question cites a `source_excerpt`; the server verifies it actually appears in the theory text and flags unverified ones for reviewers.
 * **Admin Review & Moderation Queue**: AI-generated questions enter a `draft` status for inline editing and approval before learners ever see them.
@@ -51,6 +52,7 @@ The platform combines a **learner-facing Spaced Repetition Engine (SM-2)** with 
 | **Database & Auth** | [Supabase PostgreSQL](https://supabase.com/), Row Level Security (RLS), PL/pgSQL RPCs, JWT Authentication |
 | **Caching & Rate Limiting** | [Upstash Redis](https://upstash.com/) (`@upstash/ratelimit` sliding window, `SET NX EX` locks) |
 | **AI** | OpenRouter / OpenAI-compatible chat completions, [Zod](https://zod.dev/) output validation |
+| **Document Parsing** | Client-side `pdf.js` (PDF) and `mammoth.js` (DOCX), lazy-loaded from CDN; native File API (TXT) |
 | **Testing & CI** | [Vitest](https://vitest.dev/), [PGlite](https://pglite.dev/) (in-process Postgres for RLS/RPC tests), GitHub Actions |
 | **Icons & Audio** | [Lucide React](https://lucide.dev/), Web Audio API (interactive sound feedback) |
 
